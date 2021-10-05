@@ -101,10 +101,9 @@ class OBDConnection:
             wx.PostEvent(self._notify_window, DebugEvent([2, "Connection attempt:" + str(counter)]))
             #print (FAST)
             self.connection = obd.OBD(portstr=portnum,baudrate=baud,fast=FAST, timeout=truncate(float(SERTIMEOUT),1))
+            #print (self.connection.port_name())
             if self.connection.status() == "Car Connected":
-                r = self.connection.query(obd.commands.ELM_VERSION)
-                ELMver = str(r.value)
-                wx.PostEvent(self._notify_window, DebugEvent([2, "Connected to: ", ELMver]))
+                wx.PostEvent(self._notify_window, DebugEvent([2, "Connected to: "+ str(self.connection.port_name())]))
                 break
             else:
                 self.connection.close()
@@ -180,7 +179,9 @@ class OBDConnection:
 
         r = self.connection.query(obd.commands.GET_DTC)
         print(r.value)
-        if len(r.value) > 0:
+        if r.value == None:
+            DTCCODES = ()
+        elif len(r.value) > 0:
             if r.value[0] == 'P0000':
                 DTCCODES = ()
         else:
@@ -188,7 +189,10 @@ class OBDConnection:
         r = self.connection.query(obd.commands.FREEZE_DTC)
         #FREEZE_CODES = r.value
         print(r.value)
-        if len(r.value) > 0:
+        if r.value == None:
+            FREEZE_CODES = ()
+        elif len(r.value) == 2:
+            #print (len(r.value))
             if r.value[0] == 'P0000':
                 FREEZE_CODES = ()
         else:

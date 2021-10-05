@@ -27,10 +27,12 @@ import multiprocessing
 from multiprocessing import Queue, Process
 # import wxversion
 # wxversion.select("2.6")
-#import matplotlib
-#import matplotlib.pyplot as plt
 
+#import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 #from matplotlib import style
+
 import traceback
 import wx
 import pdb
@@ -75,6 +77,9 @@ ID_HELP_ORDER = 510
 EVT_RESULT_ID = 1000
 EVT_MAF_ID = 1005
 EVT_TPS_ID = 1006
+EVT_TPS_GRAPH_ID = 1007
+
+qtg = Queue()
 
 TESTS = ["MISFIRE_MONITORING",
     "FUEL_SYSTEM_MONITORING",
@@ -115,6 +120,15 @@ class TPSEvent(wx.PyEvent):
         wx.PyEvent.__init__(self)
         self.SetEventType(EVT_TPS_ID)
         self.data = data
+
+class TPSGraphEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_TPS_GRAPH_ID)
+        #self.data = data
 
 class MAFEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
@@ -242,11 +256,13 @@ class MyApp(wx.App):
             #    return None
 
             wx.PostEvent(self._notify_window, StatusEvent([0, 1, "Car connected!"]))
+
+            r = self.connection.connection.query(obd.commands.ELM_VERSION)
+            self.ELMver = str(r.value)
             self.protocol = self.connection.connection.protocol_name()
-            wx.PostEvent(self._notify_window, StatusEvent([2, 1, str(self.connection.ELMver)]))
+            wx.PostEvent(self._notify_window, StatusEvent([2, 1, str(self.ELMver)]))
             wx.PostEvent(self._notify_window, StatusEvent([1, 1, str(self.protocol)]))
             wx.PostEvent(self._notify_window, StatusEvent([3, 1, str(self.connection.connection.port_name())]))
-            
             prevstate = -1
             curstate = -1
             #print(self.connection.connection.supported_commands)
@@ -295,8 +311,10 @@ class MyApp(wx.App):
                 prevstate = curstate
                 curstate = self._nb.GetSelection()  # picking the tab in the GUI
                 if curstate == 0:  # show status tab
+                    #first_time_tps = True
                     pass
                 elif curstate == 1:  # show tests tab
+                    #first_time_tps = True
                     r = self.connection.connection.query(obd.commands[1][1])
                     #counter = 0
                     #for val in dir(r.value):
@@ -379,6 +397,7 @@ class MyApp(wx.App):
                     #    app.PostEvent(self._notify_window, TestEvent([i, 1, res[i]]))
                     pass
                 elif curstate == 2:  # show sensor tab
+                    #first_time_tps = True
                     #print ("showing sensor tab")
                     """
                     def build_sensor_page():
@@ -396,7 +415,7 @@ class MyApp(wx.App):
                         first_time_sensors = False
                         for command in obd.commands[1]:
                             if command:
-                                if command.command[:2] == b"01" and command.command != b"0100" and command.command != b"0101" and command.command != b"0102" and command.command != b"0113" and command.command != b"0120" and command.command != b"0121":
+                                if command.command not in (b"0100" , b"0101" , b"0102" , b"0113" , b"0120" , b"0121"):
                                     s = self.connection.connection.query(command)
                                     if s.value == None:
                                         continue
@@ -427,6 +446,7 @@ class MyApp(wx.App):
                     if self._notify_window.ThreadControl == 666:
                         break
                 elif curstate == 3:  # show DTC tab
+                    #first_time_tps = True
                     if self._notify_window.ThreadControl == 1:  # clear DTC
                         self.connection.clear_dtc()
 
@@ -463,8 +483,18 @@ class MyApp(wx.App):
                     wx.PostEvent(self._notify_window, TPSEvent([0, 0, obd.commands[1][17].command]))
                     wx.PostEvent(self._notify_window, TPSEvent([0, 1, obd.commands[1][17].desc]))
                     wx.PostEvent(self._notify_window, TPSEvent([0, 2, str(s.value)]))
+                    qtg.put(s.value.magnitude)
+                    if first_time_tps:
+                        first_time_tps = False
+                        #print(first_time_tps)
+                        #wx.PostEvent(self._notify_window, TPSGraphEvent())
+                    #print(first_time_tps)
+
+
+
 
                 if curstate == 5:  # show MAF tab
+                    #first_time_tps = True
                     """
                     try:
                         q
@@ -512,8 +542,10 @@ class MyApp(wx.App):
                     #q.put(s.value.magnitude)
 
                 else:
+                    #first_time_tps = True
                     pass
             self.stop()
+            self.process_active = False
 
         """
         def off(self, id):
@@ -548,13 +580,32 @@ class MyApp(wx.App):
             wx.PostEvent(self._notify_window, StatusEvent([2, 1, "----"]))
             wx.PostEvent(self._notify_window, StatusEvent([3, 1, "----"]))
 
+            app.sensors.DeleteAllItems()
+            time.sleep(0.1)
+            app.OBDTests.DeleteAllItems()
+            time.sleep(0.1)
+            app.dtc.DeleteAllItems()
+            time.sleep(0.1)
+            app.tps.DeleteAllItems()
+            time.sleep(0.1)
+            app.maf.DeleteAllItems()
+            time.sleep(0.1)
+            """
             for i in range(0, app.sensors.GetItemCount()):
                 app.sensors.DeleteItem(0)
+            time.sleep(1)
             for i in range(0, app.OBDTests.GetItemCount()):
                 app.OBDTests.DeleteItem(0)
+            time.sleep(1)
             for i in range(0, app.sensors.GetItemCount()):
                 app.dtc.DeleteItem(0)
-
+            time.sleep(1)
+            for i in range(0, app.tps.GetItemCount()):
+                app.tps.DeleteItem(0)
+            time.sleep(1)
+            for i in range(0, app.maf.GetItemCount()):
+                app.maf.DeleteItem(0)
+            """
     # class producer end
 
     def sensor_control_on(self):  # after connection enable few buttons
@@ -721,6 +772,7 @@ class MyApp(wx.App):
         EVT_RESULT(self, self.OnStatus, EVT_STATUS_ID)
         EVT_RESULT(self, self.OnTests, EVT_TESTS_ID)
         EVT_RESULT(self, self.OnTPS, EVT_TPS_ID)
+        EVT_RESULT(self, self.OnTPSGraph, EVT_TPS_GRAPH_ID)
         EVT_RESULT(self, self.OnMAF, EVT_MAF_ID)
 
         # Main notebook frames
@@ -875,6 +927,36 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         self.maf.SetItem(event.data[0], event.data[1], event.data[2])
     def OnTPS(self, event):
         self.tps.SetItem(event.data[0], event.data[1], event.data[2])
+    def OnTPSGraph(self, event):
+        plt.style.use('fivethirtyeight')
+        fig = plt.figure()
+        x_axis_start = 0
+        x_axis_end = 100
+        ax = plt.axes(xlim=(x_axis_start, x_axis_end), ylim=(0, 100))
+
+        x_vals = []
+        y_vals = []
+        line, = ax.plot(0, 0)
+
+        def animate(i, x_axis_start, x_axis_end):
+            if self.senprod._nb.GetSelection() != 4:
+                plt.close()
+            x_vals.append(i)
+            y_vals.append(qtg.get())
+            line.set_linewidth(1)
+            line.set_xdata(x_vals)
+            line.set_ydata(y_vals)
+            ax.set_xlim(i - 290, i + 10)
+            ax.set_title('TPS position %', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+
+            return line,
+
+        ani = FuncAnimation(fig, animate, frames=None, interval=0, fargs=(x_axis_start, x_axis_end), blit=False)
+        ax.axhline(linewidth=1, color="b")
+        plt.tight_layout()
+        plt.show()
+
+
 
     def OnDebug(self, event):
         self.TraceDebug(event.data[0], event.data[1])
@@ -895,6 +977,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             self.senprod.stop()
         self.ThreadControl = 0
         self.senprod = self.sensorProducer(self, self.COMPORT, self.SERTIMEOUT, self.RECONNATTEMPTS, self.BAUDRATE, self.FAST, self.nb)
+        self.senprod.process_active = True
         self.senprod.start()
 
         self.sensor_control_on()
@@ -1073,6 +1156,13 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
     def OnExit(self, e=None):
         import sys
+        try:
+            self.senprod._notify_window.ThreadControl = 666
+            while self.senprod.process_active !=  False:
+                time.sleep(0.1)
+            #time.sleep(3)
+        except:
+            pass
         sys.exit(0)
 
 

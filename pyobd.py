@@ -565,8 +565,8 @@ class MyApp(wx.App):
         self.settingmenu.Enable(ID_DISCONNECT, True)
         self.dtcmenu.Enable(ID_GETC, True)
         self.dtcmenu.Enable(ID_CLEAR, True)
-        #self.GetDTCButton.Enable(True)
-        #self.ClearDTCButton.Enable(True)
+        self.GetDTCButton.Enable(True)
+        self.ClearDTCButton.Enable(True)
 
         def sensor_toggle(e):
             sel = e.m_itemIndex

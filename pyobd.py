@@ -243,7 +243,7 @@ class MyApp(wx.App):
 
             wx.PostEvent(self._notify_window, StatusEvent([0, 1, "Car connected!"]))
             self.protocol = self.connection.connection.protocol_name()
-            wx.PostEvent(self._notify_window, StatusEvent([2, 1, str(self.connection.connection.ELMver)]))
+            wx.PostEvent(self._notify_window, StatusEvent([2, 1, str(self.connection.ELMver)]))
             wx.PostEvent(self._notify_window, StatusEvent([1, 1, str(self.protocol)]))
             wx.PostEvent(self._notify_window, StatusEvent([3, 1, str(self.connection.connection.port_name())]))
             

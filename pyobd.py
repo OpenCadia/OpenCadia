@@ -242,13 +242,11 @@ class MyApp(wx.App):
             #    return None
 
             wx.PostEvent(self._notify_window, StatusEvent([0, 1, "Car connected!"]))
-
-            r = self.connection.connection.query(obd.commands.ELM_VERSION)
-            self.ELMver = str(r.value)
             self.protocol = self.connection.connection.protocol_name()
-            wx.PostEvent(self._notify_window, StatusEvent([2, 1, str(self.ELMver)]))
+            wx.PostEvent(self._notify_window, StatusEvent([2, 1, str(self.connection.connection.ELMver)]))
             wx.PostEvent(self._notify_window, StatusEvent([1, 1, str(self.protocol)]))
             wx.PostEvent(self._notify_window, StatusEvent([3, 1, str(self.connection.connection.port_name())]))
+            
             prevstate = -1
             curstate = -1
             #print(self.connection.connection.supported_commands)

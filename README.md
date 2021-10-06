@@ -29,6 +29,10 @@ TO DO LIST:
 -check if there are any bugs when displaying DTC error codes
 -add monitor mode
 -add terminal
--add custom commands.
+-add custom commands
+-display freeze frame data
+-add sensor data exporting
+-add car data like VIN, model, etc.
+-...
 
 ![ELM327](/elm327.jpg)

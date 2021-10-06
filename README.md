@@ -24,4 +24,11 @@ The ignition must be on, to connect to the car and display data(key turned one l
 
 The program works nice and I will also add new functionalities to it. I am working on adding graphs and data export/saving(and bugfixes ofcourse).
 
+TO DO LIST:
+-add graphs
+-check if there are any bugs when displaying DTC error codes
+-add monitor mode
+-add terminal
+-add custom commands.
+
 ![ELM327](/elm327.jpg)

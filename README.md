@@ -13,9 +13,9 @@ On Debian 10 type these commands to install the requirements:
 
 > sudo apt-get install dpkg-dev build-essential libjpeg-dev libtiff-dev libsdl1.2-dev libgstreamer-plugins-base1.0 libnotify-dev freeglut3 freeglut3-dev libsm-dev libgtk-3-dev libwebkit2gtk-4.0-dev libxtst-dev
 
-> pip3 install wxpython==4.1.1
+> pip3 install wxpython
 
-> pip3 install pyserial==3.5
+> pip3 install pyserial
 
 > pip3 install matplotlib
 

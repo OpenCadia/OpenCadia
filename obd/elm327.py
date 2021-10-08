@@ -210,9 +210,7 @@ class ELM327:
         if protocol_ is not None:
             # an explicit protocol was specified
             if protocol_ not in self._SUPPORTED_PROTOCOLS:
-                logger.error(
-                    "{:} is not a valid protocol. ".format(protocol_) +
-                    "Please use \"1\" through \"A\"")
+                logger.error("%s is not a valid protocol. Please use \"1\" through \"A\"")
                 return False
             return self.manual_protocol(protocol_)
         else:
@@ -221,7 +219,7 @@ class ELM327:
 
     def manual_protocol(self, protocol_):
         r = self.__send(b"ATTP" + protocol_.encode())
-        r0100 = self.__send(b"0100", delay=1)
+        r0100 = self.__send(b"0100")
 
         if not self.__has_message(r0100, "UNABLE TO CONNECT"):
             # success, found the protocol
@@ -241,10 +239,10 @@ class ELM327:
         """
 
         # -------------- try the ELM's auto protocol mode --------------
-        r = self.__send(b"ATSP0")
+        r = self.__send(b"ATSP0", delay=1)
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
-        r0100 = self.__send(b"0100", delay=1)
+        r0100 = self.__send(b"0100")#, delay=0.1)
         if self.__has_message(r0100, "UNABLE TO CONNECT"):
             logger.error("Failed to query protocol 0100: unable to connect")
             return False
@@ -474,22 +472,14 @@ class ELM327:
             returns result of __read() (a list of line strings)
             after an optional delay.
         """
+
         self.__write(cmd)
 
-        delayed = 0.0
         if delay is not None:
             logger.debug("wait: %d seconds" % delay)
             time.sleep(delay)
-            delayed += delay
 
-        r = self.__read()
-        while delayed < 1.0 and len(r) <= 0:
-            d = 0.1
-            logger.debug("no response; wait: %f seconds" % d)
-            time.sleep(d)
-            delayed += d
-            r = self.__read()
-        return r
+        return self.__read()
 
     def __write(self, cmd):
         """

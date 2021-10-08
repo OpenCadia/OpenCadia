@@ -28,7 +28,8 @@ from multiprocessing import Queue, Process
 # import wxversion
 # wxversion.select("2.6")
 
-#import matplotlib
+import matplotlib
+#matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 #from matplotlib import style
@@ -79,7 +80,6 @@ EVT_MAF_ID = 1005
 EVT_TPS_ID = 1006
 EVT_TPS_GRAPH_ID = 1007
 
-qtg = Queue()
 
 TESTS = ["MISFIRE_MONITORING",
     "FUEL_SYSTEM_MONITORING",
@@ -307,10 +307,19 @@ class MyApp(wx.App):
             first_time_sensors = True
             first_time_maf = True
             first_time_tps = True
+            self.tps_counter = 0
+            self.tps_dirty = False
             while self._notify_window.ThreadControl != 666:
+                if self._nb.GetSelection() != 4:
+                    try:
+                        plt.close(app.fig)
+                    except:
+                        pass
+                    first_time_tps = True
                 prevstate = curstate
                 curstate = self._nb.GetSelection()  # picking the tab in the GUI
                 if curstate == 0:  # show status tab
+
                     #first_time_tps = True
                     pass
                 elif curstate == 1:  # show tests tab
@@ -478,20 +487,21 @@ class MyApp(wx.App):
 
                         pass
                 if curstate == 4:  # show TPS tab
-
                     s = self.connection.connection.query(obd.commands[1][17])
                     wx.PostEvent(self._notify_window, TPSEvent([0, 0, obd.commands[1][17].command]))
                     wx.PostEvent(self._notify_window, TPSEvent([0, 1, obd.commands[1][17].desc]))
                     wx.PostEvent(self._notify_window, TPSEvent([0, 2, str(s.value)]))
-                    qtg.put(s.value.magnitude)
+
                     if first_time_tps:
                         first_time_tps = False
-                        #print(first_time_tps)
-                        #wx.PostEvent(self._notify_window, TPSGraphEvent())
-                    #print(first_time_tps)
+                        self.x_vals = []
+                        self.y_vals = []
+                        wx.PostEvent(self._notify_window, TPSGraphEvent())
 
-
-
+                    self.x_vals.append(self.tps_counter)
+                    self.y_vals.append(float(s.value.magnitude))
+                    self.tps_dirty = True
+                    self.tps_counter = self.tps_counter + 1
 
                 if curstate == 5:  # show MAF tab
                     #first_time_tps = True
@@ -579,7 +589,11 @@ class MyApp(wx.App):
             wx.PostEvent(self._notify_window, StatusEvent([1, 1, "----"]))
             wx.PostEvent(self._notify_window, StatusEvent([2, 1, "----"]))
             wx.PostEvent(self._notify_window, StatusEvent([3, 1, "----"]))
-
+            try:
+                plt.close(app.fig)
+            except:
+                pass
+            time.sleep(0.1)
             app.sensors.DeleteAllItems()
             time.sleep(0.1)
             app.OBDTests.DeleteAllItems()
@@ -929,29 +943,26 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         self.tps.SetItem(event.data[0], event.data[1], event.data[2])
     def OnTPSGraph(self, event):
         plt.style.use('fivethirtyeight')
-        fig = plt.figure()
+        self.fig = plt.figure()
         x_axis_start = 0
         x_axis_end = 100
-        ax = plt.axes(xlim=(x_axis_start, x_axis_end), ylim=(0, 100))
+        ax = plt.axes(xlim=(x_axis_start, x_axis_end), ylim=(0, 110))
 
-        x_vals = []
-        y_vals = []
         line, = ax.plot(0, 0)
 
-        def animate(i, x_axis_start, x_axis_end):
-            if self.senprod._nb.GetSelection() != 4:
-                plt.close()
-            x_vals.append(i)
-            y_vals.append(qtg.get())
-            line.set_linewidth(1)
-            line.set_xdata(x_vals)
-            line.set_ydata(y_vals)
-            ax.set_xlim(i - 290, i + 10)
-            ax.set_title('TPS position %', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+        def animate(i):
+            if self.senprod.tps_dirty:
+                line.set_linewidth(1)
+                line.set_xdata(self.senprod.x_vals)
+                line.set_ydata(self.senprod.y_vals)
+                ax.set_xlim(self.senprod.tps_counter - 290, self.senprod.tps_counter + 10)
+                ax.set_title('TPS position %', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                self.senprod.tps_dirty = False
+            #plt.pause(0.05)
 
             return line,
 
-        ani = FuncAnimation(fig, animate, frames=None, interval=0, fargs=(x_axis_start, x_axis_end), blit=False)
+        ani = FuncAnimation(self.fig, animate, frames=None, interval=1, blit=True)
         ax.axhline(linewidth=1, color="b")
         plt.tight_layout()
         plt.show()

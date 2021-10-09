@@ -219,7 +219,7 @@ class ELM327:
 
     def manual_protocol(self, protocol_):
         r = self.__send(b"ATTP" + protocol_.encode())
-        r0100 = self.__send(b"0100")
+        r0100 = self.__send(b"0100", delay=1)
 
         if not self.__has_message(r0100, "UNABLE TO CONNECT"):
             # success, found the protocol
@@ -242,7 +242,7 @@ class ELM327:
         r = self.__send(b"ATSP0", delay=1)
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
-        r0100 = self.__send(b"0100")#, delay=0.1)
+        r0100 = self.__send(b"0100", delay=1)
         if self.__has_message(r0100, "UNABLE TO CONNECT"):
             logger.error("Failed to query protocol 0100: unable to connect")
             return False
@@ -269,8 +269,8 @@ class ELM327:
             logger.debug("ELM responded with unknown protocol. Trying them one-by-one")
 
             for p in self._TRY_PROTOCOL_ORDER:
-                r = self.__send(b"ATTP" + p.encode())
-                r0100 = self.__send(b"0100")
+                r = self.__send(b"ATTP" + p.encode(), delay=1)
+                r0100 = self.__send(b"0100", delay=1)
                 if not self.__has_message(r0100, "UNABLE TO CONNECT"):
                     # success, found the protocol
                     self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)

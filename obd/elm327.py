@@ -210,7 +210,9 @@ class ELM327:
         if protocol_ is not None:
             # an explicit protocol was specified
             if protocol_ not in self._SUPPORTED_PROTOCOLS:
-                logger.error("%s is not a valid protocol. Please use \"1\" through \"A\"")
+                logger.error(
+                    "{:} is not a valid protocol. ".format(protocol_) +
+                    "Please use \"1\" through \"A\"")
                 return False
             return self.manual_protocol(protocol_)
         else:
@@ -472,14 +474,22 @@ class ELM327:
             returns result of __read() (a list of line strings)
             after an optional delay.
         """
-
         self.__write(cmd)
 
+        delayed = 0.0
         if delay is not None:
             logger.debug("wait: %d seconds" % delay)
             time.sleep(delay)
+            delayed += delay
 
-        return self.__read()
+        r = self.__read()
+        while delayed < 1.0 and len(r) <= 0:
+            d = 0.1
+            logger.debug("no response; wait: %f seconds" % d)
+            time.sleep(d)
+            delayed += d
+            r = self.__read()
+        return r
 
     def __write(self, cmd):
         """

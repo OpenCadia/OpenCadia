@@ -154,19 +154,19 @@ class ELM327:
             return
 
         # -------------------------- ATE0 (echo OFF) --------------------------
-        r = self.__send(b"ATE0")
+        r = self.__send(b"ATE0", delay=1)
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return
 
         # ------------------------- ATH1 (headers ON) -------------------------
-        r = self.__send(b"ATH1")
+        r = self.__send(b"ATH1", delay=1)
         if not self.__isok(r):
             self.__error("ATH1 did not return 'OK', or echoing is still ON")
             return
 
         # ------------------------ ATL0 (linefeeds OFF) -----------------------
-        r = self.__send(b"ATL0")
+        r = self.__send(b"ATL0", delay=1)
         if not self.__isok(r):
             self.__error("ATL0 did not return 'OK'")
             return
@@ -176,7 +176,7 @@ class ELM327:
 
         # -------------------------- AT RV (read volt) ------------------------
         if check_voltage:
-            r = self.__send(b"AT RV")
+            r = self.__send(b"AT RV", delay=1)
             if not r or len(r) != 1 or r[0] == '':
                 self.__error("No answer from 'AT RV'")
                 return
@@ -248,7 +248,7 @@ class ELM327:
             return False
 
         # ------------------- ATDPN (list protocol number) -------------------
-        r = self.__send(b"ATDPN")
+        r = self.__send(b"ATDPN", delay=1)
         if len(r) != 1:
             logger.error("Failed to retrieve current protocol")
             return False
@@ -417,7 +417,7 @@ class ELM327:
             logger.info("cannot exit low power when unconnected")
             return None
 
-        lines = self.__send(b" ")
+        lines = self.__send(b" ", delay=1)
 
         # Assume we woke up
         logger.debug("Successfully exited low power mode")

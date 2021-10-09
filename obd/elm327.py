@@ -218,7 +218,7 @@ class ELM327:
             return self.auto_protocol()
 
     def manual_protocol(self, protocol_):
-        r = self.__send(b"ATTP" + protocol_.encode())
+        r = self.__send(b"ATTP" + protocol_.encode(), delay=1)
         r0100 = self.__send(b"0100", delay=1)
 
         if not self.__has_message(r0100, "UNABLE TO CONNECT"):

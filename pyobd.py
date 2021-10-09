@@ -1090,7 +1090,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                          majorDimension=2)
 
         sizer.Add(rb, 0)
-        baudrates = ['AUTO', "9600", "38400", "19200", "57600", "115200"]
+        baudrates = ['AUTO', '38400', '9600', '230400', '115200', '57600', '19200']
         brb = wx.RadioBox(diag, id, "Choose Baud Rate",
                          choices=baudrates, style=wx.RA_SPECIFY_COLS,
                          majorDimension=2)
@@ -1118,7 +1118,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         # set actual serial port choice
         if (self.COMPORT != 0) and (self.COMPORT in ports):
             rb.SetSelection(ports.index(self.COMPORT))
-        baudrates = ['AUTO', "9600", "38400", "19200", "57600", "115200"]
+        baudrates = ['AUTO', '38400', '9600', '230400', '115200', '57600', '19200']
         if (self.BAUDRATE != 0) and (self.BAUDRATE in baudrates):
             brb.SetSelection(baudrates.index(self.BAUDRATE))
         if (self.FAST == "FAST") or (self.FAST == "NORMAL"):

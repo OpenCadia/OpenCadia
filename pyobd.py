@@ -79,7 +79,17 @@ EVT_RESULT_ID = 1000
 EVT_MAF_ID = 1005
 EVT_TPS_ID = 1006
 EVT_TPS_GRAPH_ID = 1007
+EVT_MAF_GRAPH_ID = 1008
+EVT_GRAPH_VALUE_ID = 1036
+EVT_GRAPH_ID = 1035
+EVT_COMBOBOX = 1036
+EVT_CLOSE_ID = 1037
+EVT_BUILD_COMBOBOX_ID = 1038
+EVT_DESTROY_COMBOBOX_ID = 1039
+EVT_COMBOBOX_GETSELECTION_ID = 1040
+EVT_INSERT_SENSOR_ROW_ID = 1041
 
+lock = threading.Lock()
 
 TESTS = ["MISFIRE_MONITORING",
     "FUEL_SYSTEM_MONITORING",
@@ -101,7 +111,23 @@ def EVT_RESULT(win, func, id):
     """Define Result Event."""
     win.Connect(-1, -1, id, func)
 
+"""
+class MyPanel(wx.Panel):
+    def __init__(self, parent):
+        super(MyPanel, self).__init__(parent)
 
+        self.label = wx.StaticText(self, label="What Programming Language You Like?", pos=(50, 30))
+
+        languages = ['Java', 'C++', 'C#', 'Python', 'Erlang', 'PHP', 'Ruby']
+        self.combobox = wx.ComboBox(self, choices=languages, pos=(50, 50))
+
+        self.label2 = wx.StaticText(self, label="", pos=(50, 80))
+
+        self.Bind(wx.EVT_COMBOBOX, self.OnCombo)
+
+    def OnCombo(self, event):
+        self.label2.SetLabel("You Like " + self.combobox.GetValue())
+"""
 # event pro akutalizaci Trace tabu
 class ResultEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
@@ -112,6 +138,15 @@ class ResultEvent(wx.PyEvent):
         self.SetEventType(EVT_RESULT_ID)
         self.data = data
 
+class InsertSensorRowEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_INSERT_SENSOR_ROW_ID)
+        self.data = data
+
 class TPSEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
 
@@ -120,6 +155,35 @@ class TPSEvent(wx.PyEvent):
         wx.PyEvent.__init__(self)
         self.SetEventType(EVT_TPS_ID)
         self.data = data
+
+class BuildComboBoxEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_BUILD_COMBOBOX_ID)
+        self.data = data
+
+class DestroyComboBoxEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_DESTROY_COMBOBOX_ID)
+        self.data = data
+
+class GetSelectionComboBoxEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_COMBOBOX_GETSELECTION_ID)
+        self.data = data
+
+
 
 class TPSGraphEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
@@ -137,6 +201,33 @@ class MAFEvent(wx.PyEvent):
         """Init Result Event."""
         wx.PyEvent.__init__(self)
         self.SetEventType(EVT_MAF_ID)
+        self.data = data
+
+class GraphValueEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_GRAPH_VALUE_ID)
+        self.data = data
+
+class MAFGraphEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_MAF_GRAPH_ID)
+        #self.data = data
+
+class GraphEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_GRAPH_ID)
         self.data = data
 
 # event pro aktualizaci DTC tabu
@@ -164,6 +255,15 @@ class StatusEvent(wx.PyEvent):
         """Init Result Event."""
         wx.PyEvent.__init__(self)
         self.SetEventType(EVT_STATUS_ID)
+        self.data = data
+
+class CloseEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_CLOSE_ID)
         self.data = data
 
 
@@ -220,25 +320,6 @@ class MyApp(wx.App):
             # if self.port.State==0: #Cant open serial port
             #    return None
 
-            # JURE POLJSAK this is where I left off
-            """
-            self.active = []
-            self.supp = self.port.sensor(0)[1]  # read supported PIDS
-            self.active.append(1); #PID 0 is always supported
-            
-            wx.PostEvent(self._notify_window, ResultEvent([0,0,"X"]))
-            
-            
-            for i in range(1, len(self.supp)):
-                if self.supp[i-1] == "1": #put X in coloum if PID is supported
-                    self.active.append(1)
-                    wx.PostEvent(self._notify_window, ResultEvent([i,0,"X"]))
-                else:
-                    self.active.append(0)
-                    wx.PostEvent(self._notify_window, ResultEvent([i,0,""]))
-            return "OK"
-            """
-
         def run(self):
             wx.PostEvent(self._notify_window, StatusEvent([0, 1, "Connecting...."]))
             self.initCommunication()
@@ -268,56 +349,48 @@ class MyApp(wx.App):
             #print(self.connection.connection.supported_commands)
 
 
-            def build_tests_page():
-                app.OBDTests.Append(["MISFIRE_MONITORING", "---", "---"])
-                app.OBDTests.Append(["FUEL_SYSTEM_MONITORING", "---", "---"])
-                app.OBDTests.Append(["COMPONENT_MONITORING", "---", "---"])
-                app.OBDTests.Append(["CATALYST_MONITORING", "---", "---"])
-                app.OBDTests.Append(["HEATED_CATALYST_MONITORING", "---", "---"])
-                app.OBDTests.Append(["EVAPORATIVE_SYSTEM_MONITORING", "---", "---"])
-                app.OBDTests.Append(["SECONDARY_AIR_SYSTEM_MONITORING", "---", "---"])
-                app.OBDTests.Append(["OXYGEN_SENSOR_MONITORING", "---", "---"])
-                app.OBDTests.Append(["OXYGEN_SENSOR_HEATER_MONITORING", "---", "---"])
-                app.OBDTests.Append(["EGR_VVT_SYSTEM_MONITORING", "---", "---"])
-                app.OBDTests.Append(["NMHC_CATALYST_MONITORING", "---", "---"])
-                app.OBDTests.Append(["NOX_SCR_AFTERTREATMENT_MONITORING", "---", "---"])
-                app.OBDTests.Append(["BOOST_PRESSURE_MONITORING", "---", "---"])
-                app.OBDTests.Append(["EXHAUST_GAS_SENSOR_MONITORING", "---", "---"])
-                app.OBDTests.Append(["PM_FILTER_MONITORING", "---", "---"])
 
-
-            #app.build_DTC_page()
-
-            build_tests_page()
-
-            #build_sensor_page()
-
-            #pdb.set_trace()
-
-            app.tps.InsertColumn(0, "Command", width=40)
-            app.tps.InsertColumn(1, "Description", width=200)
-            app.tps.InsertColumn(2, "Value")
-            app.tps.InsertItem(0, "")
-
-            app.maf.InsertColumn(0, "Command", width=40)
-            app.maf.InsertColumn(1, "Description", width=200)
-            app.maf.InsertColumn(2, "Value")
-            app.maf.InsertItem(0, "")
 
             first_time_sensors = True
             first_time_maf = True
             first_time_tps = True
+            first_time_graph = True
             self.tps_counter = 0
             self.tps_dirty = False
+            self.maf_counter = 0
+            self.maf_dirty = False
+            self.graph_counter = 0
+            self.graph_dirty = False
             while self._notify_window.ThreadControl != 666:
-                if self._nb.GetSelection() != 4:
-                    try:
-                        plt.close(app.fig)
-                    except:
-                        pass
-                    first_time_tps = True
                 prevstate = curstate
                 curstate = self._nb.GetSelection()  # picking the tab in the GUI
+                if curstate != 4:
+                    first_time_tps = True
+
+                if curstate != 5:
+                    first_time_maf = True
+
+                if curstate != 6:
+                    first_time_graph = True
+
+                if prevstate == 4 and curstate != 4:
+                    try:
+                        plt.close(app.fig_tps)
+                    except:
+                        pass
+                if prevstate == 5 and curstate != 5:
+                    try:
+                        plt.close(app.fig_maf)
+                    except:
+                        pass
+                if prevstate == 6 and curstate != 6:
+                    try:
+                        plt.close(app.fig_graph)
+                    except:
+                        pass
+                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 0, ""]))
+                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, ""]))
+                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, ""]))
                 if curstate == 0:  # show status tab
 
                     #first_time_tps = True
@@ -406,17 +479,6 @@ class MyApp(wx.App):
                     #    app.PostEvent(self._notify_window, TestEvent([i, 1, res[i]]))
                     pass
                 elif curstate == 2:  # show sensor tab
-                    #first_time_tps = True
-                    #print ("showing sensor tab")
-                    """
-                    def build_sensor_page():
-                        counter = 0
-                        for command in obd.commands[1]:
-                            if command.command[
-                               :2] == b"01" and command.command != b"0100" and command.command != b"0101":
-                                print(command)
-                                
-                    """
 
                     if first_time_sensors:
                         sensor_list = []
@@ -424,14 +486,15 @@ class MyApp(wx.App):
                         first_time_sensors = False
                         for command in obd.commands[1]:
                             if command:
-                                if command.command not in (b"0100" , b"0101" , b"0102" , b"0113" , b"0120" , b"0121", b"0140", b"0141"):
+                                if command.command not in (b"0100" , b"0101" , b"0102" , b"0103", b"011C",b"0113" , b"0120" , b"0121", b"0140", b"0141"):
                                     s = self.connection.connection.query(command)
                                     if s.value == None:
                                         continue
                                     else:
                                         sensor_list.append([command.command, command.desc, str(s.value)])
 
-                                        app.sensors.InsertItem(counter, "")
+                                        #app.sensors.InsertItem(counter, "")
+                                        wx.PostEvent(self._notify_window, InsertSensorRowEvent(counter))
                                         wx.PostEvent(self._notify_window, ResultEvent([counter, 0, str(command.command)]))
                                         wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(command.desc)]))
                                         wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(s.value)]))
@@ -486,7 +549,7 @@ class MyApp(wx.App):
                                          DTCEvent([DTCCodes[i][0], DTCCodes[i][1], DTCCodes[i][2]]))
 
                         pass
-                if curstate == 4:  # show TPS tab
+                elif curstate == 4:  # show TPS tab
                     s = self.connection.connection.query(obd.commands[1][17])
                     wx.PostEvent(self._notify_window, TPSEvent([0, 0, obd.commands[1][17].command]))
                     wx.PostEvent(self._notify_window, TPSEvent([0, 1, obd.commands[1][17].desc]))
@@ -494,68 +557,105 @@ class MyApp(wx.App):
 
                     if first_time_tps:
                         first_time_tps = False
-                        self.x_vals = []
-                        self.y_vals = []
+                        self.tps_x_vals = []
+                        self.tps_y_vals = []
                         wx.PostEvent(self._notify_window, TPSGraphEvent())
 
-                    self.x_vals.append(self.tps_counter)
-                    self.y_vals.append(float(s.value.magnitude))
+                    self.tps_x_vals.append(self.tps_counter)
+                    self.tps_y_vals.append(float(s.value.magnitude))
                     self.tps_dirty = True
                     self.tps_counter = self.tps_counter + 1
 
-                if curstate == 5:  # show MAF tab
-                    #first_time_tps = True
-                    """
-                    try:
-                        q
-                        p
-                    except:
-                        #first_time_maf = False
-                        q = Queue()
-                        def maf_graph(q):
-                            name = multiprocessing.current_process().name
-                            style.use('fivethirtyeight')
-                            plt.ion()
-                            #fig = plt.figure()
-                            x_axis_start = 0
-                            x_axis_end = 100
-                            plt.axis([x_axis_start, x_axis_end, 0, 200])
-                            counter = 0
-                            xa = []
-                            ya = []
-                            while True:
-                                yyy = q.get()
-                                xa.append(float(counter))
-                                ya.append(float(yyy))
-                                if len(xa) == 2:
-                                    plt.plot(xa, ya, color="blue", linewidth=1)
-                                    plt.draw()
-                                    # plt.pause(0.0001)
-                                    xa = []
-                                    ya = []
-                                    xa.append(counter)
-                                    ya.append(float(yyy))
-                                if counter % 100 == 0 and counter > 1:
-                                    x_axis_start += 100
-                                    x_axis_end += 100
-                                    plt.axis([x_axis_start, x_axis_end, 0, 105])
-                                counter = counter + 1
-                            plt.close()
-                        p = Process(name="maf",target=maf_graph, args=(q,))
-                        p.start()
-                        #p.join()
-                    """
+                elif curstate == 5:  # show MAF tab
+
                     s = self.connection.connection.query(obd.commands[1][16])
                     wx.PostEvent(self._notify_window, MAFEvent([0, 0, obd.commands[1][16].command]))
                     wx.PostEvent(self._notify_window, MAFEvent([0, 1, obd.commands[1][16].desc]))
                     wx.PostEvent(self._notify_window, MAFEvent([0, 2, str(s.value)]))
-                    #q.put(s.value.magnitude)
+                    if first_time_maf:
+                        first_time_maf = False
+                        self.maf_x_vals = []
+                        self.maf_y_vals = []
+                        wx.PostEvent(self._notify_window, MAFGraphEvent())
+
+                    self.maf_x_vals.append(self.maf_counter)
+                    self.maf_y_vals.append(float(s.value.magnitude))
+                    self.maf_dirty = True
+                    self.maf_counter = self.maf_counter + 1
+                elif curstate == 6:  # show Graph tab
+                    if first_time_graph:
+                        wx.PostEvent(self._notify_window, DestroyComboBoxEvent([]))
+
+                        self.graph_counter = 0
+                        graph_commands = []
+                        self.current_command = None
+                        prev_command = None
+                        first_time_graph = False
+                        for command in obd.commands[1]:
+                            if command:
+                                if command.command not in (b"0100" , b"0101" , b"0102" , b"0103", b"011C",b"0113" , b"0120" , b"0121", b"0140", b"0141"):
+                                    s = self.connection.connection.query(command)
+                                    if s.value == None:
+                                        continue
+                                    else:
+                                        graph_commands.append(command)
+                        sensor_descriptions = []
+                        for command in graph_commands:
+                            sensor_descriptions.append(command.desc)
+                        #app.combobox = wx.ComboBox(app.graph, choices=sensor_descriptions, pos=(0, 60))
+                        wx.PostEvent(self._notify_window, BuildComboBoxEvent(sensor_descriptions))
+                    else:
+                        app.combobox_sel_finished = False
+                        wx.PostEvent(self._notify_window, GetSelectionComboBoxEvent([]))
+                        while not app.combobox_sel_finished:
+                            time.sleep(0.0001)
+                        curr_selection = app.combobox_selection
+
+                        if curr_selection != -1:
+                            prev_command = self.current_command
+                            self.current_command = graph_commands[curr_selection]
+                        else:
+                            self.current_command = None
+
+                        if self.current_command != None:
+                            if (prev_command == None) or (prev_command != self.current_command):
+                                self.graph_x_vals = []
+                                self.graph_y_vals = []
+                                self.graph_counter = 0
+                                #self.graph_max_y_val = 0
+                                try:
+                                    plt.close(app.fig_graph)
+                                except:
+                                    pass
+                                wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
+                            else:
+                                s = self.connection.connection.query(self.current_command)
+                                wx.PostEvent(self._notify_window, GraphValueEvent([0, 0, self.current_command.command]))
+                                wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, self.current_command.desc]))
+                                wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, str(s.value)]))
+                                self.graph_x_vals.append(self.graph_counter)
+                                self.graph_y_vals.append(float(s.value.magnitude))
+
+                                """
+                                if len(self.graph_y_vals) == 1:
+                                    self.graph_max_y_val = float(s.value.magnitude)
+                                elif len(self.graph_y_vals) > 1:
+                                    if self.graph_max_y_val > float(s.value.magnitude):
+                                        pass
+                                    else:
+                                        self.graph_max_y_val = float(s.value.magnitude)
+                                """
+                                self.graph_dirty = True
+
+                                self.graph_counter = self.graph_counter + 1
+                                #prev_command = self.current_command
+
 
                 else:
-                    #first_time_tps = True
+
                     pass
             self.stop()
-            self.process_active = False
+
 
         """
         def off(self, id):
@@ -589,37 +689,11 @@ class MyApp(wx.App):
             wx.PostEvent(self._notify_window, StatusEvent([1, 1, "----"]))
             wx.PostEvent(self._notify_window, StatusEvent([2, 1, "----"]))
             wx.PostEvent(self._notify_window, StatusEvent([3, 1, "----"]))
-            try:
-                plt.close(app.fig)
-            except:
-                pass
-            time.sleep(0.1)
-            app.sensors.DeleteAllItems()
-            time.sleep(0.1)
-            app.OBDTests.DeleteAllItems()
-            time.sleep(0.1)
-            app.dtc.DeleteAllItems()
-            time.sleep(0.1)
-            app.tps.DeleteAllItems()
-            time.sleep(0.1)
-            app.maf.DeleteAllItems()
-            time.sleep(0.1)
-            """
-            for i in range(0, app.sensors.GetItemCount()):
-                app.sensors.DeleteItem(0)
-            time.sleep(1)
-            for i in range(0, app.OBDTests.GetItemCount()):
-                app.OBDTests.DeleteItem(0)
-            time.sleep(1)
-            for i in range(0, app.sensors.GetItemCount()):
-                app.dtc.DeleteItem(0)
-            time.sleep(1)
-            for i in range(0, app.tps.GetItemCount()):
-                app.tps.DeleteItem(0)
-            time.sleep(1)
-            for i in range(0, app.maf.GetItemCount()):
-                app.maf.DeleteItem(0)
-            """
+
+            wx.PostEvent(self._notify_window, CloseEvent([]))
+
+            #lock.release()
+            self.process_active = False
     # class producer end
 
     def sensor_control_on(self):  # after connection enable few buttons
@@ -786,8 +860,17 @@ class MyApp(wx.App):
         EVT_RESULT(self, self.OnStatus, EVT_STATUS_ID)
         EVT_RESULT(self, self.OnTests, EVT_TESTS_ID)
         EVT_RESULT(self, self.OnTPS, EVT_TPS_ID)
-        EVT_RESULT(self, self.OnTPSGraph, EVT_TPS_GRAPH_ID)
         EVT_RESULT(self, self.OnMAF, EVT_MAF_ID)
+        EVT_RESULT(self, self.OnTPSGraph, EVT_TPS_GRAPH_ID)
+        EVT_RESULT(self, self.OnMAFGraph, EVT_MAF_GRAPH_ID)
+        EVT_RESULT(self, self.OnGraphValue, EVT_GRAPH_VALUE_ID)
+        EVT_RESULT(self, self.OnGraph, EVT_GRAPH_ID)
+        EVT_RESULT(self, self.OnClose, EVT_CLOSE_ID)
+        EVT_RESULT(self, self.BuildComboBox, EVT_BUILD_COMBOBOX_ID)
+        EVT_RESULT(self, self.DestroyComboBox, EVT_DESTROY_COMBOBOX_ID)
+        EVT_RESULT(self, self.GetSelectionComboBox, EVT_COMBOBOX_GETSELECTION_ID)
+        EVT_RESULT(self, self.InsertSensorRow, EVT_INSERT_SENSOR_ROW_ID)
+
 
         # Main notebook frames
         self.nb = wx.Notebook(frame, -1, style=wx.NB_TOP)
@@ -809,10 +892,24 @@ class MyApp(wx.App):
         self.OBDTests.InsertColumn(2, "Complete")
         self.nb.AddPage(self.OBDTests, "Tests")
 
-        #self.build_tests_page()
 
-        #for i in range(0,len(ptest)): #fill MODE 1 PID 1 test description
-            #self.OBDTests.Append([ptest[i], "---"]);
+        self.OBDTests.Append(["MISFIRE_MONITORING", "---", "---"])
+        self.OBDTests.Append(["FUEL_SYSTEM_MONITORING", "---", "---"])
+        self.OBDTests.Append(["COMPONENT_MONITORING", "---", "---"])
+        self.OBDTests.Append(["CATALYST_MONITORING", "---", "---"])
+        self.OBDTests.Append(["HEATED_CATALYST_MONITORING", "---", "---"])
+        self.OBDTests.Append(["EVAPORATIVE_SYSTEM_MONITORING", "---", "---"])
+        self.OBDTests.Append(["SECONDARY_AIR_SYSTEM_MONITORING", "---", "---"])
+        self.OBDTests.Append(["OXYGEN_SENSOR_MONITORING", "---", "---"])
+        self.OBDTests.Append(["OXYGEN_SENSOR_HEATER_MONITORING", "---", "---"])
+        self.OBDTests.Append(["EGR_VVT_SYSTEM_MONITORING", "---", "---"])
+        self.OBDTests.Append(["NMHC_CATALYST_MONITORING", "---", "---"])
+        self.OBDTests.Append(["NOX_SCR_AFTERTREATMENT_MONITORING", "---", "---"])
+        self.OBDTests.Append(["BOOST_PRESSURE_MONITORING", "---", "---"])
+        self.OBDTests.Append(["EXHAUST_GAS_SENSOR_MONITORING", "---", "---"])
+        self.OBDTests.Append(["PM_FILTER_MONITORING", "---", "---"])
+
+
 
         self.build_sensor_page()
 
@@ -822,8 +919,27 @@ class MyApp(wx.App):
         # MAF AND TPS ADDED BY J.P.
         self.tps = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
         self.maf = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
+        self.graph = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
         self.nb.AddPage(self.tps, "TPS Test")
         self.nb.AddPage(self.maf, "MAF Test")
+        self.nb.AddPage(self.graph, "Graph")
+
+        self.tps.InsertColumn(0, "Command", width=40)
+        self.tps.InsertColumn(1, "Description", width=200)
+        self.tps.InsertColumn(2, "Value")
+        self.tps.InsertItem(0, "")
+
+        self.graph.InsertColumn(0, "Command", width=40)
+        self.graph.InsertColumn(1, "Description", width=200)
+        self.graph.InsertColumn(2, "Value")
+        self.graph.InsertItem(0, "")
+
+        self.maf.InsertColumn(0, "Command", width=40)
+        self.maf.InsertColumn(1, "Description", width=200)
+        self.maf.InsertColumn(2, "Value")
+        self.maf.InsertItem(0, "")
+
+
         # MAF AND TPS ADDED BY J.P.
 
         self.trace = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
@@ -878,6 +994,7 @@ class MyApp(wx.App):
         frame.Show(True)
         frame.SetSize((520, 400))
         self.sensor_control_off() # ??? JURE POLJSAK
+
 
         return True
 
@@ -943,31 +1060,157 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         self.tps.SetItem(event.data[0], event.data[1], event.data[2])
     def OnTPSGraph(self, event):
         plt.style.use('fivethirtyeight')
-        self.fig = plt.figure()
+        self.fig_tps = plt.figure()
         x_axis_start = 0
         x_axis_end = 100
-        ax = plt.axes(xlim=(x_axis_start, x_axis_end), ylim=(0, 110))
+        ax = plt.axes(xlim=(x_axis_start, x_axis_end), ylim=(0, 100))
 
         line, = ax.plot(0, 0)
 
         def animate(i):
             if self.senprod.tps_dirty:
                 line.set_linewidth(1)
-                line.set_xdata(self.senprod.x_vals)
-                line.set_ydata(self.senprod.y_vals)
+                line.set_xdata(self.senprod.tps_x_vals)
+                line.set_ydata(self.senprod.tps_y_vals)
                 ax.set_xlim(self.senprod.tps_counter - 290, self.senprod.tps_counter + 10)
+                if self.senprod.tps_y_vals != []:
+                    ax.set_ylim(-5, max(self.senprod.tps_y_vals)+5)
                 ax.set_title('TPS position %', fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 self.senprod.tps_dirty = False
             #plt.pause(0.05)
 
             return line,
 
-        ani = FuncAnimation(self.fig, animate, frames=None, interval=1, blit=True)
+        ani = FuncAnimation(self.fig_tps, animate, blit=False)#, frames=None, interval=1, blit=True)
         ax.axhline(linewidth=1, color="b")
         plt.tight_layout()
         plt.show()
 
+    def OnMAFGraph(self, event):
+        plt.style.use('fivethirtyeight')
+        self.fig_maf = plt.figure()
+        x_axis_start = 0
+        x_axis_end = 100
+        ax = plt.axes(xlim=(x_axis_start, x_axis_end), ylim=(0, 100))
 
+        line, = ax.plot(0, 0)
+
+        def animate(i):
+            if self.senprod.maf_dirty:
+                line.set_linewidth(1)
+                line.set_xdata(self.senprod.maf_x_vals)
+                line.set_ydata(self.senprod.maf_y_vals)
+                ax.set_xlim(self.senprod.maf_counter - 290, self.senprod.maf_counter + 10)
+                if self.senprod.maf_y_vals != []:
+                    ax.set_ylim(0, max(self.senprod.maf_y_vals)+5)
+                ax.set_title('MAF grams per second', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                self.senprod.maf_dirty = False
+            #plt.pause(0.05)
+
+            return line,
+
+        ani = FuncAnimation(self.fig_maf, animate, blit=False) #, frames=None, interval=1, blit=True)
+        ax.axhline(linewidth=1, color="b")
+        plt.tight_layout()
+        plt.show()
+
+    def OnCombo(self, event):
+        self.senprod.curr_selection = self.combobox.GetSelection()
+
+    def InsertSensorRow(self, event):
+        counter = event.data
+        self.sensors.InsertItem(counter, "")
+
+    def BuildComboBox(self, event):
+        self.combobox = wx.ComboBox(self.graph, choices=event.data, pos=(0, 60))
+
+    def DestroyComboBox(self, event):
+        try:
+            self.combobox
+            self.combobox.Destroy()
+        except:
+            pass
+
+    def GetSelectionComboBox(self, event):
+        self.combobox_selection = self.combobox.GetSelection()
+        self.combobox_sel_finished = True
+
+    def OnClose(self, event):
+        try:
+            plt.close(self.fig_tps)
+        except:
+            pass
+        try:
+            plt.close(self.fig_maf)
+        except:
+            pass
+        try:
+            plt.close(self.fig_graph)
+        except:
+            pass
+        self.sensors.DeleteAllItems()
+        self.OBDTests.DeleteAllItems()
+        self.OBDTests.Append(["MISFIRE_MONITORING", "---", "---"])
+        self.OBDTests.Append(["FUEL_SYSTEM_MONITORING", "---", "---"])
+        self.OBDTests.Append(["COMPONENT_MONITORING", "---", "---"])
+        self.OBDTests.Append(["CATALYST_MONITORING", "---", "---"])
+        self.OBDTests.Append(["HEATED_CATALYST_MONITORING", "---", "---"])
+        self.OBDTests.Append(["EVAPORATIVE_SYSTEM_MONITORING", "---", "---"])
+        self.OBDTests.Append(["SECONDARY_AIR_SYSTEM_MONITORING", "---", "---"])
+        self.OBDTests.Append(["OXYGEN_SENSOR_MONITORING", "---", "---"])
+        self.OBDTests.Append(["OXYGEN_SENSOR_HEATER_MONITORING", "---", "---"])
+        self.OBDTests.Append(["EGR_VVT_SYSTEM_MONITORING", "---", "---"])
+        self.OBDTests.Append(["NMHC_CATALYST_MONITORING", "---", "---"])
+        self.OBDTests.Append(["NOX_SCR_AFTERTREATMENT_MONITORING", "---", "---"])
+        self.OBDTests.Append(["BOOST_PRESSURE_MONITORING", "---", "---"])
+        self.OBDTests.Append(["EXHAUST_GAS_SENSOR_MONITORING", "---", "---"])
+        self.OBDTests.Append(["PM_FILTER_MONITORING", "---", "---"])
+        self.dtc.DeleteAllItems()
+        self.tps.DeleteAllItems()
+        self.maf.DeleteAllItems()
+        self.graph.DeleteAllItems()
+        self.tps.InsertItem(0, "")
+        self.graph.InsertItem(0, "")
+        self.maf.InsertItem(0, "")
+        try:
+            self.combobox.Destroy()
+        except:
+            pass
+
+
+    def OnGraph(self, event):
+        plt.style.use('fivethirtyeight')
+        self.fig_graph = plt.figure()
+        x_axis_start = 0
+        x_axis_end = 100
+        ax = plt.axes(xlim=(x_axis_start, x_axis_end), ylim=(-5, 105))
+
+        line, = ax.plot(0, 0)
+
+        def animate(i):
+            if self.senprod.graph_dirty:
+                x_vals = self.senprod.graph_x_vals
+                y_vals = self.senprod.graph_y_vals
+                graph_counter = self.senprod.graph_counter
+                line.set_linewidth(1)
+                line.set_xdata(x_vals)
+                line.set_ydata(y_vals)
+                ax.set_xlim(graph_counter - 290, graph_counter + 10)
+                if y_vals != []:
+                    ax.set_ylim(-50, max(y_vals)+5)
+                ax.set_title(event.data.desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                self.senprod.graph_dirty = False
+            #plt.pause(0.05)
+
+            return line,
+
+        ani = FuncAnimation(self.fig_graph, animate, blit=False)#, frames=None, interval=1, blit=False)
+        #ax.axhline(linewidth=1, color="b")
+        #plt.tight_layout()
+        plt.show()
+
+    def OnGraphValue(self, event):
+        self.graph.SetItem(event.data[0], event.data[1], event.data[2])
 
     def OnDebug(self, event):
         self.TraceDebug(event.data[0], event.data[1])

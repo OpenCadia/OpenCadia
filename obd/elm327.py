@@ -154,7 +154,7 @@ class ELM327:
             return
 
         # -------------------------- ATE0 (echo OFF) --------------------------
-        r = self.__send(b"ATE0", delay=2)
+        r = self.__send(b"ATE0", delay=1)
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return

@@ -27,13 +27,14 @@ import multiprocessing
 from multiprocessing import Queue, Process
 # import wxversion
 # wxversion.select("2.6")
-
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+from matplotlib.figure import Figure
 import matplotlib
-#matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 #from matplotlib import style
-
+matplotlib.use('wxAgg')
 import traceback
 import wx
 import pdb
@@ -391,6 +392,7 @@ class MyApp(wx.App):
                     wx.PostEvent(self._notify_window, GraphValueEvent([0, 0, ""]))
                     wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, ""]))
                     wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, ""]))
+
                 if curstate == 0:  # show status tab
 
                     #first_time_tps = True
@@ -560,8 +562,11 @@ class MyApp(wx.App):
                         self.tps_x_vals = []
                         self.tps_y_vals = []
                         wx.PostEvent(self._notify_window, TPSGraphEvent())
-
+                        self.tps_max_y_val = 0
+                    wx.PostEvent(self._notify_window, TPSGraphEvent())
                     self.tps_x_vals.append(self.tps_counter)
+                    if float(s.value.magnitude) > self.tps_max_y_val:
+                        self.tps_max_y_val = float(s.value.magnitude)
                     self.tps_y_vals.append(float(s.value.magnitude))
                     self.tps_dirty = True
                     self.tps_counter = self.tps_counter + 1
@@ -577,9 +582,13 @@ class MyApp(wx.App):
                         self.maf_x_vals = []
                         self.maf_y_vals = []
                         wx.PostEvent(self._notify_window, MAFGraphEvent())
+                        self.maf_max_y_val = 0
 
+                    wx.PostEvent(self._notify_window, MAFGraphEvent())
                     self.maf_x_vals.append(self.maf_counter)
                     self.maf_y_vals.append(float(s.value.magnitude))
+                    if float(s.value.magnitude) > self.maf_max_y_val:
+                        self.maf_max_y_val = float(s.value.magnitude)
                     self.maf_dirty = True
                     self.maf_counter = self.maf_counter + 1
                 elif curstate == 6:  # show Graph tab
@@ -622,11 +631,12 @@ class MyApp(wx.App):
                                 self.graph_x_vals = []
                                 self.graph_y_vals = []
                                 self.graph_counter = 0
+                                self.graph_max_y_val = 0
                                 #self.graph_max_y_val = 0
-                                try:
-                                    plt.close(app.fig_graph)
-                                except:
-                                    pass
+                                #try:
+                                #    plt.close(app.fig_graph)
+                                #except:
+                                #    pass
                                 wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
                             else:
                                 s = self.connection.connection.query(self.current_command)
@@ -635,18 +645,11 @@ class MyApp(wx.App):
                                 wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, str(s.value)]))
                                 self.graph_x_vals.append(self.graph_counter)
                                 self.graph_y_vals.append(float(s.value.magnitude))
-
-                                """
-                                if len(self.graph_y_vals) == 1:
+                                if float(s.value.magnitude) > self.graph_max_y_val:
                                     self.graph_max_y_val = float(s.value.magnitude)
-                                elif len(self.graph_y_vals) > 1:
-                                    if self.graph_max_y_val > float(s.value.magnitude):
-                                        pass
-                                    else:
-                                        self.graph_max_y_val = float(s.value.magnitude)
-                                """
-                                self.graph_dirty = True
 
+                                self.graph_dirty = True
+                                wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
                                 self.graph_counter = self.graph_counter + 1
                                 #prev_command = self.current_command
 
@@ -929,6 +932,10 @@ class MyApp(wx.App):
         self.tps.InsertColumn(2, "Value")
         self.tps.InsertItem(0, "")
 
+
+
+
+
         self.graph.InsertColumn(0, "Command", width=40)
         self.graph.InsertColumn(1, "Description", width=200)
         self.graph.InsertColumn(2, "Value")
@@ -1059,34 +1066,59 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
     def OnTPS(self, event):
         self.tps.SetItem(event.data[0], event.data[1], event.data[2])
     def OnTPSGraph(self, event):
-        plt.style.use('fivethirtyeight')
-        self.fig_tps = plt.figure()
-        x_axis_start = 0
-        x_axis_end = 100
-        ax = plt.axes(xlim=(x_axis_start, x_axis_end), ylim=(0, 100))
+        try:
+            self.fig_tps
+        except:
+            x_axis_start = 0
+            x_axis_end = 100
+            self.fig_tps = Figure()
+            #self.fig_tps = Figure(figsize=(100,100))
+            self.axes = self.fig_tps.add_subplot()
+            self.tps_canvas = FigureCanvas(self.tps, -1, self.fig_tps)
+            self.tps_canvas.SetPosition(wx.Point(0, 80))
 
-        line, = ax.plot(0, 0)
+        def animate():
 
-        def animate(i):
             if self.senprod.tps_dirty:
-                line.set_linewidth(1)
-                line.set_xdata(self.senprod.tps_x_vals)
-                line.set_ydata(self.senprod.tps_y_vals)
-                ax.set_xlim(self.senprod.tps_counter - 290, self.senprod.tps_counter + 10)
+                self.axes.clear()
+                self.axes.set_xlim(self.senprod.tps_counter - 290, self.senprod.tps_counter + 10)
                 if self.senprod.tps_y_vals != []:
-                    ax.set_ylim(-5, max(self.senprod.tps_y_vals)+5)
-                ax.set_title('TPS position %', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                    self.axes.set_ylim(-5, (self.senprod.tps_max_y_val)+5)
+                self.axes.set_title('TPS position %', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                self.axes.plot(self.senprod.tps_x_vals,self.senprod.tps_y_vals, color="b", linewidth=0.5)
                 self.senprod.tps_dirty = False
-            #plt.pause(0.05)
-
-            return line,
-
-        ani = FuncAnimation(self.fig_tps, animate, blit=False)#, frames=None, interval=1, blit=True)
-        ax.axhline(linewidth=1, color="b")
-        plt.tight_layout()
-        plt.show()
+                self.tps_canvas.draw()
+        animate()
 
     def OnMAFGraph(self, event):
+        try:
+            self.fig_maf
+        except:
+            x_axis_start = 0
+            x_axis_end = 100
+
+
+            self.fig_maf = Figure()
+
+            self.maf_axes = self.fig_maf.add_subplot()
+            self.maf_canvas = FigureCanvas(self.maf, -1, self.fig_maf)
+            self.maf_canvas.SetPosition(wx.Point(0, 80))
+
+        def animate():
+            print (self.senprod.maf_dirty)
+            if self.senprod.maf_dirty:
+                self.maf_axes.clear()
+                self.maf_axes.set_xlim(self.senprod.maf_counter - 290, self.senprod.maf_counter + 10)
+                if self.senprod.maf_y_vals != []:
+                    self.maf_axes.set_ylim(-5, (self.senprod.maf_max_y_val)+5)
+                self.maf_axes.set_title('MAF gps', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                self.maf_axes.plot(self.senprod.maf_x_vals,self.senprod.maf_y_vals, color="b", linewidth=0.5)
+                self.senprod.maf_dirty = False
+                self.maf_canvas.draw()
+        animate()
+
+        ###########################
+        """
         plt.style.use('fivethirtyeight')
         self.fig_maf = plt.figure()
         x_axis_start = 0
@@ -1097,6 +1129,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
         def animate(i):
             if self.senprod.maf_dirty:
+                line.set_linewidth(1)
                 line.set_linewidth(1)
                 line.set_xdata(self.senprod.maf_x_vals)
                 line.set_ydata(self.senprod.maf_y_vals)
@@ -1113,6 +1146,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         ax.axhline(linewidth=1, color="b")
         plt.tight_layout()
         plt.show()
+        """
 
     def OnCombo(self, event):
         self.senprod.curr_selection = self.combobox.GetSelection()
@@ -1179,6 +1213,32 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
 
     def OnGraph(self, event):
+        try:
+            self.fig_graph
+        except:
+            x_axis_start = 0
+            x_axis_end = 100
+
+
+            self.fig_graph = Figure()
+
+            self.graph_axes = self.fig_graph.add_subplot()
+            self.graph_canvas = FigureCanvas(self.graph, -1, self.fig_graph)
+            self.graph_canvas.SetPosition(wx.Point(0, 80))
+
+        def animate():
+            print (self.senprod.graph_dirty)
+            if self.senprod.graph_dirty:
+                self.graph_axes.clear()
+                self.graph_axes.set_xlim(self.senprod.graph_counter - 290, self.senprod.graph_counter + 10)
+                if self.senprod.graph_y_vals != []:
+                    self.graph_axes.set_ylim(-5, (self.senprod.graph_max_y_val)+5)
+                #self.graph_axes.set_title('MAF gps', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                self.graph_axes.plot(self.senprod.graph_x_vals,self.senprod.graph_y_vals, color="b", linewidth=0.5)
+                self.senprod.graph_dirty = False
+                self.graph_canvas.draw()
+        animate()
+        """
         plt.style.use('fivethirtyeight')
         self.fig_graph = plt.figure()
         x_axis_start = 0
@@ -1208,7 +1268,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         #ax.axhline(linewidth=1, color="b")
         #plt.tight_layout()
         plt.show()
-
+        """
     def OnGraphValue(self, event):
         self.graph.SetItem(event.data[0], event.data[1], event.data[2])
 

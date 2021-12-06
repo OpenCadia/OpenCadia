@@ -23,6 +23,7 @@
 # along with pyOBD; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ############################################################################
+import numpy as np
 import multiprocessing
 from multiprocessing import Queue, Process
 # import wxversion
@@ -356,6 +357,8 @@ class MyApp(wx.App):
             first_time_maf = True
             first_time_tps = True
             first_time_graph = True
+            self.graph_x_vals = np.array([])
+            self.graph_y_vals = np.array([])
             self.tps_counter = 0
             self.tps_dirty = False
             self.maf_counter = 0
@@ -559,17 +562,26 @@ class MyApp(wx.App):
 
                     if first_time_tps:
                         first_time_tps = False
-                        self.tps_x_vals = []
-                        self.tps_y_vals = []
-                        wx.PostEvent(self._notify_window, TPSGraphEvent())
+                        self.tps_x_vals = np.array([])
+                        self.tps_y_vals = np.array([])
                         self.tps_max_y_val = 0
-                    wx.PostEvent(self._notify_window, TPSGraphEvent())
-                    self.tps_x_vals.append(self.tps_counter)
+                        self.tps_min_y_val = 0
+
+                    #self.tps_x_vals.append(self.tps_counter)
+                    self.tps_x_vals = np.append(self.tps_x_vals, self.tps_counter)
                     if float(s.value.magnitude) > self.tps_max_y_val:
                         self.tps_max_y_val = float(s.value.magnitude)
-                    self.tps_y_vals.append(float(s.value.magnitude))
-                    self.tps_dirty = True
+                    if float(s.value.magnitude) < self.tps_min_y_val:
+                        self.tps_min_y_val = float(s.value.magnitude)
+
+                    #self.tps_y_vals.append(float(s.value.magnitude))
+                    self.tps_y_vals = np.append(self.tps_y_vals, float(s.value.magnitude))
+                    if len(self.tps_x_vals) > 300:
+                        self.tps_x_vals = np.delete(self.tps_x_vals, (0))
+                        self.tps_y_vals = np.delete(self.tps_y_vals, (0))
                     self.tps_counter = self.tps_counter + 1
+                    self.tps_dirty = True
+                    wx.PostEvent(self._notify_window, TPSGraphEvent())
 
                 elif curstate == 5:  # show MAF tab
 
@@ -579,25 +591,41 @@ class MyApp(wx.App):
                     wx.PostEvent(self._notify_window, MAFEvent([0, 2, str(s.value)]))
                     if first_time_maf:
                         first_time_maf = False
-                        self.maf_x_vals = []
-                        self.maf_y_vals = []
-                        wx.PostEvent(self._notify_window, MAFGraphEvent())
+                        #self.maf_x_vals = []
+                        #self.maf_y_vals = []
+                        self.maf_x_vals = np.array([])
+                        self.maf_y_vals = np.array([])
                         self.maf_max_y_val = 0
+                        self.maf_min_y_val = 0
 
-                    wx.PostEvent(self._notify_window, MAFGraphEvent())
-                    self.maf_x_vals.append(self.maf_counter)
-                    self.maf_y_vals.append(float(s.value.magnitude))
+
+                    #self.maf_x_vals.append(self.maf_counter)
+                    self.maf_x_vals = np.append(self.maf_x_vals, self.maf_counter)
+                    self.maf_y_vals = np.append(self.maf_y_vals, float(s.value.magnitude))
+                    #self.maf_y_vals.append(float(s.value.magnitude))
                     if float(s.value.magnitude) > self.maf_max_y_val:
                         self.maf_max_y_val = float(s.value.magnitude)
-                    self.maf_dirty = True
+                    if float(s.value.magnitude) < self.maf_min_y_val:
+                        self.maf_maf_y_val = float(s.value.magnitude)
+                    if len(self.maf_x_vals) > 300:
+                        self.maf_x_vals = np.delete(self.maf_x_vals, (0))
+                        self.maf_y_vals = np.delete(self.maf_y_vals, (0))
+
                     self.maf_counter = self.maf_counter + 1
+                    self.maf_dirty = True
+                    wx.PostEvent(self._notify_window, MAFGraphEvent())
                 elif curstate == 6:  # show Graph tab
                     if first_time_graph:
                         wx.PostEvent(self._notify_window, DestroyComboBoxEvent([]))
-
+                        self.graph_x_vals = np.array([])
+                        self.graph_y_vals = np.array([])
                         self.graph_counter = 0
+                        self.graph_max_y_val = 0
+                        self.graph_min_y_val = 0
                         graph_commands = []
                         self.current_command = None
+                        self.graph_dirty = True
+                        wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
                         prev_command = None
                         first_time_graph = False
                         for command in obd.commands[1]:
@@ -611,13 +639,13 @@ class MyApp(wx.App):
                         sensor_descriptions = []
                         for command in graph_commands:
                             sensor_descriptions.append(command.desc)
-                        #app.combobox = wx.ComboBox(app.graph, choices=sensor_descriptions, pos=(0, 60))
                         wx.PostEvent(self._notify_window, BuildComboBoxEvent(sensor_descriptions))
+
                     else:
                         app.combobox_sel_finished = False
                         wx.PostEvent(self._notify_window, GetSelectionComboBoxEvent([]))
                         while not app.combobox_sel_finished:
-                            time.sleep(0.0001)
+                            time.sleep(0.01)
                         curr_selection = app.combobox_selection
 
                         if curr_selection != -1:
@@ -628,32 +656,41 @@ class MyApp(wx.App):
 
                         if self.current_command != None:
                             if (prev_command == None) or (prev_command != self.current_command):
-                                self.graph_x_vals = []
-                                self.graph_y_vals = []
+                                #self.graph_x_vals = []
+                                #self.graph_y_vals = []
+                                self.graph_x_vals = np.array([])
+                                self.graph_y_vals = np.array([])
+
                                 self.graph_counter = 0
                                 self.graph_max_y_val = 0
-                                #self.graph_max_y_val = 0
-                                #try:
-                                #    plt.close(app.fig_graph)
-                                #except:
-                                #    pass
+                                self.graph_min_y_val = 0
+
+                                self.graph_dirty = True
                                 wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
                             else:
                                 s = self.connection.connection.query(self.current_command)
                                 wx.PostEvent(self._notify_window, GraphValueEvent([0, 0, self.current_command.command]))
                                 wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, self.current_command.desc]))
                                 wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, str(s.value)]))
-                                self.graph_x_vals.append(self.graph_counter)
-                                self.graph_y_vals.append(float(s.value.magnitude))
+
+
+                                #self.graph_x_vals.append(self.graph_counter)
+                                #self.graph_y_vals.append(float(s.value.magnitude))
+                                self.graph_x_vals = np.append(self.graph_x_vals, self.graph_counter)
+                                self.graph_y_vals = np.append(self.graph_y_vals, float(s.value.magnitude))
+
                                 if float(s.value.magnitude) > self.graph_max_y_val:
                                     self.graph_max_y_val = float(s.value.magnitude)
+                                if float(s.value.magnitude) < self.graph_min_y_val:
+                                    self.graph_min_y_val = float(s.value.magnitude)
+                                if len(self.graph_x_vals) > 300:
+                                    self.graph_x_vals = np.delete(self.graph_x_vals, (0))
+                                    self.graph_y_vals = np.delete(self.graph_y_vals, (0))
 
-                                self.graph_dirty = True
-                                wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
                                 self.graph_counter = self.graph_counter + 1
                                 #prev_command = self.current_command
-
-
+                                self.graph_dirty = True
+                                wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
                 else:
 
                     pass
@@ -1077,17 +1114,18 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             self.tps_canvas = FigureCanvas(self.tps, -1, self.fig_tps)
             self.tps_canvas.SetPosition(wx.Point(0, 80))
 
+
         def animate():
 
             if self.senprod.tps_dirty:
                 self.axes.clear()
                 self.axes.set_xlim(self.senprod.tps_counter - 290, self.senprod.tps_counter + 10)
-                if self.senprod.tps_y_vals != []:
-                    self.axes.set_ylim(-5, (self.senprod.tps_max_y_val)+5)
-                self.axes.set_title('TPS position %', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                if not np.array_equal(self.senprod.tps_y_vals, np.array([])):
+                    self.axes.set_ylim((self.senprod.tps_min_y_val)-5, (self.senprod.tps_max_y_val)+5)
+                self.axes.set_title(obd.commands[1][17].desc,fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 self.axes.plot(self.senprod.tps_x_vals,self.senprod.tps_y_vals, color="b", linewidth=0.5)
-                self.senprod.tps_dirty = False
                 self.tps_canvas.draw()
+                self.senprod.tps_dirty = False
         animate()
 
     def OnMAFGraph(self, event):
@@ -1104,17 +1142,17 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             self.maf_canvas = FigureCanvas(self.maf, -1, self.fig_maf)
             self.maf_canvas.SetPosition(wx.Point(0, 80))
 
+
         def animate():
-            print (self.senprod.maf_dirty)
             if self.senprod.maf_dirty:
                 self.maf_axes.clear()
                 self.maf_axes.set_xlim(self.senprod.maf_counter - 290, self.senprod.maf_counter + 10)
-                if self.senprod.maf_y_vals != []:
-                    self.maf_axes.set_ylim(-5, (self.senprod.maf_max_y_val)+5)
-                self.maf_axes.set_title('MAF gps', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                if not np.array_equal(self.senprod.maf_y_vals,np.array([])):
+                    self.maf_axes.set_ylim((self.senprod.maf_min_y_val)-5, (self.senprod.maf_max_y_val)+5)
+                self.maf_axes.set_title(obd.commands[1][16].desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 self.maf_axes.plot(self.senprod.maf_x_vals,self.senprod.maf_y_vals, color="b", linewidth=0.5)
-                self.senprod.maf_dirty = False
                 self.maf_canvas.draw()
+                self.senprod.maf_dirty = False
         animate()
 
         ###########################
@@ -1224,18 +1262,21 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
             self.graph_axes = self.fig_graph.add_subplot()
             self.graph_canvas = FigureCanvas(self.graph, -1, self.fig_graph)
-            self.graph_canvas.SetPosition(wx.Point(0, 80))
+            self.graph_canvas.SetPosition(wx.Point(0, 120))
 
         def animate():
-            print (self.senprod.graph_dirty)
+            #print (self.senprod.graph_dirty)
             if self.senprod.graph_dirty:
+                self.senprod.graph_dirty = False
                 self.graph_axes.clear()
                 self.graph_axes.set_xlim(self.senprod.graph_counter - 290, self.senprod.graph_counter + 10)
-                if self.senprod.graph_y_vals != []:
-                    self.graph_axes.set_ylim(-5, (self.senprod.graph_max_y_val)+5)
-                #self.graph_axes.set_title('MAF gps', fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                if not np.array_equal(self.senprod.graph_y_vals, np.array([])):
+                    self.graph_axes.set_ylim((self.senprod.graph_min_y_val)-5, (self.senprod.graph_max_y_val)+5)
+                try:
+                    self.graph_axes.set_title(self.senprod.current_command.desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
+                except:
+                    pass
                 self.graph_axes.plot(self.senprod.graph_x_vals,self.senprod.graph_y_vals, color="b", linewidth=0.5)
-                self.senprod.graph_dirty = False
                 self.graph_canvas.draw()
         animate()
         """

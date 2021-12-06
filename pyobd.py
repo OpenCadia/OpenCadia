@@ -1123,7 +1123,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 if not np.array_equal(self.senprod.tps_y_vals, np.array([])):
                     self.axes.set_ylim((self.senprod.tps_min_y_val)-5, (self.senprod.tps_max_y_val)+5)
                 self.axes.set_title(obd.commands[1][17].desc,fontdict={'fontsize': 20, 'fontweight': 'medium'})
-                self.axes.plot(self.senprod.tps_x_vals,self.senprod.tps_y_vals, color="b", linewidth=0.5)
+                self.axes.plot(self.senprod.tps_x_vals,self.senprod.tps_y_vals, color="b", linewidth=1)
                 self.tps_canvas.draw()
                 self.senprod.tps_dirty = False
         animate()
@@ -1150,7 +1150,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 if not np.array_equal(self.senprod.maf_y_vals,np.array([])):
                     self.maf_axes.set_ylim((self.senprod.maf_min_y_val)-5, (self.senprod.maf_max_y_val)+5)
                 self.maf_axes.set_title(obd.commands[1][16].desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
-                self.maf_axes.plot(self.senprod.maf_x_vals,self.senprod.maf_y_vals, color="b", linewidth=0.5)
+                self.maf_axes.plot(self.senprod.maf_x_vals,self.senprod.maf_y_vals, color="b", linewidth=1)
                 self.maf_canvas.draw()
                 self.senprod.maf_dirty = False
         animate()
@@ -1238,9 +1238,25 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         self.OBDTests.Append(["EXHAUST_GAS_SENSOR_MONITORING", "---", "---"])
         self.OBDTests.Append(["PM_FILTER_MONITORING", "---", "---"])
         self.dtc.DeleteAllItems()
+
         self.tps.DeleteAllItems()
         self.maf.DeleteAllItems()
         self.graph.DeleteAllItems()
+
+        #####################
+        try:
+            self.tps_canvas.Destroy()
+        except:
+            pass
+        try:
+            self.maf_canvas.Destroy()
+        except:
+            pass
+        try:
+            self.graph_canvas.Destroy()
+        except:
+            pass
+        ############
         self.tps.InsertItem(0, "")
         self.graph.InsertItem(0, "")
         self.maf.InsertItem(0, "")
@@ -1276,7 +1292,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                     self.graph_axes.set_title(self.senprod.current_command.desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 except:
                     pass
-                self.graph_axes.plot(self.senprod.graph_x_vals,self.senprod.graph_y_vals, color="b", linewidth=0.5)
+                self.graph_axes.plot(self.senprod.graph_x_vals,self.senprod.graph_y_vals, color="b", linewidth=1)
                 self.graph_canvas.draw()
         animate()
         """

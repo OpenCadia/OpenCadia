@@ -34,7 +34,7 @@ import matplotlib
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-#from matplotlib import style
+from matplotlib import style
 matplotlib.use('wxAgg')
 import traceback
 import wx
@@ -1106,9 +1106,12 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         try:
             self.fig_tps
         except:
+            plt.style.use('fivethirtyeight')
             x_axis_start = 0
             x_axis_end = 100
-            self.fig_tps = Figure()
+            x_axis_start = 0
+            x_axis_end = 100
+            self.fig_tps = Figure(dpi=100)
             #self.fig_tps = Figure(figsize=(100,100))
             self.axes = self.fig_tps.add_subplot()
             self.tps_canvas = FigureCanvas(self.tps, -1, self.fig_tps)
@@ -1120,8 +1123,8 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             if self.senprod.tps_dirty:
                 self.axes.clear()
                 self.axes.set_xlim(self.senprod.tps_counter - 290, self.senprod.tps_counter + 10)
-                if not np.array_equal(self.senprod.tps_y_vals, np.array([])):
-                    self.axes.set_ylim((self.senprod.tps_min_y_val)-5, (self.senprod.tps_max_y_val)+5)
+                #if not np.array_equal(self.senprod.tps_y_vals, np.array([])):
+                self.axes.set_ylim((self.senprod.tps_min_y_val)-5, (self.senprod.tps_max_y_val)+5)
                 self.axes.set_title(obd.commands[1][17].desc,fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 self.axes.plot(self.senprod.tps_x_vals,self.senprod.tps_y_vals, color="b", linewidth=1)
                 self.tps_canvas.draw()
@@ -1132,11 +1135,12 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         try:
             self.fig_maf
         except:
+            plt.style.use('fivethirtyeight')
             x_axis_start = 0
             x_axis_end = 100
 
 
-            self.fig_maf = Figure()
+            self.fig_maf = Figure(dpi=100)
 
             self.maf_axes = self.fig_maf.add_subplot()
             self.maf_canvas = FigureCanvas(self.maf, -1, self.fig_maf)
@@ -1147,8 +1151,8 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             if self.senprod.maf_dirty:
                 self.maf_axes.clear()
                 self.maf_axes.set_xlim(self.senprod.maf_counter - 290, self.senprod.maf_counter + 10)
-                if not np.array_equal(self.senprod.maf_y_vals,np.array([])):
-                    self.maf_axes.set_ylim((self.senprod.maf_min_y_val)-5, (self.senprod.maf_max_y_val)+5)
+                #if not np.array_equal(self.senprod.maf_y_vals,np.array([])):
+                self.maf_axes.set_ylim((self.senprod.maf_min_y_val)-5, (self.senprod.maf_max_y_val)+5)
                 self.maf_axes.set_title(obd.commands[1][16].desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 self.maf_axes.plot(self.senprod.maf_x_vals,self.senprod.maf_y_vals, color="b", linewidth=1)
                 self.maf_canvas.draw()
@@ -1270,11 +1274,12 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         try:
             self.fig_graph
         except:
+            plt.style.use('fivethirtyeight')
             x_axis_start = 0
             x_axis_end = 100
 
 
-            self.fig_graph = Figure()
+            self.fig_graph = Figure(dpi=100)
 
             self.graph_axes = self.fig_graph.add_subplot()
             self.graph_canvas = FigureCanvas(self.graph, -1, self.fig_graph)
@@ -1286,8 +1291,8 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 self.senprod.graph_dirty = False
                 self.graph_axes.clear()
                 self.graph_axes.set_xlim(self.senprod.graph_counter - 290, self.senprod.graph_counter + 10)
-                if not np.array_equal(self.senprod.graph_y_vals, np.array([])):
-                    self.graph_axes.set_ylim((self.senprod.graph_min_y_val)-5, (self.senprod.graph_max_y_val)+5)
+                #if not np.array_equal(self.senprod.graph_y_vals, np.array([])):
+                self.graph_axes.set_ylim((self.senprod.graph_min_y_val)-5, (self.senprod.graph_max_y_val)+5)
                 try:
                     self.graph_axes.set_title(self.senprod.current_command.desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 except:

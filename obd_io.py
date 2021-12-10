@@ -187,12 +187,12 @@ class OBDConnection:
         else:
             DTCCODES = r.value
         r = self.connection.query(obd.commands.FREEZE_DTC)
-        #FREEZE_CODES = r.value
+        FREEZE_CODES = r.value
         print(r.value)
         if r.value == None:
             FREEZE_CODES = ()
         elif len(r.value) == 2:
-            #print (len(r.value))
+            print (len(r.value))
             if r.value[0] == 'P0000':
                 FREEZE_CODES = ()
         else:

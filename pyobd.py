@@ -90,6 +90,8 @@ EVT_BUILD_COMBOBOX_ID = 1038
 EVT_DESTROY_COMBOBOX_ID = 1039
 EVT_COMBOBOX_GETSELECTION_ID = 1040
 EVT_INSERT_SENSOR_ROW_ID = 1041
+EVT_INSERT_FREEZEFRAME_ROW_ID = 1042
+EVT_FREEZEFRAME_RESULT_ID = 1043
 
 lock = threading.Lock()
 
@@ -140,6 +142,15 @@ class ResultEvent(wx.PyEvent):
         self.SetEventType(EVT_RESULT_ID)
         self.data = data
 
+class FreezeframeResultEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_FREEZEFRAME_RESULT_ID)
+        self.data = data
+
 class InsertSensorRowEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
 
@@ -147,6 +158,15 @@ class InsertSensorRowEvent(wx.PyEvent):
         """Init Result Event."""
         wx.PyEvent.__init__(self)
         self.SetEventType(EVT_INSERT_SENSOR_ROW_ID)
+        self.data = data
+
+class InsertFreezeframeRowEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_INSERT_FREEZEFRAME_ROW_ID)
         self.data = data
 
 class TPSEvent(wx.PyEvent):
@@ -343,9 +363,27 @@ class MyApp(wx.App):
             r = self.connection.connection.query(obd.commands.ELM_VERSION)
             self.ELMver = str(r.value)
             self.protocol = self.connection.connection.protocol_name()
+
             wx.PostEvent(self._notify_window, StatusEvent([2, 1, str(self.ELMver)]))
             wx.PostEvent(self._notify_window, StatusEvent([1, 1, str(self.protocol)]))
             wx.PostEvent(self._notify_window, StatusEvent([3, 1, str(self.connection.connection.port_name())]))
+            try:
+                r = self.connection.connection.query(obd.commands.VIN)
+                if r.vale != None:
+                    self.VIN = str(r.value)
+                    wx.PostEvent(self._notify_window, StatusEvent([4, 1, str(self.VIN)]))
+            except:
+                pass
+            """
+            try:
+                #r = self.connection.connection.query(obd.commands.ECU_NAME)
+                #self.ECU_NAME = str(r.value)
+                self.ECU_NAME = obd.commands.ECU_NAME
+                wx.PostEvent(self._notify_window, StatusEvent([5, 1, str(self.ECU_NAME)]))
+            except:
+                pass
+                #traceback.print_exc()
+            """
             prevstate = -1
             curstate = -1
             #print(self.connection.connection.supported_commands)
@@ -354,6 +392,7 @@ class MyApp(wx.App):
 
 
             first_time_sensors = True
+            first_time_freezeframe = True
             first_time_maf = True
             first_time_tps = True
             first_time_graph = True
@@ -368,30 +407,31 @@ class MyApp(wx.App):
             while self._notify_window.ThreadControl != 666:
                 prevstate = curstate
                 curstate = self._nb.GetSelection()  # picking the tab in the GUI
-                if curstate != 4:
+                if curstate != 5:
                     first_time_tps = True
 
-                if curstate != 5:
+                if curstate != 6:
                     first_time_maf = True
 
-                if curstate != 6:
+                if curstate != 7:
                     first_time_graph = True
-
-                if prevstate == 4 and curstate != 4:
+                """
+                if prevstate == 5 and curstate != 5:
                     try:
                         plt.close(app.fig_tps)
                     except:
                         pass
-                if prevstate == 5 and curstate != 5:
+                if prevstate == 6 and curstate != 6:
                     try:
                         plt.close(app.fig_maf)
                     except:
                         pass
-                if prevstate == 6 and curstate != 6:
-                    try:
-                        plt.close(app.fig_graph)
-                    except:
-                        pass
+                """
+                if prevstate == 7 and curstate != 7:
+                    #try:
+                    #    plt.close(app.fig_graph)
+                    #except:
+                    #    pass
                     wx.PostEvent(self._notify_window, GraphValueEvent([0, 0, ""]))
                     wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, ""]))
                     wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, ""]))
@@ -408,51 +448,136 @@ class MyApp(wx.App):
                     #    print (val.available)
                     #    print (val.complete)
 
-                    wx.PostEvent(self._notify_window, TestEvent([0, 1, str(r.value.MISFIRE_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([0, 2, str(r.value.MISFIRE_MONITORING.complete)]))
+                    if r.value.MISFIRE_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([0, 1, "Available"]))
+                        if r.value.MISFIRE_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([0, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([0, 2, "Incomplete"]))
+                    if r.value.FUEL_SYSTEM_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([1, 1, "Available"]))
+                        if r.value.FUEL_SYSTEM_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([1, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([1, 2, "Incomplete"]))
+                    if r.value.COMPONENT_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([2, 1, "Available"]))
+                        if r.value.COMPONENT_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([2, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([2, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([1, 1, str(r.value.FUEL_SYSTEM_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([1, 2, str(r.value.FUEL_SYSTEM_MONITORING.complete)]))
+                    if r.value.CATALYST_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([3, 1, "Available"]))
+                        if r.value.CATALYST_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([3, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([3, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([2, 1, str(r.value.COMPONENT_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([2, 2, str(r.value.COMPONENT_MONITORING.complete)]))
+                    if r.value.HEATED_CATALYST_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([4, 1, "Available"]))
+                        if r.value.HEATED_CATALYST_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([4, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([4, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([3, 1, str(r.value.CATALYST_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([3, 2, str(r.value.CATALYST_MONITORING.complete)]))
+                    if r.value.EVAPORATIVE_SYSTEM_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([5, 1, "Available"]))
+                        if r.value.EVAPORATIVE_SYSTEM_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([5, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([5, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([4, 1, str(r.value.HEATED_CATALYST_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([4, 2, str(r.value.HEATED_CATALYST_MONITORING.complete)]))
+                    if r.value.SECONDARY_AIR_SYSTEM_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([6, 1, "Available"]))
+                        if r.value.SECONDARY_AIR_SYSTEM_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([6, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([6, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([5, 1, str(r.value.EVAPORATIVE_SYSTEM_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([5, 2, str(r.value.EVAPORATIVE_SYSTEM_MONITORING.complete)]))
+                    if r.value.OXYGEN_SENSOR_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([7, 1, "Available"]))
+                        if r.value.OXYGEN_SENSOR_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([7, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([7, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([6, 1, str(r.value.SECONDARY_AIR_SYSTEM_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([6, 2, str(r.value.SECONDARY_AIR_SYSTEM_MONITORING.complete)]))
+                    if r.value.OXYGEN_SENSOR_HEATER_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([8, 1, "Available"]))
+                        if r.value.OXYGEN_SENSOR_HEATER_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([8, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([8, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([7, 1, str(r.value.OXYGEN_SENSOR_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([7, 2, str(r.value.OXYGEN_SENSOR_MONITORING.complete)]))
+                    if r.value.EGR_VVT_SYSTEM_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([9, 1, "Available"]))
+                        if r.value.EGR_VVT_SYSTEM_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([9, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([9, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([8, 1, str(r.value.OXYGEN_SENSOR_HEATER_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([8, 2, str(r.value.OXYGEN_SENSOR_HEATER_MONITORING.complete)]))
+                    if r.value.NMHC_CATALYST_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([10, 1, "Available"]))
+                        if r.value.NMHC_CATALYST_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([10, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([10, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([9, 1, str(r.value.EGR_VVT_SYSTEM_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([9, 2, str(r.value.EGR_VVT_SYSTEM_MONITORING.complete)]))
+                    if r.value.NOX_SCR_AFTERTREATMENT_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([11, 1, "Available"]))
+                        if r.value.NOX_SCR_AFTERTREATMENT_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([11, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([11, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([10, 1, str(r.value.NMHC_CATALYST_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([10, 2, str(r.value.NMHC_CATALYST_MONITORING.complete)]))
+                    if r.value.BOOST_PRESSURE_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([12, 1, "Available"]))
+                        if r.value.BOOST_PRESSURE_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([12, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([12, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([11, 1, str(r.value.NOX_SCR_AFTERTREATMENT_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([11, 2, str(r.value.NOX_SCR_AFTERTREATMENT_MONITORING.complete)]))
+                    if r.value.EXHAUST_GAS_SENSOR_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([13, 1, "Available"]))
+                        if r.value.EXHAUST_GAS_SENSOR_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([13, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([13, 2, "Incomplete"]))
 
-                    wx.PostEvent(self._notify_window, TestEvent([12, 1, str(r.value.BOOST_PRESSURE_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([12, 2, str(r.value.BOOST_PRESSURE_MONITORING.complete)]))
-
-                    wx.PostEvent(self._notify_window, TestEvent([13, 1, str(r.value.EXHAUST_GAS_SENSOR_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([13, 2, str(r.value.EXHAUST_GAS_SENSOR_MONITORING.complete)]))
-
-                    wx.PostEvent(self._notify_window, TestEvent([14, 1, str(r.value.PM_FILTER_MONITORING.available)]))
-                    wx.PostEvent(self._notify_window, TestEvent([14, 2, str(r.value.PM_FILTER_MONITORING.complete)]))
-
+                    if r.value.PM_FILTER_MONITORING.available:
+                        wx.PostEvent(self._notify_window, TestEvent([14, 1, "Available"]))
+                        if r.value.PM_FILTER_MONITORING.complete:
+                            wx.PostEvent(self._notify_window, TestEvent([14, 2, "Complete"]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([14, 2, "Incomplete"]))
+                    try:
+                        r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_1)
+                        result = r.value.MISFIRE_COUNT
+                        if not result.is_null():
+                            wx.PostEvent(self._notify_window, TestEvent([15, 2, str(result.value)]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([15, 2, "Misfire count wasn't reported"]))
+                        r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_2)
+                        result = r.value.MISFIRE_COUNT
+                        if not result.is_null():
+                            wx.PostEvent(self._notify_window, TestEvent([16, 2, str(result.value)]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([16, 2, "Misfire count wasn't reported"]))
+                        r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_3)
+                        result = r.value.MISFIRE_COUNT
+                        if not result.is_null():
+                            wx.PostEvent(self._notify_window, TestEvent([17, 2, str(result.value)]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([17, 2, "Misfire count wasn't reported"]))
+                        r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_4)
+                        result = r.value.MISFIRE_COUNT
+                        if not result.is_null():
+                            wx.PostEvent(self._notify_window, TestEvent([18, 2, str(result.value)]))
+                        else:
+                            wx.PostEvent(self._notify_window, TestEvent([18, 2, "Misfire count wasn't reported"]))
+                    except:
+                        #traceback.print_exc()
+                        pass
                     """
                     "MISFIRE_MONITORING",
                     "FUEL_SYSTEM_MONITORING",
@@ -491,7 +616,7 @@ class MyApp(wx.App):
                         first_time_sensors = False
                         for command in obd.commands[1]:
                             if command:
-                                if command.command not in (b"0100" , b"0101" , b"0102" , b"0103", b"011C",b"0113" , b"0120" , b"0121", b"0140", b"0141"):
+                                if command.command not in (b"0100" , b"0101" , b"0102" , b"0113" , b"0120" , b"0121", b"0140"):
                                     s = self.connection.connection.query(command)
                                     if s.value == None:
                                         continue
@@ -554,7 +679,52 @@ class MyApp(wx.App):
                                          DTCEvent([DTCCodes[i][0], DTCCodes[i][1], DTCCodes[i][2]]))
 
                         pass
-                elif curstate == 4:  # show TPS tab
+
+                elif curstate == 4:  # show freezeframe tab
+
+                    if first_time_freezeframe:
+                        freezeframe_list = []
+                        counter = 0
+                        first_time_freezeframe = False
+                        for command in obd.commands[2]:
+                            if command:
+                                s = self.connection.connection.query(command)
+                                if s.value == None:
+                                    continue
+                                else:
+                                    freezeframe_list.append([command.command, command.desc, str(s.value)])
+                                    wx.PostEvent(self._notify_window, InsertFreezeframeRowEvent(counter))
+                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 0, str(command.command)]))
+                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(command.desc)]))
+                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(s.value)]))
+                                    counter = counter + 1
+                    else:
+                        counter = 0
+                        for sens in freezeframe_list:
+                            for command in obd.commands[2]:
+                                if command.command == sens[0]:
+                                    s = self.connection.connection.query(command)
+                                    freezeframe_list[counter] = [command.command, command.desc, str(s.value)]
+                                    counter = counter + 1
+                        counter = 0
+                        for sens in freezeframe_list:
+                            wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 0, str(sens[0])]))
+                            wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(sens[1])]))
+                            wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(sens[2])]))
+                            counter = counter + 1
+                    if self._notify_window.ThreadControl == 666:
+                        break
+
+
+
+
+
+
+
+
+
+
+                elif curstate == 5:  # show TPS tab
                     s = self.connection.connection.query(obd.commands[1][17])
                     wx.PostEvent(self._notify_window, TPSEvent([0, 0, obd.commands[1][17].command]))
                     wx.PostEvent(self._notify_window, TPSEvent([0, 1, obd.commands[1][17].desc]))
@@ -583,7 +753,7 @@ class MyApp(wx.App):
                     self.tps_dirty = True
                     wx.PostEvent(self._notify_window, TPSGraphEvent())
 
-                elif curstate == 5:  # show MAF tab
+                elif curstate == 6:  # show MAF tab
 
                     s = self.connection.connection.query(obd.commands[1][16])
                     wx.PostEvent(self._notify_window, MAFEvent([0, 0, obd.commands[1][16].command]))
@@ -614,7 +784,7 @@ class MyApp(wx.App):
                     self.maf_counter = self.maf_counter + 1
                     self.maf_dirty = True
                     wx.PostEvent(self._notify_window, MAFGraphEvent())
-                elif curstate == 6:  # show Graph tab
+                elif curstate == 7:  # show Graph tab
                     if first_time_graph:
                         wx.PostEvent(self._notify_window, DestroyComboBoxEvent([]))
                         self.graph_x_vals = np.array([])
@@ -630,7 +800,7 @@ class MyApp(wx.App):
                         first_time_graph = False
                         for command in obd.commands[1]:
                             if command:
-                                if command.command not in (b"0100" , b"0101" , b"0102" , b"0103", b"011C",b"0113" , b"0120" , b"0121", b"0140", b"0141"):
+                                if command.command not in (b"0100" , b"0101" , b"0102" , b"0113" , b"0120" , b"0121", b"0140"):
                                     s = self.connection.connection.query(command)
                                     if s.value == None:
                                         continue
@@ -729,7 +899,8 @@ class MyApp(wx.App):
             wx.PostEvent(self._notify_window, StatusEvent([1, 1, "----"]))
             wx.PostEvent(self._notify_window, StatusEvent([2, 1, "----"]))
             wx.PostEvent(self._notify_window, StatusEvent([3, 1, "----"]))
-
+            wx.PostEvent(self._notify_window, StatusEvent([4, 1, "----"]))
+            #wx.PostEvent(self._notify_window, StatusEvent([5, 1, "----"]))
             wx.PostEvent(self._notify_window, CloseEvent([]))
 
             #lock.release()
@@ -794,6 +965,7 @@ class MyApp(wx.App):
         self.sensors.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_RIGHT, width=200)
         self.sensors.InsertColumn(2, "Value")
 
+
         ####################################################################
         # This little bit of magic keeps the list the same size as the frame
         def OnPSize(e, win=panel):
@@ -809,8 +981,38 @@ class MyApp(wx.App):
 
         self.nb.AddPage(panel, "Sensors")
 
+    def build_freezeframe_page(self):
+        HOFFSET_LIST = 0
+        # tID = wx.NewId()
+        tID = wx.NewIdRef(count=1)
+        self.freezeframe_id = tID
+        panel = wx.Panel(self.nb, -1)
 
+        self.freezeframe = self.MyListCtrl(panel, tID, pos=wx.Point(0, HOFFSET_LIST),
+                                       style=
+                                       wx.LC_REPORT |
+                                       wx.SUNKEN_BORDER |
+                                       wx.LC_HRULES |
+                                       wx.LC_SINGLE_SEL)
 
+        self.freezeframe.InsertColumn(0, "PID", width=70)
+        self.freezeframe.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_RIGHT, width=200)
+        self.freezeframe.InsertColumn(2, "Value")
+
+        ####################################################################
+        # This little bit of magic keeps the list the same size as the frame
+        def OnPSize(e, win=panel):
+            panel.SetSize(e.GetSize())
+            self.freezeframe.SetSize(e.GetSize())
+
+            w, h = self.frame.GetSize()
+
+            self.freezeframe.SetSize(0, HOFFSET_LIST, w - 10, h - 35)
+
+        panel.Bind(wx.EVT_SIZE, OnPSize)
+        ####################################################################
+
+        self.nb.AddPage(panel, "Freeze frame")
 
 
     def build_DTC_page(self):
@@ -910,7 +1112,8 @@ class MyApp(wx.App):
         EVT_RESULT(self, self.DestroyComboBox, EVT_DESTROY_COMBOBOX_ID)
         EVT_RESULT(self, self.GetSelectionComboBox, EVT_COMBOBOX_GETSELECTION_ID)
         EVT_RESULT(self, self.InsertSensorRow, EVT_INSERT_SENSOR_ROW_ID)
-
+        EVT_RESULT(self, self.InsertFreezeframeRow, EVT_INSERT_FREEZEFRAME_ROW_ID)
+        EVT_RESULT(self, self.OnFreezeframeResult, EVT_FREEZEFRAME_RESULT_ID)
 
         # Main notebook frames
         self.nb = wx.Notebook(frame, -1, style=wx.NB_TOP)
@@ -921,13 +1124,14 @@ class MyApp(wx.App):
         self.status.Append(["Link State", "Disconnnected"]);
         self.status.Append(["Protocol", "----"]);
         self.status.Append(["Cable version", "----"]);
-        #self.status.Append(["COM port", self.COMPORT]);
         self.status.Append(["COM port", "----"]);
+        self.status.Append(["VIN number", "----"]);
+        #self.status.Append(["ECU NAME", "----"]);
 
         self.nb.AddPage(self.status, "Status")
 
         self.OBDTests = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
-        self.OBDTests.InsertColumn(0, "Description", width=200)
+        self.OBDTests.InsertColumn(0, "Description", width=300)
         self.OBDTests.InsertColumn(1, "Available")
         self.OBDTests.InsertColumn(2, "Complete")
         self.nb.AddPage(self.OBDTests, "Tests")
@@ -948,6 +1152,11 @@ class MyApp(wx.App):
         self.OBDTests.Append(["BOOST_PRESSURE_MONITORING", "---", "---"])
         self.OBDTests.Append(["EXHAUST_GAS_SENSOR_MONITORING", "---", "---"])
         self.OBDTests.Append(["PM_FILTER_MONITORING", "---", "---"])
+        self.OBDTests.Append(["MISFIRE CYLINDER 1", "---", "---"])
+        self.OBDTests.Append(["MISFIRE CYLINDER 2", "---", "---"])
+        self.OBDTests.Append(["MISFIRE CYLINDER 3", "---", "---"])
+        self.OBDTests.Append(["MISFIRE CYLINDER 4", "---", "---"])
+
 
 
 
@@ -955,6 +1164,8 @@ class MyApp(wx.App):
 
 
         self.build_DTC_page()
+
+        self.build_freezeframe_page()
 
         # MAF AND TPS ADDED BY J.P.
         self.tps = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
@@ -964,7 +1175,7 @@ class MyApp(wx.App):
         self.nb.AddPage(self.maf, "MAF Test")
         self.nb.AddPage(self.graph, "Graph")
 
-        self.tps.InsertColumn(0, "Command", width=40)
+        self.tps.InsertColumn(0, "PID", width=70)
         self.tps.InsertColumn(1, "Description", width=200)
         self.tps.InsertColumn(2, "Value")
         self.tps.InsertItem(0, "")
@@ -973,12 +1184,12 @@ class MyApp(wx.App):
 
 
 
-        self.graph.InsertColumn(0, "Command", width=40)
+        self.graph.InsertColumn(0, "PID", width=70)
         self.graph.InsertColumn(1, "Description", width=200)
         self.graph.InsertColumn(2, "Value")
         self.graph.InsertItem(0, "")
 
-        self.maf.InsertColumn(0, "Command", width=40)
+        self.maf.InsertColumn(0, "PID", width=70)
         self.maf.InsertColumn(1, "Description", width=200)
         self.maf.InsertColumn(2, "Value")
         self.maf.InsertItem(0, "")
@@ -1089,6 +1300,9 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
     def OnResult(self, event):
         self.sensors.SetItem(event.data[0], event.data[1], event.data[2])
 
+    def OnFreezeframeResult(self, event):
+        self.freezeframe.SetItem(event.data[0], event.data[1], event.data[2])
+
     def OnStatus(self, event):
         if event.data[0] == 666:  # signal, that connection falied
             self.sensor_control_off()
@@ -1197,6 +1411,10 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         counter = event.data
         self.sensors.InsertItem(counter, "")
 
+    def InsertFreezeframeRow(self, event):
+        counter = event.data
+        self.freezeframe.InsertItem(counter, "")
+
     def BuildComboBox(self, event):
         self.combobox = wx.ComboBox(self.graph, choices=event.data, pos=(0, 60))
 
@@ -1212,19 +1430,22 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         self.combobox_sel_finished = True
 
     def OnClose(self, event):
+
         try:
-            plt.close(self.fig_tps)
+            del self.fig_tps
         except:
             pass
         try:
-            plt.close(self.fig_maf)
+            del self.fig_maf
         except:
             pass
         try:
-            plt.close(self.fig_graph)
+            del self.fig_graph
         except:
             pass
+
         self.sensors.DeleteAllItems()
+        self.freezeframe.DeleteAllItems()
         self.OBDTests.DeleteAllItems()
         self.OBDTests.Append(["MISFIRE_MONITORING", "---", "---"])
         self.OBDTests.Append(["FUEL_SYSTEM_MONITORING", "---", "---"])
@@ -1241,6 +1462,10 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         self.OBDTests.Append(["BOOST_PRESSURE_MONITORING", "---", "---"])
         self.OBDTests.Append(["EXHAUST_GAS_SENSOR_MONITORING", "---", "---"])
         self.OBDTests.Append(["PM_FILTER_MONITORING", "---", "---"])
+        self.OBDTests.Append(["MISFIRE CYLINDER 1", "---", "---"])
+        self.OBDTests.Append(["MISFIRE CYLINDER 2", "---", "---"])
+        self.OBDTests.Append(["MISFIRE CYLINDER 3", "---", "---"])
+        self.OBDTests.Append(["MISFIRE CYLINDER 4", "---", "---"])
         self.dtc.DeleteAllItems()
 
         self.tps.DeleteAllItems()
@@ -1250,6 +1475,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         #####################
         try:
             self.tps_canvas.Destroy()
+
         except:
             pass
         try:
@@ -1260,6 +1486,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             self.graph_canvas.Destroy()
         except:
             pass
+
         ############
         self.tps.InsertItem(0, "")
         self.graph.InsertItem(0, "")
@@ -1521,7 +1748,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             # set and save SERTIMEOUT
             self.SERTIMEOUT = timeoutCtrl.GetValue()
             self.config.set("pyOBD", "SERTIMEOUT", self.SERTIMEOUT)
-            self.status.SetItem(3, 1, self.COMPORT)
+
 
             # set and save RECONNATTEMPTS
             self.RECONNATTEMPTS = int(reconnectCtrl.GetValue())

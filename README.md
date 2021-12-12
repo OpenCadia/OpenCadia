@@ -9,12 +9,14 @@ NOTE: On Windows you will need a suitable driver for your ELM327 device(on Linux
 ### Video presentation on YouTube(click on it):
 [![PYOBD Youtube video 2021](https://img.youtube.com/vi/NX_5WACHfG4/0.jpg)](https://www.youtube.com/watch?v=NX_5WACHfG4)
 
-On Windows, you can create an .exe file with these two commands:
+On Windows, you can create an .exe file with these three commands(make sure you install Python first):
+> pip install -r requirements.txt
+
 > pip install pyinstaller
 
 > pyinstaller --onefile -i pyobd.ico --add-data "pyobd.ico;." pyobd.py
 
-Actually I have already created it, and you can download it here(maybe sometimes your antivirus will give you false positive, but it is made from the code you have here on github):
+Actually I have already created it, and you can download it from here(maybe sometimes your antivirus will give you false positive, but it is made from the code you have here on github):
 https://drive.google.com/file/d/1ozxk8vIQi7bztI7t-w3T_ViGNyE9mOVP/view?usp=sharing
 
 On Debian 10 type these commands to install the requirements:

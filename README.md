@@ -11,6 +11,7 @@ NOTE: On Windows you will need a suitable driver for your ELM327 device(on Linux
 
 On Windows, you can create an .exe file with these two commands:
 > pip install pyinstaller
+
 > pyinstaller --onefile -i pyobd.ico --add-data "pyobd.ico;." pyobd.py
 
 Actually I have already created it, and you can download it here(maybe sometimes your antivirus will give you false positive, but it is made from the code you have here on github):

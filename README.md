@@ -16,9 +16,6 @@ On Windows, you can create an .exe file with these three commands(make sure you 
 
 > pyinstaller --onefile -i pyobd.ico --add-data "pyobd.ico;." pyobd.py
 
-Actually I have already created it, and you can download it from here(maybe sometimes your antivirus will give you a false positive, but it is made from the code you have here on github):
-https://drive.google.com/file/d/1ozxk8vIQi7bztI7t-w3T_ViGNyE9mOVP/view?usp=sharing
-
 On Debian 10 type these commands to install the requirements:
 
 > sudo apt-get install dpkg-dev build-essential libjpeg-dev libtiff-dev libsdl1.2-dev libgstreamer-plugins-base1.0 libnotify-dev freeglut3 freeglut3-dev libsm-dev libgtk-3-dev libwebkit2gtk-4.0-dev libxtst-dev

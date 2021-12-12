@@ -23,6 +23,7 @@
 # along with pyOBD; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ############################################################################
+import pint
 import numpy as np
 import multiprocessing
 from multiprocessing import Queue, Process
@@ -94,6 +95,16 @@ EVT_INSERT_FREEZEFRAME_ROW_ID = 1042
 EVT_FREEZEFRAME_RESULT_ID = 1043
 
 lock = threading.Lock()
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 TESTS = ["MISFIRE_MONITORING",
     "FUEL_SYSTEM_MONITORING",
@@ -1093,7 +1104,7 @@ class MyApp(wx.App):
 
         frame = wx.Frame(None, -1, "pyOBD-II")
         self.frame = frame
-        ico = wx.Icon('pyobd.gif', wx.BITMAP_TYPE_GIF)
+        ico = wx.Icon(resource_path('pyobd.ico'), wx.BITMAP_TYPE_ICO)
         frame.SetIcon(ico)
 
         EVT_RESULT(self, self.OnResult, EVT_RESULT_ID)
@@ -1597,7 +1608,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
     def CodeLookup(self, e=None):
         id = 0
         diag = wx.Frame(None, id, title="Diagnostic Trouble Codes")
-        ico = wx.Icon('pyobd.gif', wx.BITMAP_TYPE_GIF)
+        ico = wx.Icon(resource_path('pyobd.ico'), wx.BITMAP_TYPE_ICO)
         diag.SetIcon(ico)
         tree = wx.TreeCtrl(diag, id, style=wx.TR_HAS_BUTTONS)
 

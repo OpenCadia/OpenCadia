@@ -2,3 +2,5 @@ wxpython==4.1.1
 pyserial==3.5
 matplotlib
 numpy
+tornado
+pint

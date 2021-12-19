@@ -6,8 +6,7 @@ NOTE: On Windows you will need a suitable driver for your ELM327 device(on Linux
 
 > pyOBD (aka pyOBD-II or pyOBD2) is an OBD-II compliant car diagnostic tool. It is designed to interface with low-cost ELM 32x OBD-II diagnostic interfaces such as ELM327. It will basically allow you to talk to your car's ECU,... display fault codes, display measured values, read status tests, etc. All cars made since 1996 (in the US) or 2001 (in the EU) must be OBD-II compliant, i.e. they should work with pyOBD.
 
-Actually, here is the list of all OBD-II compatible cars in the world:
-
+How do you know if your car is OBD-II compliant?
 https://www.scantool.net/blog/how-do-i-know-whether-my-car-is-obd-ii-compliant/
 
 ### Video presentation on YouTube(click on it):

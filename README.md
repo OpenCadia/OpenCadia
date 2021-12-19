@@ -27,6 +27,7 @@ On Debian 10 type these commands to install the requirements:
 
 The program is run by typing: 
 > python3 pyobd.py
+
 .... or on Windows by running pyobd.exe if you make the .exe.
 
 The ignition must be on, to connect to the car and display data(key turned one level before engine start). Although most of the sensors display data only when the engine is running. If you connected and then turn the engine on, you must connect to the car again.

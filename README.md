@@ -13,7 +13,7 @@ How do you know if your car is OBD-II compliant?
 https://www.scantool.net/blog/how-do-i-know-whether-my-car-is-obd-ii-compliant/
 
 ### Video presentation on YouTube(click on it):
-[![PYOBD Youtube video 2021](https://img.youtube.com/vi/NX_5WACHfG4/0.jpg)](https://www.youtube.com/watch?v=NX_5WACHfG4)
+[![PYOBD Youtube video 2021](https://img.youtube.com/vi/TjCBmo5vCM8/0.jpg)](https://www.youtube.com/watch?v=TjCBmo5vCM8)
 
 On Windows, you can create an .exe file with these three commands(make sure you install Python 3 first):
 > pip install -r requirements.txt

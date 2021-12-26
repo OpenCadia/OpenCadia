@@ -39,11 +39,7 @@ The program works nice and I will also add new functionalities to it. I am worki
 
 TO DO LIST:<br />
 -add multiple graphs<br />
--add sensor data exporting<br />
+-add sensor data exporting and replay<br />
 -check if there are any bugs when displaying DTC error codes<br />
--add monitor mode<br />
--add terminal<br />
--add custom commands<br />
-
 
 ![ELM327](/elm327.jpg)

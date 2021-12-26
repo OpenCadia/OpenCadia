@@ -745,7 +745,7 @@ class MyApp(wx.App):
                         first_time_tps = False
                         self.tps_x_vals = np.array([])
                         self.tps_y_vals = np.array([])
-                        self.tps_max_y_val = 0
+                        self.tps_max_y_val = 1
                         self.tps_min_y_val = 0
 
                     #self.tps_x_vals.append(self.tps_counter)
@@ -776,7 +776,7 @@ class MyApp(wx.App):
                         #self.maf_y_vals = []
                         self.maf_x_vals = np.array([])
                         self.maf_y_vals = np.array([])
-                        self.maf_max_y_val = 0
+                        self.maf_max_y_val = 1
                         self.maf_min_y_val = 0
 
 
@@ -801,7 +801,7 @@ class MyApp(wx.App):
                         self.graph_x_vals = np.array([])
                         self.graph_y_vals = np.array([])
                         self.graph_counter = 0
-                        self.graph_max_y_val = 0
+                        self.graph_max_y_val = 1
                         self.graph_min_y_val = 0
                         graph_commands = []
                         self.current_command = None
@@ -843,7 +843,7 @@ class MyApp(wx.App):
                                 self.graph_y_vals = np.array([])
 
                                 self.graph_counter = 0
-                                self.graph_max_y_val = 0
+                                self.graph_max_y_val = 1
                                 self.graph_min_y_val = 0
 
                                 self.graph_dirty = True
@@ -1349,7 +1349,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 self.axes.clear()
                 self.axes.set_xlim(self.senprod.tps_counter - 290, self.senprod.tps_counter + 10)
                 #if not np.array_equal(self.senprod.tps_y_vals, np.array([])):
-                self.axes.set_ylim((self.senprod.tps_min_y_val)-5, (self.senprod.tps_max_y_val)+5)
+                self.axes.set_ylim((self.senprod.tps_min_y_val), (self.senprod.tps_max_y_val))
                 self.axes.set_title(obd.commands[1][17].desc,fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 self.axes.plot(self.senprod.tps_x_vals,self.senprod.tps_y_vals, color="b", linewidth=1)
                 self.tps_canvas.draw()
@@ -1377,7 +1377,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 self.maf_axes.clear()
                 self.maf_axes.set_xlim(self.senprod.maf_counter - 290, self.senprod.maf_counter + 10)
                 #if not np.array_equal(self.senprod.maf_y_vals,np.array([])):
-                self.maf_axes.set_ylim((self.senprod.maf_min_y_val)-5, (self.senprod.maf_max_y_val)+5)
+                self.maf_axes.set_ylim((self.senprod.maf_min_y_val), (self.senprod.maf_max_y_val))
                 self.maf_axes.set_title(obd.commands[1][16].desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 self.maf_axes.plot(self.senprod.maf_x_vals,self.senprod.maf_y_vals, color="b", linewidth=1)
                 self.maf_canvas.draw()
@@ -1530,7 +1530,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 self.graph_axes.clear()
                 self.graph_axes.set_xlim(self.senprod.graph_counter - 290, self.senprod.graph_counter + 10)
                 #if not np.array_equal(self.senprod.graph_y_vals, np.array([])):
-                self.graph_axes.set_ylim((self.senprod.graph_min_y_val)-5, (self.senprod.graph_max_y_val)+5)
+                self.graph_axes.set_ylim((self.senprod.graph_min_y_val), (self.senprod.graph_max_y_val))
                 try:
                     self.graph_axes.set_title(self.senprod.current_command.desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 except:

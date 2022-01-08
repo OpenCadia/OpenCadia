@@ -79,10 +79,6 @@ ID_HELP_ORDER = 510
 
 # Define notification event for sensor result window
 EVT_RESULT_ID = 1000
-EVT_MAF_ID = 1005
-EVT_TPS_ID = 1006
-EVT_TPS_GRAPH_ID = 1007
-EVT_MAF_GRAPH_ID = 1008
 EVT_GRAPH_VALUE_ID = 1036
 EVT_GRAPH_ID = 1035
 EVT_COMBOBOX = 1036
@@ -180,15 +176,6 @@ class InsertFreezeframeRowEvent(wx.PyEvent):
         self.SetEventType(EVT_INSERT_FREEZEFRAME_ROW_ID)
         self.data = data
 
-class TPSEvent(wx.PyEvent):
-    """Simple event to carry arbitrary result data."""
-
-    def __init__(self, data):
-        """Init Result Event."""
-        wx.PyEvent.__init__(self)
-        self.SetEventType(EVT_TPS_ID)
-        self.data = data
-
 class BuildComboBoxEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
 
@@ -218,24 +205,6 @@ class GetSelectionComboBoxEvent(wx.PyEvent):
 
 
 
-class TPSGraphEvent(wx.PyEvent):
-    """Simple event to carry arbitrary result data."""
-
-    def __init__(self):
-        """Init Result Event."""
-        wx.PyEvent.__init__(self)
-        self.SetEventType(EVT_TPS_GRAPH_ID)
-        #self.data = data
-
-class MAFEvent(wx.PyEvent):
-    """Simple event to carry arbitrary result data."""
-
-    def __init__(self, data):
-        """Init Result Event."""
-        wx.PyEvent.__init__(self)
-        self.SetEventType(EVT_MAF_ID)
-        self.data = data
-
 class GraphValueEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
 
@@ -245,14 +214,6 @@ class GraphValueEvent(wx.PyEvent):
         self.SetEventType(EVT_GRAPH_VALUE_ID)
         self.data = data
 
-class MAFGraphEvent(wx.PyEvent):
-    """Simple event to carry arbitrary result data."""
-
-    def __init__(self):
-        """Init Result Event."""
-        wx.PyEvent.__init__(self)
-        self.SetEventType(EVT_MAF_GRAPH_ID)
-        #self.data = data
 
 class GraphEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data."""
@@ -341,254 +302,201 @@ class MyApp(wx.App):
 
 
         def initCommunication(self):
-            self.connection = obd_io.OBDConnection(self.portName, self._notify_window, self.baudrate, self.SERTIMEOUT,self.RECONNATTEMPTS, self.FAST)
-            # self.port     = obd_io.OBDPort(self.portName,self._notify_window,self.SERTIMEOUT,self.RECONNATTEMPTS)
-
-            if self.connection.connection.status() != 'Car Connected':  # Cant open serial port
-                return None
-            else:
-                wx.PostEvent(self._notify_window, DebugEvent([1, "Communication initialized..."]))
-                return "OK"
-
-            # if self.port.State==0: #Cant open serial port
-            #    return None
-
-        def run(self):
             wx.PostEvent(self._notify_window, StatusEvent([0, 1, "Connecting...."]))
-            self.initCommunication()
-
-            if not self.connection.connection.status() == 'Car Connected':
+            self.connection = obd_io.OBDConnection(self.portName, self._notify_window, self.baudrate, self.SERTIMEOUT,self.RECONNATTEMPTS, self.FAST)
+            if self.connection.connection.status() != 'Car Connected':  # Cant open serial port
                 wx.PostEvent(self._notify_window, StatusEvent([666]))  # signal apl, that communication was disconnected
                 wx.PostEvent(self._notify_window, StatusEvent([0, 1, "Error cant connect..."]))
                 self.stop()
                 return None
+            else:
+                wx.PostEvent(self._notify_window, DebugEvent([1, "Communication initialized..."]))
+                wx.PostEvent(self._notify_window, StatusEvent([0, 1, "Car connected!"]))
 
-            # if self.port.State==0: #cant connect, exit thread
-            #    self.stop()
-            #    wx.PostEvent(self._notify_window, StatusEvent([666])) #signal apl, that communication was disconnected
-            #    wx.PostEvent(self._notify_window, StatusEvent([0,1,"Error cant connect..."]))
-            #    return None
+                r = self.connection.connection.query(obd.commands.ELM_VERSION)
+                self.ELMver = str(r.value)
+                self.protocol = self.connection.connection.protocol_name()
 
-            wx.PostEvent(self._notify_window, StatusEvent([0, 1, "Car connected!"]))
+                wx.PostEvent(self._notify_window, StatusEvent([2, 1, str(self.ELMver)]))
+                wx.PostEvent(self._notify_window, StatusEvent([1, 1, str(self.protocol)]))
+                wx.PostEvent(self._notify_window, StatusEvent([3, 1, str(self.connection.connection.port_name())]))
+                try:
+                    r = self.connection.connection.query(obd.commands.VIN)
+                    if r.vale != None:
+                        self.VIN = str(r.value)
+                        wx.PostEvent(self._notify_window, StatusEvent([4, 1, str(self.VIN)]))
+                except:
+                    pass
+                return "OK"
 
-            r = self.connection.connection.query(obd.commands.ELM_VERSION)
-            self.ELMver = str(r.value)
-            self.protocol = self.connection.connection.protocol_name()
+        def run(self):
 
-            wx.PostEvent(self._notify_window, StatusEvent([2, 1, str(self.ELMver)]))
-            wx.PostEvent(self._notify_window, StatusEvent([1, 1, str(self.protocol)]))
-            wx.PostEvent(self._notify_window, StatusEvent([3, 1, str(self.connection.connection.port_name())]))
-            try:
-                r = self.connection.connection.query(obd.commands.VIN)
-                if r.vale != None:
-                    self.VIN = str(r.value)
-                    wx.PostEvent(self._notify_window, StatusEvent([4, 1, str(self.VIN)]))
-            except:
-                pass
-            """
-            try:
-                #r = self.connection.connection.query(obd.commands.ECU_NAME)
-                #self.ECU_NAME = str(r.value)
-                self.ECU_NAME = obd.commands.ECU_NAME
-                wx.PostEvent(self._notify_window, StatusEvent([5, 1, str(self.ECU_NAME)]))
-            except:
-                pass
-                #traceback.print_exc()
-            """
+            if self.initCommunication() != "OK":
+                self.stop()
+                return None
+
+
+
             prevstate = -1
             curstate = -1
-            #print(self.connection.connection.supported_commands)
-
-
-
-
             first_time_sensors = True
             first_time_freezeframe = True
-            first_time_maf = True
-            first_time_tps = True
+
             first_time_graph = True
             self.graph_x_vals = np.array([])
             self.graph_y_vals = np.array([])
-            self.tps_counter = 0
-            self.tps_dirty = False
-            self.maf_counter = 0
-            self.maf_dirty = False
+
             self.graph_counter = 0
             self.graph_dirty = False
             while self._notify_window.ThreadControl != 666:
                 prevstate = curstate
                 curstate = self._nb.GetSelection()  # picking the tab in the GUI
-                if curstate != 5:
-                    first_time_tps = True
-
-                if curstate != 6:
-                    first_time_maf = True
-
-                if curstate != 7:
-                    first_time_graph = True
-                """
-                if prevstate == 5 and curstate != 5:
-                    try:
-                        plt.close(app.fig_tps)
-                    except:
-                        pass
-                if prevstate == 6 and curstate != 6:
-                    try:
-                        plt.close(app.fig_maf)
-                    except:
-                        pass
-                """
-                if prevstate == 7 and curstate != 7:
-                    #try:
-                    #    plt.close(app.fig_graph)
-                    #except:
-                    #    pass
-                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 0, ""]))
-                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, ""]))
-                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, ""]))
 
                 if curstate == 0:  # show status tab
 
-                    #first_time_tps = True
+
                     pass
                 elif curstate == 1:  # show tests tab
-                    #first_time_tps = True
-                    r = self.connection.connection.query(obd.commands[1][1])
-                    #counter = 0
-                    #for val in dir(r.value):
-                    #    print (val.available)
-                    #    print (val.complete)
-
-                    if r.value.MISFIRE_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([0, 1, "Available"]))
-                        if r.value.MISFIRE_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([0, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([0, 2, "Incomplete"]))
-                    if r.value.FUEL_SYSTEM_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([1, 1, "Available"]))
-                        if r.value.FUEL_SYSTEM_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([1, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([1, 2, "Incomplete"]))
-                    if r.value.COMPONENT_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([2, 1, "Available"]))
-                        if r.value.COMPONENT_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([2, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([2, 2, "Incomplete"]))
-
-                    if r.value.CATALYST_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([3, 1, "Available"]))
-                        if r.value.CATALYST_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([3, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([3, 2, "Incomplete"]))
-
-                    if r.value.HEATED_CATALYST_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([4, 1, "Available"]))
-                        if r.value.HEATED_CATALYST_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([4, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([4, 2, "Incomplete"]))
-
-                    if r.value.EVAPORATIVE_SYSTEM_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([5, 1, "Available"]))
-                        if r.value.EVAPORATIVE_SYSTEM_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([5, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([5, 2, "Incomplete"]))
-
-                    if r.value.SECONDARY_AIR_SYSTEM_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([6, 1, "Available"]))
-                        if r.value.SECONDARY_AIR_SYSTEM_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([6, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([6, 2, "Incomplete"]))
-
-                    if r.value.OXYGEN_SENSOR_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([7, 1, "Available"]))
-                        if r.value.OXYGEN_SENSOR_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([7, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([7, 2, "Incomplete"]))
-
-                    if r.value.OXYGEN_SENSOR_HEATER_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([8, 1, "Available"]))
-                        if r.value.OXYGEN_SENSOR_HEATER_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([8, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([8, 2, "Incomplete"]))
-
-                    if r.value.EGR_VVT_SYSTEM_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([9, 1, "Available"]))
-                        if r.value.EGR_VVT_SYSTEM_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([9, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([9, 2, "Incomplete"]))
-
-                    if r.value.NMHC_CATALYST_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([10, 1, "Available"]))
-                        if r.value.NMHC_CATALYST_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([10, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([10, 2, "Incomplete"]))
-
-                    if r.value.NOX_SCR_AFTERTREATMENT_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([11, 1, "Available"]))
-                        if r.value.NOX_SCR_AFTERTREATMENT_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([11, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([11, 2, "Incomplete"]))
-
-                    if r.value.BOOST_PRESSURE_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([12, 1, "Available"]))
-                        if r.value.BOOST_PRESSURE_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([12, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([12, 2, "Incomplete"]))
-
-                    if r.value.EXHAUST_GAS_SENSOR_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([13, 1, "Available"]))
-                        if r.value.EXHAUST_GAS_SENSOR_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([13, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([13, 2, "Incomplete"]))
-
-                    if r.value.PM_FILTER_MONITORING.available:
-                        wx.PostEvent(self._notify_window, TestEvent([14, 1, "Available"]))
-                        if r.value.PM_FILTER_MONITORING.complete:
-                            wx.PostEvent(self._notify_window, TestEvent([14, 2, "Complete"]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([14, 2, "Incomplete"]))
                     try:
-                        r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_1)
-                        result = r.value.MISFIRE_COUNT
-                        if not result.is_null():
-                            wx.PostEvent(self._notify_window, TestEvent([15, 2, str(result.value)]))
+                        r = self.connection.connection.query(obd.commands[1][1])
+
+
+                        if r.value.MISFIRE_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([0, 1, "Available"]))
+                            if r.value.MISFIRE_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([0, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([0, 2, "Incomplete"]))
+                        if r.value.FUEL_SYSTEM_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([1, 1, "Available"]))
+                            if r.value.FUEL_SYSTEM_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([1, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([1, 2, "Incomplete"]))
+                        if r.value.COMPONENT_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([2, 1, "Available"]))
+                            if r.value.COMPONENT_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([2, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([2, 2, "Incomplete"]))
+
+                        if r.value.CATALYST_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([3, 1, "Available"]))
+                            if r.value.CATALYST_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([3, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([3, 2, "Incomplete"]))
+
+                        if r.value.HEATED_CATALYST_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([4, 1, "Available"]))
+                            if r.value.HEATED_CATALYST_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([4, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([4, 2, "Incomplete"]))
+
+                        if r.value.EVAPORATIVE_SYSTEM_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([5, 1, "Available"]))
+                            if r.value.EVAPORATIVE_SYSTEM_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([5, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([5, 2, "Incomplete"]))
+
+                        if r.value.SECONDARY_AIR_SYSTEM_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([6, 1, "Available"]))
+                            if r.value.SECONDARY_AIR_SYSTEM_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([6, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([6, 2, "Incomplete"]))
+
+                        if r.value.OXYGEN_SENSOR_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([7, 1, "Available"]))
+                            if r.value.OXYGEN_SENSOR_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([7, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([7, 2, "Incomplete"]))
+
+                        if r.value.OXYGEN_SENSOR_HEATER_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([8, 1, "Available"]))
+                            if r.value.OXYGEN_SENSOR_HEATER_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([8, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([8, 2, "Incomplete"]))
+
+                        if r.value.EGR_VVT_SYSTEM_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([9, 1, "Available"]))
+                            if r.value.EGR_VVT_SYSTEM_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([9, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([9, 2, "Incomplete"]))
+
+                        if r.value.NMHC_CATALYST_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([10, 1, "Available"]))
+                            if r.value.NMHC_CATALYST_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([10, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([10, 2, "Incomplete"]))
+
+                        if r.value.NOX_SCR_AFTERTREATMENT_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([11, 1, "Available"]))
+                            if r.value.NOX_SCR_AFTERTREATMENT_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([11, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([11, 2, "Incomplete"]))
+
+                        if r.value.BOOST_PRESSURE_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([12, 1, "Available"]))
+                            if r.value.BOOST_PRESSURE_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([12, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([12, 2, "Incomplete"]))
+
+                        if r.value.EXHAUST_GAS_SENSOR_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([13, 1, "Available"]))
+                            if r.value.EXHAUST_GAS_SENSOR_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([13, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([13, 2, "Incomplete"]))
+
+                        if r.value.PM_FILTER_MONITORING.available:
+                            wx.PostEvent(self._notify_window, TestEvent([14, 1, "Available"]))
+                            if r.value.PM_FILTER_MONITORING.complete:
+                                wx.PostEvent(self._notify_window, TestEvent([14, 2, "Complete"]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([14, 2, "Incomplete"]))
+                        try:
+                            r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_1)
+                            result = r.value.MISFIRE_COUNT
+                            if not result.is_null():
+                                wx.PostEvent(self._notify_window, TestEvent([15, 2, str(result.value)]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([15, 2, "Misfire count wasn't reported"]))
+                            r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_2)
+                            result = r.value.MISFIRE_COUNT
+                            if not result.is_null():
+                                wx.PostEvent(self._notify_window, TestEvent([16, 2, str(result.value)]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([16, 2, "Misfire count wasn't reported"]))
+                            r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_3)
+                            result = r.value.MISFIRE_COUNT
+                            if not result.is_null():
+                                wx.PostEvent(self._notify_window, TestEvent([17, 2, str(result.value)]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([17, 2, "Misfire count wasn't reported"]))
+                            r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_4)
+                            result = r.value.MISFIRE_COUNT
+                            if not result.is_null():
+                                wx.PostEvent(self._notify_window, TestEvent([18, 2, str(result.value)]))
+                            else:
+                                wx.PostEvent(self._notify_window, TestEvent([18, 2, "Misfire count wasn't reported"]))
+                        except:
+                            #traceback.print_exc()
+                            pass
+                    except AttributeError:
+                        if self.initCommunication() != "OK":
+                            self.stop()
+                            return None
                         else:
-                            wx.PostEvent(self._notify_window, TestEvent([15, 2, "Misfire count wasn't reported"]))
-                        r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_2)
-                        result = r.value.MISFIRE_COUNT
-                        if not result.is_null():
-                            wx.PostEvent(self._notify_window, TestEvent([16, 2, str(result.value)]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([16, 2, "Misfire count wasn't reported"]))
-                        r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_3)
-                        result = r.value.MISFIRE_COUNT
-                        if not result.is_null():
-                            wx.PostEvent(self._notify_window, TestEvent([17, 2, str(result.value)]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([17, 2, "Misfire count wasn't reported"]))
-                        r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_4)
-                        result = r.value.MISFIRE_COUNT
-                        if not result.is_null():
-                            wx.PostEvent(self._notify_window, TestEvent([18, 2, str(result.value)]))
-                        else:
-                            wx.PostEvent(self._notify_window, TestEvent([18, 2, "Misfire count wasn't reported"]))
-                    except:
-                        #traceback.print_exc()
-                        pass
+                            continue
                     """
                     "MISFIRE_MONITORING",
                     "FUEL_SYSTEM_MONITORING",
@@ -606,60 +514,54 @@ class MyApp(wx.App):
                     "EXHAUST_GAS_SENSOR_MONITORING",
                     "PM_FILTER_MONITORING"
                     """
-                    #for t in TESTS:
-                        #print (t)
-                        #app.OBDTests.SetItem(counter, 1, r.value.MISFIRE_MONITORING.available)
-                        #app.OBDTests.SetItem(counter, 2, r.value.MISFIRE_MONITORING.complete)
-                        #available = globals()["r.value."+t+".available"]
-                        #complete = globals()["r.value."+t+".complete"]
-                        #wx.PostEvent(self._notify_window, TestEvent([0, 1, r.value.MISFIRE_MONITORING.available]))
-                        #wx.PostEvent(self._notify_window, TestEvent([0, 2, r.value.MISFIRE_MONITORING.complete]))
-                        #counter = counter + 1
 
-                    #for i in range(0, len(res)):
-                    #    app.PostEvent(self._notify_window, TestEvent([i, 1, res[i]]))
-                    pass
                 elif curstate == 2:  # show sensor tab
-
-                    if first_time_sensors:
-                        sensor_list = []
-                        counter = 0
-                        first_time_sensors = False
-                        for command in obd.commands[1]:
-                            if command:
-                                if command.command not in (b"0100" , b"0101" , b"0102" , b"0113" , b"0120" , b"0121", b"0140"):
-                                    s = self.connection.connection.query(command)
-                                    if s.value == None:
-                                        continue
-                                    else:
-                                        sensor_list.append([command.command, command.desc, str(s.value)])
-
-                                        #app.sensors.InsertItem(counter, "")
-                                        wx.PostEvent(self._notify_window, InsertSensorRowEvent(counter))
-                                        wx.PostEvent(self._notify_window, ResultEvent([counter, 0, str(command.command)]))
-                                        wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(command.desc)]))
-                                        wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(s.value)]))
-                                        counter = counter + 1
-                    else:
-                        #for i in range(0, app.sensors.GetItemCount()):
-                        #    app.sensors.DeleteItem(0)
-                        counter = 0
-                        for sens in sensor_list:
+                    try:
+                        if first_time_sensors:
+                            sensor_list = []
+                            counter = 0
+                            first_time_sensors = False
                             for command in obd.commands[1]:
-                                if command.command == sens[0]:
-                                    s = self.connection.connection.query(command)
-                                    sensor_list[counter] = [command.command, command.desc, str(s.value)]
-                                    counter = counter + 1
-                        counter = 0
-                        for sens in sensor_list:
-                            wx.PostEvent(self._notify_window, ResultEvent([counter, 0, str(sens[0])]))
-                            wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(sens[1])]))
-                            wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(sens[2])]))
-                            counter = counter + 1
-                    if self._notify_window.ThreadControl == 666:
-                        break
+                                if command:
+                                    if command.command not in (b"0100" , b"0101" , b"0102" , b"0113" , b"0120" , b"0121", b"0140"):
+                                        s = self.connection.connection.query(command)
+                                        if s.value == None:
+                                            continue
+                                        else:
+                                            sensor_list.append([command.command, command.desc, str(s.value)])
+
+                                            #app.sensors.InsertItem(counter, "")
+                                            wx.PostEvent(self._notify_window, InsertSensorRowEvent(counter))
+                                            wx.PostEvent(self._notify_window, ResultEvent([counter, 0, str(command.command)]))
+                                            wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(command.desc)]))
+                                            wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(s.value)]))
+                                            counter = counter + 1
+                        else:
+                            #for i in range(0, app.sensors.GetItemCount()):
+                            #    app.sensors.DeleteItem(0)
+                            counter = 0
+                            for sens in sensor_list:
+                                for command in obd.commands[1]:
+                                    if command.command == sens[0]:
+                                        s = self.connection.connection.query(command)
+                                        sensor_list[counter] = [command.command, command.desc, str(s.value)]
+                                        counter = counter + 1
+                            counter = 0
+                            for sens in sensor_list:
+                                wx.PostEvent(self._notify_window, ResultEvent([counter, 0, str(sens[0])]))
+                                wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(sens[1])]))
+                                wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(sens[2])]))
+                                counter = counter + 1
+                                if sens[2] == "None":
+                                    raise AttributeError
+                    except AttributeError:
+                        if self.initCommunication() != "OK":
+                            self.stop()
+                            return None
+                        else:
+                            continue
                 elif curstate == 3:  # show DTC tab
-                    #first_time_tps = True
+
                     if self._notify_window.ThreadControl == 1:  # clear DTC
                         self.connection.clear_dtc()
 
@@ -692,186 +594,130 @@ class MyApp(wx.App):
                         pass
 
                 elif curstate == 4:  # show freezeframe tab
-
-                    if first_time_freezeframe:
-                        freezeframe_list = []
-                        counter = 0
-                        first_time_freezeframe = False
-                        for command in obd.commands[2]:
-                            if command:
-                                s = self.connection.connection.query(command)
-                                if s.value == None:
-                                    continue
-                                else:
-                                    freezeframe_list.append([command.command, command.desc, str(s.value)])
-                                    wx.PostEvent(self._notify_window, InsertFreezeframeRowEvent(counter))
-                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 0, str(command.command)]))
-                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(command.desc)]))
-                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(s.value)]))
-                                    counter = counter + 1
-                    else:
-                        counter = 0
-                        for sens in freezeframe_list:
+                    try:
+                        if first_time_freezeframe:
+                            freezeframe_list = []
+                            counter = 0
+                            first_time_freezeframe = False
                             for command in obd.commands[2]:
-                                if command.command == sens[0]:
-                                    s = self.connection.connection.query(command)
-                                    freezeframe_list[counter] = [command.command, command.desc, str(s.value)]
-                                    counter = counter + 1
-                        counter = 0
-                        for sens in freezeframe_list:
-                            wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 0, str(sens[0])]))
-                            wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(sens[1])]))
-                            wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(sens[2])]))
-                            counter = counter + 1
-                    if self._notify_window.ThreadControl == 666:
-                        break
-
-
-
-
-
-
-
-
-
-
-                elif curstate == 5:  # show TPS tab
-                    s = self.connection.connection.query(obd.commands[1][17])
-                    wx.PostEvent(self._notify_window, TPSEvent([0, 0, obd.commands[1][17].command]))
-                    wx.PostEvent(self._notify_window, TPSEvent([0, 1, obd.commands[1][17].desc]))
-                    wx.PostEvent(self._notify_window, TPSEvent([0, 2, str(s.value)]))
-
-                    if first_time_tps:
-                        first_time_tps = False
-                        self.tps_x_vals = np.array([])
-                        self.tps_y_vals = np.array([])
-                        self.tps_max_y_val = 1
-                        self.tps_min_y_val = 0
-
-                    #self.tps_x_vals.append(self.tps_counter)
-                    self.tps_x_vals = np.append(self.tps_x_vals, self.tps_counter)
-                    if float(s.value.magnitude) > self.tps_max_y_val:
-                        self.tps_max_y_val = float(s.value.magnitude)
-                    if float(s.value.magnitude) < self.tps_min_y_val:
-                        self.tps_min_y_val = float(s.value.magnitude)
-
-                    #self.tps_y_vals.append(float(s.value.magnitude))
-                    self.tps_y_vals = np.append(self.tps_y_vals, float(s.value.magnitude))
-                    if len(self.tps_x_vals) > 300:
-                        self.tps_x_vals = np.delete(self.tps_x_vals, (0))
-                        self.tps_y_vals = np.delete(self.tps_y_vals, (0))
-                    self.tps_counter = self.tps_counter + 1
-                    self.tps_dirty = True
-                    wx.PostEvent(self._notify_window, TPSGraphEvent())
-
-                elif curstate == 6:  # show MAF tab
-
-                    s = self.connection.connection.query(obd.commands[1][16])
-                    wx.PostEvent(self._notify_window, MAFEvent([0, 0, obd.commands[1][16].command]))
-                    wx.PostEvent(self._notify_window, MAFEvent([0, 1, obd.commands[1][16].desc]))
-                    wx.PostEvent(self._notify_window, MAFEvent([0, 2, str(s.value)]))
-                    if first_time_maf:
-                        first_time_maf = False
-                        #self.maf_x_vals = []
-                        #self.maf_y_vals = []
-                        self.maf_x_vals = np.array([])
-                        self.maf_y_vals = np.array([])
-                        self.maf_max_y_val = 1
-                        self.maf_min_y_val = 0
-
-
-                    #self.maf_x_vals.append(self.maf_counter)
-                    self.maf_x_vals = np.append(self.maf_x_vals, self.maf_counter)
-                    self.maf_y_vals = np.append(self.maf_y_vals, float(s.value.magnitude))
-                    #self.maf_y_vals.append(float(s.value.magnitude))
-                    if float(s.value.magnitude) > self.maf_max_y_val:
-                        self.maf_max_y_val = float(s.value.magnitude)
-                    if float(s.value.magnitude) < self.maf_min_y_val:
-                        self.maf_maf_y_val = float(s.value.magnitude)
-                    if len(self.maf_x_vals) > 300:
-                        self.maf_x_vals = np.delete(self.maf_x_vals, (0))
-                        self.maf_y_vals = np.delete(self.maf_y_vals, (0))
-
-                    self.maf_counter = self.maf_counter + 1
-                    self.maf_dirty = True
-                    wx.PostEvent(self._notify_window, MAFGraphEvent())
-                elif curstate == 7:  # show Graph tab
-                    if first_time_graph:
-                        wx.PostEvent(self._notify_window, DestroyComboBoxEvent([]))
-                        self.graph_x_vals = np.array([])
-                        self.graph_y_vals = np.array([])
-                        self.graph_counter = 0
-                        self.graph_max_y_val = 1
-                        self.graph_min_y_val = 0
-                        graph_commands = []
-                        self.current_command = None
-                        self.graph_dirty = True
-                        wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
-                        prev_command = None
-                        first_time_graph = False
-                        for command in obd.commands[1]:
-                            if command:
-                                if command.command not in (b"0100" , b"0101" , b"0102" , b"0113" , b"0120" , b"0121", b"0140"):
+                                if command:
                                     s = self.connection.connection.query(command)
                                     if s.value == None:
                                         continue
                                     else:
-                                        graph_commands.append(command)
-                        sensor_descriptions = []
-                        for command in graph_commands:
-                            sensor_descriptions.append(command.desc)
-                        wx.PostEvent(self._notify_window, BuildComboBoxEvent(sensor_descriptions))
-
-                    else:
-                        app.combobox_sel_finished = False
-                        wx.PostEvent(self._notify_window, GetSelectionComboBoxEvent([]))
-                        while not app.combobox_sel_finished:
-                            time.sleep(0.01)
-                        curr_selection = app.combobox_selection
-
-                        if curr_selection != -1:
-                            prev_command = self.current_command
-                            self.current_command = graph_commands[curr_selection]
+                                        freezeframe_list.append([command.command, command.desc, str(s.value)])
+                                        wx.PostEvent(self._notify_window, InsertFreezeframeRowEvent(counter))
+                                        wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 0, str(command.command)]))
+                                        wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(command.desc)]))
+                                        wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(s.value)]))
+                                        counter = counter + 1
                         else:
+                            counter = 0
+                            for sens in freezeframe_list:
+                                for command in obd.commands[2]:
+                                    if command.command == sens[0]:
+                                        s = self.connection.connection.query(command)
+                                        freezeframe_list[counter] = [command.command, command.desc, str(s.value)]
+                                        counter = counter + 1
+                            counter = 0
+                            for sens in freezeframe_list:
+                                wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 0, str(sens[0])]))
+                                wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(sens[1])]))
+                                wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(sens[2])]))
+                                counter = counter + 1
+                                if sens[2] == "None":
+                                    raise AttributeError
+                    except AttributeError:
+                        if self.initCommunication() != "OK":
+                            self.stop()
+                            return None
+                        else:
+                            continue
+
+                elif curstate == 5:  # show Graph tab
+                    try:
+                        if first_time_graph:
+                            wx.PostEvent(self._notify_window, DestroyComboBoxEvent([]))
+                            self.graph_x_vals = np.array([])
+                            self.graph_y_vals = np.array([])
+                            self.graph_counter = 0
+                            self.graph_max_y_val = 1
+                            self.graph_min_y_val = 0
+                            graph_commands = []
                             self.current_command = None
+                            self.graph_dirty = True
+                            wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
+                            prev_command = None
+                            first_time_graph = False
+                            for command in obd.commands[1]:
+                                if command:
+                                    if command.command not in (b"0100" , b"0101" , b"0102" , b"0113" , b"0120" , b"0121", b"0140"):
+                                        s = self.connection.connection.query(command)
+                                        if s.value == None:
+                                            continue
+                                        else:
+                                            graph_commands.append(command)
+                            sensor_descriptions = []
+                            for command in graph_commands:
+                                sensor_descriptions.append(command.desc)
+                            wx.PostEvent(self._notify_window, BuildComboBoxEvent(sensor_descriptions))
 
-                        if self.current_command != None:
-                            if (prev_command == None) or (prev_command != self.current_command):
-                                #self.graph_x_vals = []
-                                #self.graph_y_vals = []
-                                self.graph_x_vals = np.array([])
-                                self.graph_y_vals = np.array([])
+                        else:
+                            app.combobox_sel_finished = False
+                            wx.PostEvent(self._notify_window, GetSelectionComboBoxEvent([]))
+                            while not app.combobox_sel_finished:
+                                time.sleep(0.01)
+                            curr_selection = app.combobox_selection
 
-                                self.graph_counter = 0
-                                self.graph_max_y_val = 1
-                                self.graph_min_y_val = 0
-
-                                self.graph_dirty = True
-                                wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
+                            if curr_selection != -1:
+                                prev_command = self.current_command
+                                self.current_command = graph_commands[curr_selection]
                             else:
-                                s = self.connection.connection.query(self.current_command)
-                                wx.PostEvent(self._notify_window, GraphValueEvent([0, 0, self.current_command.command]))
-                                wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, self.current_command.desc]))
-                                wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, str(s.value)]))
+                                self.current_command = None
 
+                            if self.current_command != None:
+                                if (prev_command == None) or (prev_command != self.current_command):
+                                    #self.graph_x_vals = []
+                                    #self.graph_y_vals = []
+                                    self.graph_x_vals = np.array([])
+                                    self.graph_y_vals = np.array([])
 
-                                #self.graph_x_vals.append(self.graph_counter)
-                                #self.graph_y_vals.append(float(s.value.magnitude))
-                                self.graph_x_vals = np.append(self.graph_x_vals, self.graph_counter)
-                                self.graph_y_vals = np.append(self.graph_y_vals, float(s.value.magnitude))
+                                    self.graph_counter = 0
+                                    self.graph_max_y_val = 1
+                                    self.graph_min_y_val = 0
 
-                                if float(s.value.magnitude) > self.graph_max_y_val:
-                                    self.graph_max_y_val = float(s.value.magnitude)
-                                if float(s.value.magnitude) < self.graph_min_y_val:
-                                    self.graph_min_y_val = float(s.value.magnitude)
-                                if len(self.graph_x_vals) > 300:
-                                    self.graph_x_vals = np.delete(self.graph_x_vals, (0))
-                                    self.graph_y_vals = np.delete(self.graph_y_vals, (0))
+                                    self.graph_dirty = True
+                                    wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
+                                else:
+                                    s = self.connection.connection.query(self.current_command)
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 0, self.current_command.command]))
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, self.current_command.desc]))
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, str(s.value)]))
+                                    if s.value == None:
+                                        raise AttributeError
+                                    #self.graph_x_vals.append(self.graph_counter)
+                                    #self.graph_y_vals.append(float(s.value.magnitude))
+                                    self.graph_x_vals = np.append(self.graph_x_vals, self.graph_counter)
+                                    self.graph_y_vals = np.append(self.graph_y_vals, float(s.value.magnitude))
 
-                                self.graph_counter = self.graph_counter + 1
-                                #prev_command = self.current_command
-                                self.graph_dirty = True
-                                wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
+                                    if float(s.value.magnitude) > self.graph_max_y_val:
+                                        self.graph_max_y_val = float(s.value.magnitude)
+                                    if float(s.value.magnitude) < self.graph_min_y_val:
+                                        self.graph_min_y_val = float(s.value.magnitude)
+                                    if len(self.graph_x_vals) > 300:
+                                        self.graph_x_vals = np.delete(self.graph_x_vals, (0))
+                                        self.graph_y_vals = np.delete(self.graph_y_vals, (0))
+
+                                    self.graph_counter = self.graph_counter + 1
+                                    #prev_command = self.current_command
+                                    self.graph_dirty = True
+                                    wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
+                    except AttributeError:
+                        if self.initCommunication() != "OK":
+                            self.stop()
+                            return None
+                        else:
+                            continue
                 else:
 
                     pass
@@ -1112,10 +958,6 @@ class MyApp(wx.App):
         EVT_RESULT(self, self.OnDtc, EVT_DTC_ID)
         EVT_RESULT(self, self.OnStatus, EVT_STATUS_ID)
         EVT_RESULT(self, self.OnTests, EVT_TESTS_ID)
-        EVT_RESULT(self, self.OnTPS, EVT_TPS_ID)
-        EVT_RESULT(self, self.OnMAF, EVT_MAF_ID)
-        EVT_RESULT(self, self.OnTPSGraph, EVT_TPS_GRAPH_ID)
-        EVT_RESULT(self, self.OnMAFGraph, EVT_MAF_GRAPH_ID)
         EVT_RESULT(self, self.OnGraphValue, EVT_GRAPH_VALUE_ID)
         EVT_RESULT(self, self.OnGraph, EVT_GRAPH_ID)
         EVT_RESULT(self, self.OnClose, EVT_CLOSE_ID)
@@ -1178,19 +1020,10 @@ class MyApp(wx.App):
 
         self.build_freezeframe_page()
 
-        # MAF AND TPS ADDED BY J.P.
-        self.tps = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
-        self.maf = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
+
         self.graph = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
-        self.nb.AddPage(self.tps, "TPS Test")
-        self.nb.AddPage(self.maf, "MAF Test")
+
         self.nb.AddPage(self.graph, "Graph")
-
-        self.tps.InsertColumn(0, "PID", width=70)
-        self.tps.InsertColumn(1, "Description", width=200)
-        self.tps.InsertColumn(2, "Value")
-        self.tps.InsertItem(0, "")
-
 
 
 
@@ -1200,13 +1033,7 @@ class MyApp(wx.App):
         self.graph.InsertColumn(2, "Value")
         self.graph.InsertItem(0, "")
 
-        self.maf.InsertColumn(0, "PID", width=70)
-        self.maf.InsertColumn(1, "Description", width=200)
-        self.maf.InsertColumn(2, "Value")
-        self.maf.InsertItem(0, "")
 
-
-        # MAF AND TPS ADDED BY J.P.
 
         self.trace = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
         self.trace.InsertColumn(0, "Level", width=40)
@@ -1323,98 +1150,6 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
     def OnTests(self, event):
         self.OBDTests.SetItem(event.data[0], event.data[1], event.data[2])
 
-    def OnMAF(self, event):
-        self.maf.SetItem(event.data[0], event.data[1], event.data[2])
-    def OnTPS(self, event):
-        self.tps.SetItem(event.data[0], event.data[1], event.data[2])
-    def OnTPSGraph(self, event):
-        try:
-            self.fig_tps
-        except:
-            plt.style.use('fivethirtyeight')
-            x_axis_start = 0
-            x_axis_end = 100
-            x_axis_start = 0
-            x_axis_end = 100
-            self.fig_tps = Figure(dpi=100)
-            #self.fig_tps = Figure(figsize=(100,100))
-            self.axes = self.fig_tps.add_subplot()
-            self.tps_canvas = FigureCanvas(self.tps, -1, self.fig_tps)
-            self.tps_canvas.SetPosition(wx.Point(0, 80))
-
-
-        def animate():
-
-            if self.senprod.tps_dirty:
-                self.axes.clear()
-                self.axes.set_xlim(self.senprod.tps_counter - 290, self.senprod.tps_counter + 10)
-                #if not np.array_equal(self.senprod.tps_y_vals, np.array([])):
-                self.axes.set_ylim((self.senprod.tps_min_y_val), (self.senprod.tps_max_y_val))
-                self.axes.set_title(obd.commands[1][17].desc,fontdict={'fontsize': 20, 'fontweight': 'medium'})
-                self.axes.plot(self.senprod.tps_x_vals,self.senprod.tps_y_vals, color="b", linewidth=1)
-                self.tps_canvas.draw()
-                self.senprod.tps_dirty = False
-        animate()
-
-    def OnMAFGraph(self, event):
-        try:
-            self.fig_maf
-        except:
-            plt.style.use('fivethirtyeight')
-            x_axis_start = 0
-            x_axis_end = 100
-
-
-            self.fig_maf = Figure(dpi=100)
-
-            self.maf_axes = self.fig_maf.add_subplot()
-            self.maf_canvas = FigureCanvas(self.maf, -1, self.fig_maf)
-            self.maf_canvas.SetPosition(wx.Point(0, 80))
-
-
-        def animate():
-            if self.senprod.maf_dirty:
-                self.maf_axes.clear()
-                self.maf_axes.set_xlim(self.senprod.maf_counter - 290, self.senprod.maf_counter + 10)
-                #if not np.array_equal(self.senprod.maf_y_vals,np.array([])):
-                self.maf_axes.set_ylim((self.senprod.maf_min_y_val), (self.senprod.maf_max_y_val))
-                self.maf_axes.set_title(obd.commands[1][16].desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
-                self.maf_axes.plot(self.senprod.maf_x_vals,self.senprod.maf_y_vals, color="b", linewidth=1)
-                self.maf_canvas.draw()
-                self.senprod.maf_dirty = False
-        animate()
-
-        ###########################
-        """
-        plt.style.use('fivethirtyeight')
-        self.fig_maf = plt.figure()
-        x_axis_start = 0
-        x_axis_end = 100
-        ax = plt.axes(xlim=(x_axis_start, x_axis_end), ylim=(0, 100))
-
-        line, = ax.plot(0, 0)
-
-        def animate(i):
-            if self.senprod.maf_dirty:
-                line.set_linewidth(1)
-                line.set_linewidth(1)
-                line.set_xdata(self.senprod.maf_x_vals)
-                line.set_ydata(self.senprod.maf_y_vals)
-                ax.set_xlim(self.senprod.maf_counter - 290, self.senprod.maf_counter + 10)
-                if self.senprod.maf_y_vals != []:
-                    ax.set_ylim(0, max(self.senprod.maf_y_vals)+5)
-                ax.set_title('MAF grams per second', fontdict={'fontsize': 20, 'fontweight': 'medium'})
-                self.senprod.maf_dirty = False
-            #plt.pause(0.05)
-
-            return line,
-
-        ani = FuncAnimation(self.fig_maf, animate, blit=False) #, frames=None, interval=1, blit=True)
-        ax.axhline(linewidth=1, color="b")
-        plt.tight_layout()
-        plt.show()
-        """
-
     def OnCombo(self, event):
         self.senprod.curr_selection = self.combobox.GetSelection()
 
@@ -1442,14 +1177,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
     def OnClose(self, event):
 
-        try:
-            del self.fig_tps
-        except:
-            pass
-        try:
-            del self.fig_maf
-        except:
-            pass
+
         try:
             del self.fig_graph
         except:
@@ -1479,29 +1207,17 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         self.OBDTests.Append(["MISFIRE CYLINDER 4", "---", "---"])
         self.dtc.DeleteAllItems()
 
-        self.tps.DeleteAllItems()
-        self.maf.DeleteAllItems()
+
         self.graph.DeleteAllItems()
 
-        #####################
-        try:
-            self.tps_canvas.Destroy()
-
-        except:
-            pass
-        try:
-            self.maf_canvas.Destroy()
-        except:
-            pass
         try:
             self.graph_canvas.Destroy()
         except:
             pass
 
-        ############
-        self.tps.InsertItem(0, "")
+
         self.graph.InsertItem(0, "")
-        self.maf.InsertItem(0, "")
+
         try:
             self.combobox.Destroy()
         except:
@@ -1530,7 +1246,11 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 self.graph_axes.clear()
                 self.graph_axes.set_xlim(self.senprod.graph_counter - 290, self.senprod.graph_counter + 10)
                 #if not np.array_equal(self.senprod.graph_y_vals, np.array([])):
-                self.graph_axes.set_ylim((self.senprod.graph_min_y_val), (self.senprod.graph_max_y_val))
+                if self.senprod.current_command != None:
+                    if "o2" in self.senprod.current_command.desc.lower():
+                        self.graph_axes.set_ylim((self.senprod.graph_min_y_val), (self.senprod.graph_max_y_val))
+                    else:
+                        self.graph_axes.set_ylim((self.senprod.graph_min_y_val-5), (self.senprod.graph_max_y_val+5))
                 try:
                     self.graph_axes.set_title(self.senprod.current_command.desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
                 except:

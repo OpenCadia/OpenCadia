@@ -563,7 +563,7 @@ class MyApp(wx.App):
                 elif curstate == 3:  # show DTC tab
 
                     if self._notify_window.ThreadControl == 1:  # clear DTC
-                        self.connection.clear_dtc()
+                        r = self.connection.query(obd.commands["CLEAR_DTC"])
 
                         if self._notify_window.ThreadControl == 666:  # before reset ThreadControl we must check if main thread did not want us to finish
                             break
@@ -583,15 +583,19 @@ class MyApp(wx.App):
                     if prevstate != 3:
 
                         wx.PostEvent(self._notify_window, DTCEvent(0))  # clear list
-                        DTCCodes = self.connection.get_dtc()
-                        print(len(DTCCodes))
-                        if len(DTCCodes) == 0:
-                            wx.PostEvent(self._notify_window, DTCEvent(["", "", "No DTC codes (codes cleared)"]))
-                        for i in range(0, len(DTCCodes)):
-                            wx.PostEvent(self._notify_window,
-                                         DTCEvent([DTCCodes[i][0], DTCCodes[i][1], DTCCodes[i][2]]))
-
-                        pass
+                        r = self.connection.query(obd.commands.GET_DTC)
+                        DTCCODES = []
+                        if r.value != None:
+                            for dtccode in r.value:
+                                DTCCODES.append((dtccode[0], "Active", dtccode[1]))
+                        r = self.connection.query(obd.commands.FREEZE_DTC)
+                        if r.value != None:
+                            for dtccode in r.value:
+                                DTCCODES.append((dtccode[0], "Passive", dtccode[1]))
+                        #if len(DTCCodes) == 0:
+                        #    wx.PostEvent(self._notify_window, DTCEvent(["", "", "No DTC codes (codes cleared)"]))
+                        for dtccode in DTCCODES:
+                            wx.PostEvent(self._notify_window, DTCEvent(dtccode[0],dtccode[1],dtccode[2]))
 
                 elif curstate == 4:  # show freezeframe tab
                     try:

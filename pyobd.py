@@ -563,7 +563,7 @@ class MyApp(wx.App):
                 elif curstate == 3:  # show DTC tab
 
                     if self._notify_window.ThreadControl == 1:  # clear DTC
-                        r = self.connection.query(obd.commands["CLEAR_DTC"])
+                        r = self.connection.connection.query(obd.commands["CLEAR_DTC"])
 
                         if self._notify_window.ThreadControl == 666:  # before reset ThreadControl we must check if main thread did not want us to finish
                             break
@@ -583,19 +583,25 @@ class MyApp(wx.App):
                     if prevstate != 3:
 
                         wx.PostEvent(self._notify_window, DTCEvent(0))  # clear list
-                        r = self.connection.query(obd.commands.GET_DTC)
+                        r = self.connection.connection.query(obd.commands.GET_DTC)
                         DTCCODES = []
+                        print ("DTCCODES:",r.value)
                         if r.value != None:
                             for dtccode in r.value:
-                                DTCCODES.append((dtccode[0], "Active", dtccode[1]))
-                        r = self.connection.query(obd.commands.FREEZE_DTC)
+                                DTCCODES.append((dtccode, "Active", dtccode[1]))
+                        r = self.connection.connection.query(obd.commands.FREEZE_DTC)
+                        print ("FREEZECODES:",r.value)
                         if r.value != None:
-                            for dtccode in r.value:
+                            dtccode = r.value
+                            if "P0000" not in dtccode:
                                 DTCCODES.append((dtccode[0], "Passive", dtccode[1]))
-                        #if len(DTCCodes) == 0:
-                        #    wx.PostEvent(self._notify_window, DTCEvent(["", "", "No DTC codes (codes cleared)"]))
-                        for dtccode in DTCCODES:
-                            wx.PostEvent(self._notify_window, DTCEvent(dtccode[0],dtccode[1],dtccode[2]))
+
+                        print ("DTCcodes and FREEZEcodes:", DTCCODES)
+                        if len(DTCCODES) > 0:
+                            for dtccode in DTCCODES:
+                                wx.PostEvent(self._notify_window, DTCEvent(dtccode))
+                        elif len(DTCCODES) == 0:
+                            wx.PostEvent(self._notify_window, DTCEvent(["", "", "No DTC codes (codes cleared)"]))
 
                 elif curstate == 4:  # show freezeframe tab
                     try:

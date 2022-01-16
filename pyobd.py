@@ -523,7 +523,7 @@ class MyApp(wx.App):
                             first_time_sensors = False
                             for command in obd.commands[1]:
                                 if command:
-                                    if command.command not in (b"0100" , b"0101" , b"0102" , b"0113" , b"0120" , b"0121", b"0140"):
+                                    if command.command not in (b"0100" , b"0101" , b"0102" , b"0103", b"0113" , b"011C", b"0120" , b"0121", b"0140"):
                                         s = self.connection.connection.query(command)
                                         if s.value == None:
                                             continue
@@ -655,7 +655,7 @@ class MyApp(wx.App):
                             first_time_graph = False
                             for command in obd.commands[1]:
                                 if command:
-                                    if command.command not in (b"0100" , b"0101" , b"0102" , b"0113" , b"0120" , b"0121", b"0140"):
+                                    if command.command not in (b"0100" , b"0101" , b"0102" , b"0103", b"0113" , b"011C", b"0120" , b"0121", b"0140"):
                                         s = self.connection.connection.query(command)
                                         if s.value == None:
                                             continue

@@ -305,6 +305,7 @@ class ELM327:
         self.__port.timeout = self.timeout  # we're only talking with the ELM, so things should go quickly
 
         for baud in self._TRY_BAUDS:
+            print ("Trying baud rate: ",baud)
             self.__port.baudrate = baud
             self.__port.flushInput()
             self.__port.flushOutput()
@@ -325,6 +326,7 @@ class ELM327:
             # watch for the prompt character
             if response.endswith(b">"):
                 logger.debug("Choosing baud %d" % baud)
+                print("Choosing baud rate %d" % baud)
                 self.__port.timeout = timeout  # reinstate our original timeout
                 return True
 

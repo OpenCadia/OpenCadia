@@ -17,7 +17,7 @@ https://www.scantool.net/blog/how-do-i-know-whether-my-car-is-obd-ii-compliant/
 
 Which ELM327 device am I using and which will work?<br/>
 I am using this one(I bought it 10 years ago):<br/>
-https://www.obdpros.com/product_info.php?products_id=133<br/>
+-OBDPro USB Scantool (http://www.obdpros.com/product_info.php?products_id=133)<br/>
 Others that have been reported to work:<br/>
 -OBDLink SX (https://www.obdlink.com/products/obdlink-sx/)<br/>
 -Chinese USB ELM OBD2 (1.5a)<br/>

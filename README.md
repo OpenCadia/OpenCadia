@@ -21,7 +21,7 @@ I am using this one(I bought it 10 years ago):<br/>
 Others that have been reported to work:<br/>
 -OBDLink SX (https://www.obdlink.com/products/obdlink-sx/)<br/>
 -Chinese USB ELM OBD2 (1.5a)<br/>
--probably any USB ELM327 adapter will work(but I can not be 100% sure).<br/>
+Probably any USB ELM327 adapter will work(but I can not be 100% sure).<br/>
 
 ### Video presentation on YouTube(click on it):
 [![PYOBD Youtube video 2021](https://img.youtube.com/vi/TjCBmo5vCM8/0.jpg)](https://www.youtube.com/watch?v=TjCBmo5vCM8)

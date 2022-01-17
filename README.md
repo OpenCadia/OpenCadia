@@ -17,11 +17,11 @@ https://www.scantool.net/blog/how-do-i-know-whether-my-car-is-obd-ii-compliant/
 
 Which ELM327 device am I using and which will work?<br/>
 I am using this one(I bought it 10 years ago):<br/>
-https://www.obdpros.com/product_info.php?products_id=133
-Others that have been reported to work:
--OBDLink SX (https://www.obdlink.com/products/obdlink-sx/)
--Chinese USB ELM OBD2 (1.5a)
--probably any USB ELM327 adapter will work(but I can not be 100% sure).
+https://www.obdpros.com/product_info.php?products_id=133<br/>
+Others that have been reported to work:<br/>
+-OBDLink SX (https://www.obdlink.com/products/obdlink-sx/)<br/>
+-Chinese USB ELM OBD2 (1.5a)<br/>
+-probably any USB ELM327 adapter will work(but I can not be 100% sure).<br/>
 
 ### Video presentation on YouTube(click on it):
 [![PYOBD Youtube video 2021](https://img.youtube.com/vi/TjCBmo5vCM8/0.jpg)](https://www.youtube.com/watch?v=TjCBmo5vCM8)

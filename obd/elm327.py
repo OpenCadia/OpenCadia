@@ -331,6 +331,7 @@ class ELM327:
                 return True
 
         logger.debug("Failed to choose baud")
+        print("Failed to choose baud rate")
         self.__port.timeout = timeout  # reinstate our original timeout
         return False
 

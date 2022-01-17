@@ -941,7 +941,7 @@ class MyApp(wx.App):
         if self.config.read(self.configfilepath) == []:
             self.COMPORT = "AUTO"
             self.RECONNATTEMPTS = 5
-            self.SERTIMEOUT = 30
+            self.SERTIMEOUT = 5
             self.BAUDRATE = "AUTO"
             self.FAST = "FAST"
         else:
@@ -954,7 +954,7 @@ class MyApp(wx.App):
             except:
                 self.COMPORT = "AUTO"
                 self.RECONNATTEMPTS = 5
-                self.SERTIMEOUT = 30
+                self.SERTIMEOUT = 5
                 self.BAUDRATE = "AUTO"
                 self.FAST = "FAST"
 

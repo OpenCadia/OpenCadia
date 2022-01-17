@@ -302,13 +302,13 @@ class ELM327:
 
         # before we change the timout, save the "normal" value
         #timeout = self.__port.timeout
-        #self.__port.timeout = self.timeout  # we're only talking with the ELM, so things should go quickly
+        self.__port.timeout = 1  # we're only talking with the ELM, so things should go quickly
 
         for baud in self._TRY_BAUDS:
             print ("Trying baud rate: ",baud)
             self.__port.baudrate = baud
-            #self.__port.flushInput()
-            #self.__port.flushOutput()
+            self.__port.flushInput()
+            self.__port.flushOutput()
 
             # Send a nonsense command to get a prompt back from the scanner
             # (an empty command runs the risk of repeating a dangerous command)
@@ -320,7 +320,7 @@ class ELM327:
             # to ELM327 and STN11XX specifications
             self.__port.write(b"\x7F\x7F\r")
             #print ("flushing")
-            #self.__port.flush()
+            self.__port.flush()
             #print ("reading response")
             response = self.__port.read(96) # previosly 1024
             logger.debug("Response from baud %d: %s" % (baud, repr(response)))
@@ -331,12 +331,12 @@ class ELM327:
                 logger.debug("Choosing baud %d" % baud)
                 print("Response from baud %d: %s" % (baud, repr(response)))
                 print("Choosing baud rate %d" % baud)
-                #self.__port.timeout = timeout  # reinstate our original timeout
+                self.__port.timeout = self.timeout  # reinstate our original timeout
                 return True
 
         logger.debug("Failed to choose baud")
         print("Failed to choose baud rate")
-        #self.__port.timeout = timeout  # reinstate our original timeout
+        self.__port.timeout = self.timeout  # reinstate our original timeout
         return False
 
     def __isok(self, lines, expectEcho=False):

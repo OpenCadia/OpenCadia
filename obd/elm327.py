@@ -126,7 +126,7 @@ class ELM327:
                                                 parity=serial.PARITY_NONE,
                                                 stopbits=1,
                                                 bytesize=8,
-                                                timeout=10)  # seconds
+                                                timeout=self.timeout)  # seconds
         except serial.SerialException as e:
             self.__error(e)
             return
@@ -307,8 +307,8 @@ class ELM327:
         for baud in self._TRY_BAUDS:
             print ("Trying baud rate: ",baud)
             self.__port.baudrate = baud
-            self.__port.flushInput()
-            self.__port.flushOutput()
+            #self.__port.flushInput()
+            #self.__port.flushOutput()
 
             # Send a nonsense command to get a prompt back from the scanner
             # (an empty command runs the risk of repeating a dangerous command)
@@ -319,13 +319,17 @@ class ELM327:
             # All commands should be terminated with carriage return according
             # to ELM327 and STN11XX specifications
             self.__port.write(b"\x7F\x7F\r")
-            self.__port.flush()
-            response = self.__port.read(1024)
+            #print ("flushing")
+            #self.__port.flush()
+            #print ("reading response")
+            response = self.__port.read(96) # previosly 1024
             logger.debug("Response from baud %d: %s" % (baud, repr(response)))
+
 
             # watch for the prompt character
             if response.endswith(b">"):
                 logger.debug("Choosing baud %d" % baud)
+                print("Response from baud %d: %s" % (baud, repr(response)))
                 print("Choosing baud rate %d" % baud)
                 self.__port.timeout = timeout  # reinstate our original timeout
                 return True

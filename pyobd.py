@@ -939,9 +939,9 @@ class MyApp(wx.App):
         else:
             self.configfilepath = os.environ['HOME'] + '/.pyobdrc'
         if self.config.read(self.configfilepath) == []:
-            self.COMPORT = "/dev/ttyACM0"
+            self.COMPORT = "AUTO"
             self.RECONNATTEMPTS = 5
-            self.SERTIMEOUT = 1
+            self.SERTIMEOUT = 30
             self.BAUDRATE = "AUTO"
             self.FAST = "FAST"
         else:
@@ -952,9 +952,9 @@ class MyApp(wx.App):
                 self.BAUDRATE = self.config.get("pyOBD", "BAUDRATE")
                 self.FAST = self.config.get("pyOBD", "FAST")
             except:
-                self.COMPORT = "/dev/ttyACM0"
+                self.COMPORT = "AUTO"
                 self.RECONNATTEMPTS = 5
-                self.SERTIMEOUT = 1
+                self.SERTIMEOUT = 30
                 self.BAUDRATE = "AUTO"
                 self.FAST = "FAST"
 

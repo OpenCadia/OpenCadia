@@ -4,7 +4,7 @@ This is the free program for car diagnostics, aka. reading and displaying your c
 You can download the Windows version from here:
 https://drive.google.com/file/d/1ezDw-8M1kAfoM-H2r4hrqO70i6d-q98i/view?usp=sharing
 
-NOTE: On Windows you will need a suitable driver for your ELM327 device(on Linux it is not needed). You can download drivers from here:  http://www.totalcardiagnostics.com/support/Knowledgebase/Article/View/1/0/how-to-install-elm327-usb-cable-on-windows-and-obd2-software
+NOTE: On Windows you will need a suitable driver for your ELM327 device(on Linux it is not needed). You can download drivers from here:  http://www.totalcardiagnostics.com/support/Knowledgebase/Article/View/1/0/how-to-install-elm327-usb-cable-on-windows-and-obd2-software <br/>
 NOTE2: Connect using fixed baud rate. Automatic baudrate works, but it takes a looong looong time.
 
 **About the program:<br>

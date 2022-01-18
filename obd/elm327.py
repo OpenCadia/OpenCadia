@@ -148,26 +148,26 @@ class ELM327:
 
         # ---------------------------- ATZ (reset) ----------------------------
         try:
-            self.__send(b"ATZ", delay=1)  # wait 1 second for ELM to initialize
+            self.__send(b"ATZ", delay=0.5)  # wait 1 second for ELM to initialize
             # return data can be junk, so don't bother checking
         except serial.SerialException as e:
             self.__error(e)
             return
 
         # -------------------------- ATE0 (echo OFF) --------------------------
-        r = self.__send(b"ATE0", delay=1)
+        r = self.__send(b"ATE0", delay=0.5)
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return
 
         # ------------------------- ATH1 (headers ON) -------------------------
-        r = self.__send(b"ATH1", delay=1)
+        r = self.__send(b"ATH1", delay=0.5)
         if not self.__isok(r):
             self.__error("ATH1 did not return 'OK', or echoing is still ON")
             return
 
         # ------------------------ ATL0 (linefeeds OFF) -----------------------
-        r = self.__send(b"ATL0", delay=1)
+        r = self.__send(b"ATL0", delay=0.5)
         if not self.__isok(r):
             self.__error("ATL0 did not return 'OK'")
             return
@@ -177,7 +177,7 @@ class ELM327:
 
         # -------------------------- AT RV (read volt) ------------------------
         if check_voltage:
-            r = self.__send(b"AT RV", delay=1)
+            r = self.__send(b"AT RV", delay=0.5)
             if not r or len(r) != 1 or r[0] == '':
                 self.__error("No answer from 'AT RV'")
                 return
@@ -221,8 +221,8 @@ class ELM327:
             return self.auto_protocol()
 
     def manual_protocol(self, protocol_):
-        r = self.__send(b"ATTP" + protocol_.encode(), delay=1)
-        r0100 = self.__send(b"0100", delay=1)
+        r = self.__send(b"ATTP" + protocol_.encode(), delay=0.5)
+        r0100 = self.__send(b"0100", delay=0.5)
 
         if not self.__has_message(r0100, "UNABLE TO CONNECT"):
             # success, found the protocol
@@ -242,16 +242,16 @@ class ELM327:
         """
 
         # -------------- try the ELM's auto protocol mode --------------
-        r = self.__send(b"ATSP0", delay=1)
+        r = self.__send(b"ATSP0", delay=0.5)
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
-        r0100 = self.__send(b"0100", delay=1)
+        r0100 = self.__send(b"0100", delay=0.5)
         if self.__has_message(r0100, "UNABLE TO CONNECT"):
             logger.error("Failed to query protocol 0100: unable to connect")
             return False
 
         # ------------------- ATDPN (list protocol number) -------------------
-        r = self.__send(b"ATDPN", delay=1)
+        r = self.__send(b"ATDPN", delay=0.5)
         if len(r) != 1:
             logger.error("Failed to retrieve current protocol")
             return False
@@ -272,8 +272,8 @@ class ELM327:
             logger.debug("ELM responded with unknown protocol. Trying them one-by-one")
 
             for p in self._TRY_PROTOCOL_ORDER:
-                r = self.__send(b"ATTP" + p.encode(), delay=1)
-                r0100 = self.__send(b"0100", delay=1)
+                r = self.__send(b"ATTP" + p.encode(), delay=0.5)
+                r0100 = self.__send(b"0100", delay=0.5)
                 if not self.__has_message(r0100, "UNABLE TO CONNECT"):
                     # success, found the protocol
                     self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
@@ -303,7 +303,7 @@ class ELM327:
 
         # before we change the timout, save the "normal" value
         #timeout = self.__port.timeout
-        self.__port.timeout = 0.1  # we're only talking with the ELM, so things should go quickly
+        self.__port.timeout = 0.5  # we're only talking with the ELM, so things should go quickly
 
         for baud in self._TRY_BAUDS:
             print ("Trying baud rate: ",baud)
@@ -399,7 +399,7 @@ class ELM327:
             logger.info("cannot enter low power when unconnected")
             return None
 
-        lines = self.__send(b"ATLP", delay=1)
+        lines = self.__send(b"ATLP", delay=0.5)
 
         if 'OK' in lines:
             logger.debug("Successfully entered low power mode")
@@ -427,7 +427,7 @@ class ELM327:
             logger.info("cannot exit low power when unconnected")
             return None
 
-        lines = self.__send(b" ", delay=1)
+        lines = self.__send(b" ", delay=0.5)
 
         # Assume we woke up
         logger.debug("Successfully exited low power mode")

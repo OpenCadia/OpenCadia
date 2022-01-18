@@ -348,6 +348,7 @@ class MyApp(wx.App):
 
             self.graph_counter = 0
             self.graph_dirty = False
+            misfire_cylinder_supported = True
             while self._notify_window.ThreadControl != 666:
                 prevstate = curstate
                 curstate = self._nb.GetSelection()  # picking the tab in the GUI
@@ -464,31 +465,33 @@ class MyApp(wx.App):
                             else:
                                 wx.PostEvent(self._notify_window, TestEvent([14, 2, "Incomplete"]))
                         try:
-                            r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_1)
-                            result = r.value.MISFIRE_COUNT
-                            if not result.is_null():
-                                wx.PostEvent(self._notify_window, TestEvent([15, 2, str(result.value)]))
-                            else:
-                                wx.PostEvent(self._notify_window, TestEvent([15, 2, "Misfire count wasn't reported"]))
-                            r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_2)
-                            result = r.value.MISFIRE_COUNT
-                            if not result.is_null():
-                                wx.PostEvent(self._notify_window, TestEvent([16, 2, str(result.value)]))
-                            else:
-                                wx.PostEvent(self._notify_window, TestEvent([16, 2, "Misfire count wasn't reported"]))
-                            r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_3)
-                            result = r.value.MISFIRE_COUNT
-                            if not result.is_null():
-                                wx.PostEvent(self._notify_window, TestEvent([17, 2, str(result.value)]))
-                            else:
-                                wx.PostEvent(self._notify_window, TestEvent([17, 2, "Misfire count wasn't reported"]))
-                            r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_4)
-                            result = r.value.MISFIRE_COUNT
-                            if not result.is_null():
-                                wx.PostEvent(self._notify_window, TestEvent([18, 2, str(result.value)]))
-                            else:
-                                wx.PostEvent(self._notify_window, TestEvent([18, 2, "Misfire count wasn't reported"]))
+                            if misfire_cylinder_supported:
+                                r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_1)
+                                result = r.value.MISFIRE_COUNT
+                                if not result.is_null():
+                                    wx.PostEvent(self._notify_window, TestEvent([15, 2, str(result.value)]))
+                                else:
+                                    wx.PostEvent(self._notify_window, TestEvent([15, 2, "Misfire count wasn't reported"]))
+                                r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_2)
+                                result = r.value.MISFIRE_COUNT
+                                if not result.is_null():
+                                    wx.PostEvent(self._notify_window, TestEvent([16, 2, str(result.value)]))
+                                else:
+                                    wx.PostEvent(self._notify_window, TestEvent([16, 2, "Misfire count wasn't reported"]))
+                                r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_3)
+                                result = r.value.MISFIRE_COUNT
+                                if not result.is_null():
+                                    wx.PostEvent(self._notify_window, TestEvent([17, 2, str(result.value)]))
+                                else:
+                                    wx.PostEvent(self._notify_window, TestEvent([17, 2, "Misfire count wasn't reported"]))
+                                r = self.connection.connection.query(obd.commands.MONITOR_MISFIRE_CYLINDER_4)
+                                result = r.value.MISFIRE_COUNT
+                                if not result.is_null():
+                                    wx.PostEvent(self._notify_window, TestEvent([18, 2, str(result.value)]))
+                                else:
+                                    wx.PostEvent(self._notify_window, TestEvent([18, 2, "Misfire count wasn't reported"]))
                         except:
+                            misfire_cylinder_supported = False
                             #traceback.print_exc()
                             pass
                     except AttributeError:

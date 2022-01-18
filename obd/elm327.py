@@ -10,6 +10,7 @@
 # Copyright 2016 Brendan Whitfield (brendan-w.com)                     #
 #                                                                      #
 ########################################################################
+########################################################################
 #                                                                      #
 # elm327.py                                                            #
 #                                                                      #
@@ -302,7 +303,7 @@ class ELM327:
 
         # before we change the timout, save the "normal" value
         #timeout = self.__port.timeout
-        self.__port.timeout = 1  # we're only talking with the ELM, so things should go quickly
+        self.__port.timeout = 0.1  # we're only talking with the ELM, so things should go quickly
 
         for baud in self._TRY_BAUDS:
             print ("Trying baud rate: ",baud)

@@ -591,7 +591,7 @@ class MyApp(wx.App):
                         print ("DTCCODES:",r.value)
                         if r.value != None:
                             for dtccode in r.value:
-                                DTCCODES.append((dtccode, "Active", dtccode[1]))
+                                DTCCODES.append((dtccode[0], "Active", dtccode[1]))
                         r = self.connection.connection.query(obd.commands.FREEZE_DTC)
                         print ("FREEZECODES:",r.value)
                         if r.value != None:

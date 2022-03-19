@@ -4,7 +4,7 @@
 **If you have any problems with the program, write to me at pyobd.jp@gmail.com and I will solve it either by helping you or by correcting the program.**
 
 Operating systems on which pyobd was tested so far(please write to me if you have tested it on other OS-es, so I can add them here):
-Debian 10, Debian 11, Windows 10.
+Debian 10, Debian 11, Windows 7 and 10.
 
 You can download the Windows executable version from here - so no install is needed(it may be recognized as malware, but it is made from code you see here - so it is not malware):<br/>
 https://drive.google.com/file/d/1OmU99RYv3QSN7z-KAGXjN9xb9ryiOAQd/view?usp=sharing

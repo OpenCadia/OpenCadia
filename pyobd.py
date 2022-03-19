@@ -658,7 +658,7 @@ class MyApp(wx.App):
                             self.graph_min_y_val = 0
                             graph_commands = []
                             self.current_command = None
-                            self.graph_dirty = True
+
                             wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
                             prev_command = None
                             first_time_graph = False
@@ -699,7 +699,7 @@ class MyApp(wx.App):
                                     self.graph_max_y_val = 1
                                     self.graph_min_y_val = 0
 
-                                    self.graph_dirty = True
+
                                     wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
                                 else:
                                     s = self.connection.connection.query(self.current_command)
@@ -717,7 +717,7 @@ class MyApp(wx.App):
                                         self.graph_max_y_val = float(s.value.magnitude)
                                     if float(s.value.magnitude) < self.graph_min_y_val:
                                         self.graph_min_y_val = float(s.value.magnitude)
-                                    if len(self.graph_x_vals) > 300:
+                                    if len(self.graph_x_vals) > 200:
                                         self.graph_x_vals = np.delete(self.graph_x_vals, (0))
                                         self.graph_y_vals = np.delete(self.graph_y_vals, (0))
 
@@ -1253,12 +1253,12 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             self.graph_canvas.SetPosition(wx.Point(0, 120))
 
         def animate():
-            #print (self.senprod.graph_dirty)
             if self.senprod.graph_dirty:
-                self.senprod.graph_dirty = False
                 self.graph_axes.clear()
-                self.graph_axes.set_xlim(self.senprod.graph_counter - 290, self.senprod.graph_counter + 10)
-                #if not np.array_equal(self.senprod.graph_y_vals, np.array([])):
+                if len(self.senprod.graph_x_vals) == 200:
+                    self.graph_axes.set_xlim(self.senprod.graph_counter - 200, self.senprod.graph_counter)
+                else:
+                    self.graph_axes.set_xlim(0, 200)
                 if self.senprod.current_command != None:
                     if "o2" in self.senprod.current_command.desc.lower():
                         self.graph_axes.set_ylim((self.senprod.graph_min_y_val), (self.senprod.graph_max_y_val))
@@ -1271,6 +1271,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 self.graph_axes.plot(self.senprod.graph_x_vals,self.senprod.graph_y_vals, color="b", linewidth=1)
                 self.graph_canvas.draw()
         animate()
+        self.senprod.graph_dirty = False
         """
         plt.style.use('fivethirtyeight')
         self.fig_graph = plt.figure()

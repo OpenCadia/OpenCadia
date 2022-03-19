@@ -7,7 +7,7 @@ Operating systems on which pyobd was tested so far(please write to me if you hav
 Debian 10, Debian 11, Windows 10.
 
 You can download the Windows executable version from here - so no install is needed(it may be recognized as malware, but it is made from code you see here - so it is not malware):<br/>
-https://drive.google.com/file/d/1_OIkQDxTOGsdMA4ABl58m6XHdFae_TAH/view?usp=sharing
+https://drive.google.com/file/d/1OmU99RYv3QSN7z-KAGXjN9xb9ryiOAQd/view?usp=sharing
 
 NOTE: On Windows you will need a suitable driver for your ELM327 device(on Linux it is not needed). You can download drivers from here:  http://www.totalcardiagnostics.com/support/Knowledgebase/Article/View/1/0/how-to-install-elm327-usb-cable-on-windows-and-obd2-software <br/>
 

@@ -1,0 +1,16 @@
+name: Build package(dmg) for MacOS arm64
+on: [push]
+jobs:
+  build:
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - run: pip install -r requirements.txt pyinstaller
+      - run: pyinstaller --windowed --add-data="pyobd.ico:." --icon="pyobd.ico" pyobd.py
+      - run: cd dist && hdiutil create ./pyOBD.dmg -srcfolder pyobd.app -ov
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/pyOBD.dmg

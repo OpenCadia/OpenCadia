@@ -1,15 +1,13 @@
 # ![PYOBD](/pyobd.gif) PYOBD 
 **This is the remake of the free PC program for car diagnostics, aka. reading and displaying your cars OBD2 data(tests, sensors, DTC faults/reset, graphs of live sensor data). If your car supports obd2(which for the last 20 years most of the cars do), then you only need an elm327 adapter and a laptop with this program to diagnose your car. The program is free and open source and it is the only free program that exists for obd2, with this level of functionality, as far as I know. The program is the remake of the program PYOBD. It is much improved over the original pyobd, features live graphs, more displayable data and works on Python3 and all the new libraries. It was tested on Linux, Windows, and it should work on Mac too.**
 
-<!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for Windows:
-[![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://drive.google.com/file/d/1OmU99RYv3QSN7z-KAGXjN9xb9ryiOAQd/view?usp=sharing)
-<!-- END LATEST DOWNLOAD BUTTON -->
-
 Operating systems on which pyobd was tested so far:
 Debian 10, Debian 11, Windows 7 and 10.
 
 You can download the Windows executable version from here - so no install is needed(it may be recognized as malware, but it is made from code you see here - so it is not malware):<br/>
-https://drive.google.com/file/d/1OmU99RYv3QSN7z-KAGXjN9xb9ryiOAQd/view?usp=sharing
+<!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for Windows:
+[![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://drive.google.com/file/d/1OmU99RYv3QSN7z-KAGXjN9xb9ryiOAQd/view?usp=sharing)
+<!-- END LATEST DOWNLOAD BUTTON -->
 
 NOTE: On Windows you will need a suitable driver for your ELM327 device(on Linux it is not needed). You can download drivers from here:  http://www.totalcardiagnostics.com/support/Knowledgebase/Article/View/1/0/how-to-install-elm327-usb-cable-on-windows-and-obd2-software <br/>
 

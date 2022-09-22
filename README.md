@@ -37,13 +37,18 @@ On Windows, you can create an .exe file with these three commands(make sure you 
 
 > pyinstaller --onefile -i pyobd.ico --add-data "pyobd.ico;." pyobd.py
 
-On Debian 10 and 11, type these commands to install the requirements(on Ubuntu replace libgstreamer-plugins-base1.0 with libgstreamer-plugins-base1.0-0): 
+On Debian 10 and 11 and on Ubuntu, type these commands to install the requirements(on Ubuntu replace libgstreamer-plugins-base1.0 with libgstreamer-plugins-base1.0-0): 
 
 > sudo apt-get install dpkg-dev build-essential libjpeg-dev libtiff-dev libsdl1.2-dev libgstreamer-plugins-base1.0 libnotify-dev freeglut3 freeglut3-dev libsm-dev libgtk-3-dev libwebkit2gtk-4.0-dev libxtst-dev
 
 > pip3 install -r requirements.txt
 
-The program is run by typing: 
+In some cases you need to add to your username the privileges of accessing the USB ports for it to work:
+> sudo usermod -a -G the-/dev/ttyUSB0-group myUserName
+You could also try just running the program with superuser rights:
+> sudo python3 pyobd.py
+
+Otherwise, the program is run by typing: 
 > python3 pyobd.py
 
 .... or on Windows by running pyobd.exe if you make the .exe.

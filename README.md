@@ -43,7 +43,7 @@ On Debian 10 and 11 and on Ubuntu, type these commands to install the requiremen
 
 > pip3 install -r requirements.txt
 
-In some cases you need to add to your username the privileges of accessing the USB ports for it to work:
+In some cases you need to add to your username the privileges of accessing the USB ports(adding it to the group) for it to work:
 > sudo usermod -a -G the-/dev/ttyUSB0-group myUserName
 
 You could also try just running the program with superuser rights:

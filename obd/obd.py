@@ -82,12 +82,13 @@ class OBD(object):
 
             for port in port_names:
                 logger.info("Attempting to use port: " + str(port))
+                print("Attempting to use port: " + str(port))
                 self.interface = ELM327(port, baudrate, protocol,
                                         self.timeout, check_voltage,
                                         start_low_power)
-
+                print(self.interface.status())
                 if self.interface.status() >= OBDStatus.ELM_CONNECTED:
-                    break  # success! stop searching for serial
+                    continue  # try another port
         else:
             logger.info("Explicit port defined")
             self.interface = ELM327(portstr, baudrate, protocol,

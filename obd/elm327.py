@@ -308,6 +308,7 @@ class ELM327:
 
         for baud in self._TRY_BAUDS:
             self.__port.baudrate = baud
+            print("Trying baudrate "+str(baud))
             self.__port.flushInput()
             self.__port.flushOutput()
 

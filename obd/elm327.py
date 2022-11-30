@@ -10,7 +10,6 @@
 # Copyright 2016 Brendan Whitfield (brendan-w.com)                     #
 #                                                                      #
 ########################################################################
-########################################################################
 #                                                                      #
 # elm327.py                                                            #
 #                                                                      #
@@ -56,7 +55,9 @@ class ELM327:
             ecus()
     """
 
+    # chevron (ELM prompt character)
     ELM_PROMPT = b'>'
+    # an 'OK' which indicates we are entering low power state
     ELM_LP_ACTIVE = b'OK'
 
     _SUPPORTED_PROTOCOLS = {
@@ -127,7 +128,7 @@ class ELM327:
                                                 parity=serial.PARITY_NONE,
                                                 stopbits=1,
                                                 bytesize=8,
-                                                timeout=self.timeout)  # seconds
+                                                timeout=10)  # seconds
         except serial.SerialException as e:
             self.__error(e)
             return
@@ -148,26 +149,26 @@ class ELM327:
 
         # ---------------------------- ATZ (reset) ----------------------------
         try:
-            self.__send(b"ATZ", delay=0.5)  # wait 1 second for ELM to initialize
+            self.__send(b"ATZ", delay=1)  # wait 1 second for ELM to initialize
             # return data can be junk, so don't bother checking
         except serial.SerialException as e:
             self.__error(e)
             return
 
         # -------------------------- ATE0 (echo OFF) --------------------------
-        r = self.__send(b"ATE0", delay=0.5)
+        r = self.__send(b"ATE0")
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return
 
         # ------------------------- ATH1 (headers ON) -------------------------
-        r = self.__send(b"ATH1", delay=0.5)
+        r = self.__send(b"ATH1")
         if not self.__isok(r):
             self.__error("ATH1 did not return 'OK', or echoing is still ON")
             return
 
         # ------------------------ ATL0 (linefeeds OFF) -----------------------
-        r = self.__send(b"ATL0", delay=0.5)
+        r = self.__send(b"ATL0")
         if not self.__isok(r):
             self.__error("ATL0 did not return 'OK'")
             return
@@ -177,7 +178,7 @@ class ELM327:
 
         # -------------------------- AT RV (read volt) ------------------------
         if check_voltage:
-            r = self.__send(b"AT RV", delay=0.5)
+            r = self.__send(b"AT RV")
             if not r or len(r) != 1 or r[0] == '':
                 self.__error("No answer from 'AT RV'")
                 return
@@ -221,8 +222,8 @@ class ELM327:
             return self.auto_protocol()
 
     def manual_protocol(self, protocol_):
-        r = self.__send(b"ATTP" + protocol_.encode(), delay=0.5)
-        r0100 = self.__send(b"0100", delay=0.5)
+        r = self.__send(b"ATTP" + protocol_.encode())
+        r0100 = self.__send(b"0100")
 
         if not self.__has_message(r0100, "UNABLE TO CONNECT"):
             # success, found the protocol
@@ -242,16 +243,16 @@ class ELM327:
         """
 
         # -------------- try the ELM's auto protocol mode --------------
-        r = self.__send(b"ATSP0", delay=0.5)
+        r = self.__send(b"ATSP0", delay=1)
 
         # -------------- 0100 (first command, SEARCH protocols) --------------
-        r0100 = self.__send(b"0100", delay=0.5)
+        r0100 = self.__send(b"0100", delay=1)
         if self.__has_message(r0100, "UNABLE TO CONNECT"):
             logger.error("Failed to query protocol 0100: unable to connect")
             return False
 
         # ------------------- ATDPN (list protocol number) -------------------
-        r = self.__send(b"ATDPN", delay=0.5)
+        r = self.__send(b"ATDPN")
         if len(r) != 1:
             logger.error("Failed to retrieve current protocol")
             return False
@@ -272,8 +273,8 @@ class ELM327:
             logger.debug("ELM responded with unknown protocol. Trying them one-by-one")
 
             for p in self._TRY_PROTOCOL_ORDER:
-                r = self.__send(b"ATTP" + p.encode(), delay=0.5)
-                r0100 = self.__send(b"0100", delay=0.5)
+                r = self.__send(b"ATTP" + p.encode())
+                r0100 = self.__send(b"0100")
                 if not self.__has_message(r0100, "UNABLE TO CONNECT"):
                     # success, found the protocol
                     self.__protocol = self._SUPPORTED_PROTOCOLS[p](r0100)
@@ -302,11 +303,10 @@ class ELM327:
         """
 
         # before we change the timout, save the "normal" value
-        #timeout = self.__port.timeout
-        self.__port.timeout = 0.5  # we're only talking with the ELM, so things should go quickly
+        timeout = self.__port.timeout
+        self.__port.timeout = self.timeout  # we're only talking with the ELM, so things should go quickly
 
         for baud in self._TRY_BAUDS:
-            print ("Trying baud rate: ",baud)
             self.__port.baudrate = baud
             self.__port.flushInput()
             self.__port.flushOutput()
@@ -320,24 +320,18 @@ class ELM327:
             # All commands should be terminated with carriage return according
             # to ELM327 and STN11XX specifications
             self.__port.write(b"\x7F\x7F\r")
-            #print ("flushing")
             self.__port.flush()
-            #print ("reading response")
-            response = self.__port.read(96) # previosly 1024
+            response = self.__port.read(1024)
             logger.debug("Response from baud %d: %s" % (baud, repr(response)))
-
 
             # watch for the prompt character
             if response.endswith(b">"):
                 logger.debug("Choosing baud %d" % baud)
-                print("Response from baud %d: %s" % (baud, repr(response)))
-                print("Choosing baud rate %d" % baud)
-                self.__port.timeout = self.timeout  # reinstate our original timeout
+                self.__port.timeout = timeout  # reinstate our original timeout
                 return True
 
         logger.debug("Failed to choose baud")
-        print("Failed to choose baud rate")
-        self.__port.timeout = self.timeout  # reinstate our original timeout
+        self.__port.timeout = timeout  # reinstate our original timeout
         return False
 
     def __isok(self, lines, expectEcho=False):
@@ -399,7 +393,7 @@ class ELM327:
             logger.info("cannot enter low power when unconnected")
             return None
 
-        lines = self.__send(b"ATLP", delay=0.5)
+        lines = self.__send(b"ATLP", delay=1, end_marker=self.ELM_LP_ACTIVE)
 
         if 'OK' in lines:
             logger.debug("Successfully entered low power mode")
@@ -427,7 +421,7 @@ class ELM327:
             logger.info("cannot exit low power when unconnected")
             return None
 
-        lines = self.__send(b" ", delay=0.5)
+        lines = self.__send(b" ")
 
         # Assume we woke up
         logger.debug("Successfully exited low power mode")
@@ -474,13 +468,14 @@ class ELM327:
         messages = self.__protocol(lines)
         return messages
 
-    def __send(self, cmd, delay=None):
+    def __send(self, cmd, delay=None, end_marker=ELM_PROMPT):
         """
             unprotected send() function
 
             will __write() the given string, no questions asked.
             returns result of __read() (a list of line strings)
-            after an optional delay.
+            after an optional delay, until the end marker (by
+            default, the prompt) is seen
         """
         self.__write(cmd)
 
@@ -490,13 +485,13 @@ class ELM327:
             time.sleep(delay)
             delayed += delay
 
-        r = self.__read()
+        r = self.__read(end_marker=end_marker)
         while delayed < 1.0 and len(r) <= 0:
             d = 0.1
             logger.debug("no response; wait: %f seconds" % d)
             time.sleep(d)
             delayed += d
-            r = self.__read()
+            r = self.__read(end_marker=end_marker)
         return r
 
     def __write(self, cmd):
@@ -520,11 +515,12 @@ class ELM327:
         else:
             logger.info("cannot perform __write() when unconnected")
 
-    def __read(self):
+    def __read(self, end_marker=ELM_PROMPT):
         """
             "low-level" read function
 
-            accumulates characters until the prompt character is seen
+            accumulates characters until the end marker (by
+            default, the prompt character) is seen
             returns a list of [/r/n] delimited strings
         """
         if not self.__port:
@@ -551,9 +547,8 @@ class ELM327:
 
             buffer.extend(data)
 
-            # end on chevron (ELM prompt character) or an 'OK' which
-            # indicates we are entering low power state
-            if self.ELM_PROMPT in buffer or self.ELM_LP_ACTIVE in buffer:
+            # end on specified end-marker sequence
+            if end_marker in buffer:
                 break
 
         # log, and remove the "bytearray(   ...   )" part

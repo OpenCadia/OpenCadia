@@ -327,7 +327,7 @@ class ELM327:
             # watch for the prompt character
             if response.endswith(b">"):
                 logger.debug("Choosing baud %d" % baud)
-                #self.__port.timeout = timeout  # reinstate our original timeout
+                self.__port.timeout = timeout  # reinstate our original timeout
                 return True
 
         logger.debug("Failed to choose baud")

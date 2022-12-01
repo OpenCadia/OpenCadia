@@ -87,10 +87,10 @@ class OBD(object):
                                         self.timeout, check_voltage,
                                         start_low_power)
                 print(self.interface.status())
-                if self.interface.status() >= OBDStatus.ELM_CONNECTED:
-                    continue  # try another port
+                if self.interface.status() == OBDStatus.ELM_CONNECTED:
+                    break # success! stop searching for serial
                 else:
-                    break
+                    continue # try other ports
         else:
             logger.info("Explicit port defined")
             self.interface = ELM327(portstr, baudrate, protocol,

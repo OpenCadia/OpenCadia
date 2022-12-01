@@ -43,10 +43,11 @@ On Debian 10 and 11 and on Ubuntu, type these commands to install the requiremen
 
 > pip3 install -r requirements.txt
 
-In some cases you need to add to your username the privileges of accessing the USB ports(adding it to the group) for it to work:
-> sudo usermod -a -G the-/dev/ttyUSB0-group myUserName
+In some cases you need to add to your username the privileges of accessing the USB and serial ports(adding it to the group) for it to work:
+> sudo usermod -a -G dialout <your_username>
+> sudo usermod -a -G tty <your_username>
 
-You could also try just running the program with superuser rights:
+If your port is still not listed, you can try just running the program with superuser rights:
 
 > sudo python3 pyobd.py
 

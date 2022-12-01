@@ -303,9 +303,9 @@ class ELM327:
         """
 
         # before we change the timout, save the "normal" value
-        timeout = self.__port.timeout
-        self.__port.timeout = self.timeout  # we're only talking with the ELM, so things should go quickly
-
+        #timeout = self.__port.timeout
+        #self.__port.timeout = self.timeout  # we're only talking with the ELM, so things should go quickly
+        timeout = 0.1
         for baud in self._TRY_BAUDS:
             self.__port.baudrate = baud
             print("Trying baudrate "+str(baud))
@@ -328,11 +328,12 @@ class ELM327:
             # watch for the prompt character
             if response.endswith(b">"):
                 logger.debug("Choosing baud %d" % baud)
-                self.__port.timeout = timeout  # reinstate our original timeout
+                #self.__port.timeout = timeout  # reinstate our original timeout
                 return True
 
         logger.debug("Failed to choose baud")
-        self.__port.timeout = timeout  # reinstate our original timeout
+        #self.__port.timeout = timeout  # reinstate our original timeout
+        timeout = self.__port.timeout
         return False
 
     def __isok(self, lines, expectEcho=False):

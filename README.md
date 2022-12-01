@@ -25,7 +25,7 @@ I am using this one(I bought it 10 years ago):<br/>
 Others that have been reported to work:<br/>
 -OBDLink SX (https://www.obdlink.com/products/obdlink-sx/)<br/>
 -Chinese USB ELM OBD2 (1.5a)<br/>
-Probably any USB ELM327 adapter will work(but I can not be 100% sure).<br/>
+Probably any USB ELM327 and serial ELM327 adapter will work(but I can not be 100% sure).<br/>
 
 ### Video presentation on YouTube(click on it):
 [![PYOBD Youtube video 2021](https://img.youtube.com/vi/4PHdCG6qKmQ/0.jpg)](https://www.youtube.com/watch?v=4PHdCG6qKmQ)
@@ -44,9 +44,9 @@ On Debian 10 and 11 and on Ubuntu, type these commands to install the requiremen
 > pip3 install -r requirements.txt
 
 In some cases you need to add to your username the privileges of accessing the USB and serial ports(adding it to the group) for it to work:
-> sudo usermod -a -G dialout <your_username>
+> sudo usermod -a -G dialout $USER
 
-> sudo usermod -a -G tty <your_username>
+> sudo usermod -a -G tty $USER
 
 If your port is still not listed, you can try just running the program with superuser rights:
 

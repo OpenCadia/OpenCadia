@@ -89,6 +89,8 @@ class OBD(object):
                 print(self.interface.status())
                 if self.interface.status() >= OBDStatus.ELM_CONNECTED:
                     continue  # try another port
+                else:
+                    break
         else:
             logger.info("Explicit port defined")
             self.interface = ELM327(portstr, baudrate, protocol,

@@ -1,6 +1,12 @@
 # ![PYOBD](/pyobd.gif) PYOBD 
 **This is the remake of the free PC program for car diagnostics, aka. reading and displaying your cars OBD2 data(tests, sensors, DTC faults/reset, graphs of live sensor data). If your car supports obd2(which for the last 20 years most of the cars do), then you only need an elm327 adapter and a laptop with this program to diagnose your car. The program is free and open source and it is the only free program that exists for obd2, with this level of functionality, as far as I know. The program is the remake of the program PYOBD. It is much improved over the original pyobd, features live graphs, more displayable data and works on Python3 and all the new libraries. It was tested on Linux, Windows, and it should work on Mac too.**
 
+[
+  ![Donate with PayPal]
+  (https://raw.githubusercontent.com/stefan-niedermann/paypal-donate-button/master/paypal-donate-button.png)
+]
+(https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WBXH4C4MQLQKC)
+
 Operating systems on which pyobd was tested so far:
 Debian 10, Debian 11, Windows 7 and 10.
 

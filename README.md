@@ -47,6 +47,7 @@ In some cases you need to add to your username the privileges of accessing the U
 > sudo usermod -a -G dialout $USER
 
 > sudo usermod -a -G tty $USER
+After that, you have to restart the computer.
 
 If your port is still not listed, you can try just running the program with superuser rights:
 

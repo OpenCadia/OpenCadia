@@ -67,7 +67,6 @@ The program works nice and I will also add new functionalities to it. I am worki
 
 TO DO LIST:<br />
 -add multiple graphs<br />
--add sensor data exporting and replay<br />
--catch and handle some errors when connection gets broken.
+-add sensor data exporting and replay.
 
 ![ELM327](/elm327.jpg)

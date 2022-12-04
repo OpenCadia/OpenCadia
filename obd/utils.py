@@ -189,5 +189,5 @@ def scan_serial():
     for port in possible_ports:
         if try_port(port):
             available.append(port)
-
+    print('Available ports: '+str(available))
     return available

@@ -189,7 +189,7 @@ class ELM327:
             self.__error("ATL0 did not return 'OK'")
             return
         else:
-            print'(ATL0 OK')
+            print('ATL0 OK')
 
         # by now, we've successfuly communicated with the ELM, but not the car
         self.__status = OBDStatus.ELM_CONNECTED

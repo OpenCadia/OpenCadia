@@ -23,32 +23,41 @@
 # along with pyOBD; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ############################################################################
-import pint
+#import pint
+#from mem_top import mem_top
+#import logging
 import numpy as np
-import multiprocessing
-from multiprocessing import Queue, Process
+#import multiprocessing
+#from multiprocessing import Queue, Process
 # import wxversion
 # wxversion.select("2.6")
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.figure import Figure
-import matplotlib
+#import matplotlib
+from wx.lib import plot as wxplot
+#from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-from matplotlib import style
-matplotlib.use('wxAgg')
+#from matplotlib.figure import Figure
+#import matplotlib.pyplot as plt
+#matplotlib.use('wxAgg')
+#from matplotlib.animation import FuncAnimation
+#from matplotlib import style
+#import numpy.oldnumeric as _Numeric
+
+#from wxplot import PlotCanvas, PlotGraphics, PolyLine, PolyMarker, PolySpline
+import gc
+#from pympler.tracker import SummaryTracker
+#tracker = SummaryTracker()
 import traceback
 import wx
-import pdb
+#import pdb
 import obd_io  # OBD2 funcs
 import os  # os.environ
-import decimal
-import glob
-
+#import decimal
+#import glob
+import datetime
 import threading
 import sys
 import serial
-import platform
+#import platform
 import time
 import configparser  # safe application configuration
 import webbrowser  # open browser from python
@@ -56,11 +65,11 @@ import webbrowser  # open browser from python
 #from multiprocessing import Queue
 
 from obd2_codes import pcodes
-from obd2_codes import ptest
+#from obd2_codes import ptest
 
 from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
 import obd
-from obd import OBDStatus
+#from obd import OBDStatus
 
 ID_ABOUT = 101
 ID_EXIT = 110
@@ -86,6 +95,7 @@ EVT_CLOSE_ID = 1037
 EVT_BUILD_COMBOBOX_ID = 1038
 EVT_DESTROY_COMBOBOX_ID = 1039
 EVT_COMBOBOX_GETSELECTION_ID = 1040
+EVT_COMBOBOX_SETSELECTION_ID = 1044
 EVT_INSERT_SENSOR_ROW_ID = 1041
 EVT_INSERT_FREEZEFRAME_ROW_ID = 1042
 EVT_FREEZEFRAME_RESULT_ID = 1043
@@ -203,6 +213,15 @@ class GetSelectionComboBoxEvent(wx.PyEvent):
         self.SetEventType(EVT_COMBOBOX_GETSELECTION_ID)
         self.data = data
 
+class SetSelectionComboBoxEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data."""
+
+    def __init__(self, data):
+        """Init Result Event."""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_COMBOBOX_SETSELECTION_ID)
+        self.data = data
+
 
 
 class GraphValueEvent(wx.PyEvent):
@@ -289,7 +308,7 @@ class MyApp(wx.App):
 
     class sensorProducer(threading.Thread):
         def __init__(self, _notify_window, portName, SERTIMEOUT, RECONNATTEMPTS, BAUDRATE, FAST, _nb):
-            from queue import Queue
+            #from queue import Queue
             self.portName = portName
             self.RECONNATTEMPTS = RECONNATTEMPTS
             self.SERTIMEOUT = SERTIMEOUT
@@ -343,15 +362,50 @@ class MyApp(wx.App):
             first_time_freezeframe = True
 
             first_time_graph = True
-            self.graph_x_vals = np.array([])
-            self.graph_y_vals = np.array([])
+            self.first_time_plot = True
 
             self.graph_counter = 0
-            self.graph_dirty = False
+            self.graph_dirty1 = False
+            self.graph_dirty2 = False
+            self.graph_dirty3 = False
+            self.graph_dirty4 = False
+            #sensor_list = []
             misfire_cylinder_supported = True
+            first_time=True
+            #pimp_counter = 0
+            time_prev = datetime.datetime.now()
+            time_now = datetime.datetime.now()
             while self._notify_window.ThreadControl != 666:
+
                 prevstate = curstate
                 curstate = self._nb.GetSelection()  # picking the tab in the GUI
+
+
+
+
+                time_now = datetime.datetime.now()
+                diff = (time_now - time_prev).total_seconds()
+                print(diff)
+                if (diff < 0.1):
+                    time.sleep(0.05)
+                    continue
+                else:
+                    time_prev = time_now
+
+
+                if curstate != 5:
+                    self.graph_x_vals1 = np.array([])
+                    self.graph_y_vals1 = np.array([])
+                    self.graph_x_vals2 = np.array([])
+                    self.graph_y_vals2 = np.array([])
+                    self.graph_x_vals3 = np.array([])
+                    self.graph_y_vals3 = np.array([])
+                    self.graph_x_vals4 = np.array([])
+                    self.graph_y_vals4 = np.array([])
+                    self.graph_counter1 = 0
+                    self.graph_counter2 = 0
+                    self.graph_counter3 = 0
+                    self.graph_counter4 = 0
 
                 if curstate == 0:  # show status tab
 
@@ -495,6 +549,7 @@ class MyApp(wx.App):
                             #traceback.print_exc()
                             pass
                     except AttributeError:
+
                         if self.initCommunication() != "OK":
                             self.stop()
                             return None
@@ -638,8 +693,8 @@ class MyApp(wx.App):
                                 wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(sens[1])]))
                                 wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(sens[2])]))
                                 counter = counter + 1
-                                if sens[2] == "None":
-                                    raise AttributeError
+                                #if sens[2] == "None" and sens[0]!='0203':
+                                #    raise AttributeError
                     except AttributeError:
                         if self.initCommunication() != "OK":
                             self.stop()
@@ -649,18 +704,33 @@ class MyApp(wx.App):
 
                 elif curstate == 5:  # show Graph tab
                     try:
-                        if first_time_graph:
-                            wx.PostEvent(self._notify_window, DestroyComboBoxEvent([]))
-                            self.graph_x_vals = np.array([])
-                            self.graph_y_vals = np.array([])
-                            self.graph_counter = 0
-                            self.graph_max_y_val = 1
-                            self.graph_min_y_val = 0
-                            graph_commands = []
-                            self.current_command = None
 
-                            wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
-                            prev_command = None
+                        if first_time_graph:
+                            print("First time graph")
+                            #wx.PostEvent(self._notify_window, DestroyComboBoxEvent([]))
+                            self.graph_x_vals1 = np.array([])
+                            self.graph_y_vals1 = np.array([])
+                            self.graph_x_vals2 = np.array([])
+                            self.graph_y_vals2 = np.array([])
+                            self.graph_x_vals3 = np.array([])
+                            self.graph_y_vals3 = np.array([])
+                            self.graph_x_vals4 = np.array([])
+                            self.graph_y_vals4 = np.array([])
+                            self.graph_counter1 = 0
+                            self.graph_counter2 = 0
+                            self.graph_counter3 = 0
+                            self.graph_counter4 = 0
+                            graph_commands = []
+                            self.current_command1 = None
+                            self.current_command2 = None
+                            self.current_command3 = None
+                            self.current_command4 = None
+
+                            #wx.PostEvent(self._notify_window, GraphEvent((self.current_command, [], [])))
+                            prev_command1 = None
+                            prev_command2 = None
+                            prev_command3 = None
+                            prev_command4 = None
                             first_time_graph = False
                             for command in obd.commands[1]:
                                 if command:
@@ -673,59 +743,164 @@ class MyApp(wx.App):
                             sensor_descriptions = []
                             for command in graph_commands:
                                 sensor_descriptions.append(command.desc)
+                            app.build_combobox_event_finished = False
                             wx.PostEvent(self._notify_window, BuildComboBoxEvent(sensor_descriptions))
-
+                            while not app.build_combobox_event_finished:
+                                time.sleep(0.01)
+                            app.combobox_set_sel_finished=False
+                            wx.PostEvent(self._notify_window, SetSelectionComboBoxEvent([]))
+                            while not app.combobox_set_sel_finished:
+                                time.sleep(0.01)
                         else:
+
                             app.combobox_sel_finished = False
                             wx.PostEvent(self._notify_window, GetSelectionComboBoxEvent([]))
                             while not app.combobox_sel_finished:
                                 time.sleep(0.01)
-                            curr_selection = app.combobox_selection
+                            curr_selection1 = app.combobox1_selection
+                            curr_selection2 = app.combobox2_selection
+                            curr_selection3 = app.combobox3_selection
+                            curr_selection4 = app.combobox4_selection
 
-                            if curr_selection != -1:
-                                prev_command = self.current_command
-                                self.current_command = graph_commands[curr_selection]
+                            if curr_selection1 != -1:
+                                prev_command1 = self.current_command1
+                                self.current_command1 = graph_commands[curr_selection1]
                             else:
-                                self.current_command = None
+                                self.current_command1 = None
 
-                            if self.current_command != None:
-                                if (prev_command == None) or (prev_command != self.current_command):
-                                    #self.graph_x_vals = []
-                                    #self.graph_y_vals = []
-                                    self.graph_x_vals = np.array([])
-                                    self.graph_y_vals = np.array([])
+                            if curr_selection2 != -1:
+                                prev_command2 = self.current_command2
+                                self.current_command2 = graph_commands[curr_selection2]
+                            else:
+                                self.current_command2 = None
+                            if curr_selection3 != -1:
+                                prev_command3 = self.current_command3
+                                self.current_command3 = graph_commands[curr_selection3]
+                            else:
+                                self.current_command3 = None
+                            if curr_selection4 != -1:
+                                prev_command4 = self.current_command4
+                                self.current_command4 = graph_commands[curr_selection4]
+                            else:
+                                self.current_command4 = None
 
-                                    self.graph_counter = 0
-                                    self.graph_max_y_val = 1
-                                    self.graph_min_y_val = 0
 
-
-                                    wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
+                            if self.current_command1 != None:
+                                if (prev_command1 == None) or (prev_command1 != self.current_command1):
+                                    self.graph_x_vals1 = np.array([])
+                                    self.graph_y_vals1 = np.array([])
+                                    #self.graph_x_vals1 = []
+                                    #self.graph_y_vals1 = []
+                                    self.graph_counter1 = 0
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 0, self.current_command1.command]))
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, self.current_command1.desc]))
                                 else:
-                                    s = self.connection.connection.query(self.current_command)
-                                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 0, self.current_command.command]))
-                                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, self.current_command.desc]))
-                                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, str(s.value)]))
+                                    s = self.connection.connection.query(self.current_command1)
                                     if s.value == None:
+                                        print("s.value is None!")
                                         raise AttributeError
-                                    #self.graph_x_vals.append(self.graph_counter)
-                                    #self.graph_y_vals.append(float(s.value.magnitude))
-                                    self.graph_x_vals = np.append(self.graph_x_vals, self.graph_counter)
-                                    self.graph_y_vals = np.append(self.graph_y_vals, float(s.value.magnitude))
-
-                                    if float(s.value.magnitude) > self.graph_max_y_val:
-                                        self.graph_max_y_val = float(s.value.magnitude)
-                                    if float(s.value.magnitude) < self.graph_min_y_val:
-                                        self.graph_min_y_val = float(s.value.magnitude)
-                                    if len(self.graph_x_vals) > 200:
-                                        self.graph_x_vals = np.delete(self.graph_x_vals, (0))
-                                        self.graph_y_vals = np.delete(self.graph_y_vals, (0))
-
-                                    self.graph_counter = self.graph_counter + 1
-                                    #prev_command = self.current_command
-                                    self.graph_dirty = True
-                                    wx.PostEvent(self._notify_window, GraphEvent(self.current_command))
+                                    self.graph_x_vals1 = np.append(self.graph_x_vals1, self.graph_counter1)
+                                    self.graph_y_vals1 = np.append(self.graph_y_vals1, float(s.value.magnitude))
+                                    #self.graph_x_vals1.append(self.graph_counter1)
+                                    #self.graph_y_vals1.append(float(s.value.magnitude))
+                                    if len(self.graph_x_vals1) > 190:
+                                        self.graph_x_vals1 = np.delete(self.graph_x_vals1, (0))
+                                        self.graph_y_vals1 = np.delete(self.graph_y_vals1, (0))
+                                        #self.graph_x_vals1.pop(0)
+                                        #self.graph_y_vals1.pop(0)
+                                    self.graph_counter1 = self.graph_counter1 + 1
+                                    prev_command1 = self.current_command1
+                                    self.graph_dirty1 = True
+                                    #wx.PostEvent(self._notify_window, GraphEvent(self.current_command1))
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, str(s.value)]))
+                            if self.current_command2 != None:
+                                if (prev_command2 == None) or (prev_command2 != self.current_command2):
+                                    self.graph_x_vals2 = np.array([])
+                                    self.graph_y_vals2 = np.array([])
+                                    #self.graph_x_vals2 = []
+                                    #self.graph_y_vals2 = []
+                                    self.graph_counter2 = 0
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([1, 0, self.current_command2.command]))
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([1, 1, self.current_command2.desc]))
+                                else:
+                                    s = self.connection.connection.query(self.current_command2)
+                                    if s.value == None:
+                                        print("s.value is None!")
+                                        raise AttributeError
+                                    self.graph_x_vals2 = np.append(self.graph_x_vals2, self.graph_counter2)
+                                    self.graph_y_vals2 = np.append(self.graph_y_vals2, float(s.value.magnitude))
+                                    #self.graph_x_vals2.append(self.graph_counter2)
+                                    #self.graph_y_vals2.append(float(s.value.magnitude))
+                                    if len(self.graph_x_vals2) > 190:
+                                        self.graph_x_vals2 = np.delete(self.graph_x_vals2, (0))
+                                        self.graph_y_vals2 = np.delete(self.graph_y_vals2, (0))
+                                        #self.graph_x_vals2.pop(0)
+                                        #self.graph_y_vals2.pop(0)
+                                    self.graph_counter2 = self.graph_counter2 + 1
+                                    prev_command2 = self.current_command2
+                                    self.graph_dirty2 = True
+                                    #wx.PostEvent(self._notify_window, GraphEvent(self.current_command2))
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([1, 2, str(s.value)]))
+                            if self.current_command3 != None:
+                                if (prev_command3 == None) or (prev_command3 != self.current_command3):
+                                    self.graph_x_vals3 = np.array([])
+                                    self.graph_y_vals3 = np.array([])
+                                    #self.graph_x_vals3 = []
+                                    #self.graph_y_vals3 = []
+                                    self.graph_counter3 = 0
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([2, 0, self.current_command3.command]))
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([2, 1, self.current_command3.desc]))
+                                else:
+                                    s = self.connection.connection.query(self.current_command3)
+                                    if s.value == None:
+                                        print("s.value is None!")
+                                        raise AttributeError
+                                    self.graph_x_vals3 = np.append(self.graph_x_vals3, self.graph_counter3)
+                                    self.graph_y_vals3 = np.append(self.graph_y_vals3, float(s.value.magnitude))
+                                    #self.graph_x_vals3.append(self.graph_counter3)
+                                    #self.graph_y_vals3.append(float(s.value.magnitude))
+                                    if len(self.graph_x_vals3) > 190:
+                                        self.graph_x_vals3 = np.delete(self.graph_x_vals3, (0))
+                                        self.graph_y_vals3 = np.delete(self.graph_y_vals3, (0))
+                                        #self.graph_x_vals3.pop(0)
+                                        #self.graph_y_vals3.pop(0)
+                                    self.graph_counter3 = self.graph_counter3 + 1
+                                    prev_command3 = self.current_command3
+                                    self.graph_dirty3 = True
+                                    #wx.PostEvent(self._notify_window, GraphEvent(self.current_command3))
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([2, 2, str(s.value)]))
+                            if self.current_command4 != None:
+                                if (prev_command4 == None) or (prev_command4 != self.current_command4):
+                                    self.graph_x_vals4 = np.array([])
+                                    self.graph_y_vals4 = np.array([])
+                                    #self.graph_x_vals4 = []
+                                    #self.graph_y_vals4 = []
+                                    self.graph_counter4 = 0
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([3, 0, self.current_command4.command]))
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([3, 1, self.current_command4.desc]))
+                                else:
+                                    s = self.connection.connection.query(self.current_command4)
+                                    if s.value == None:
+                                        print("s.value is None!")
+                                        raise AttributeError
+                                    self.graph_x_vals4 = np.append(self.graph_x_vals4, self.graph_counter4)
+                                    self.graph_y_vals4 = np.append(self.graph_y_vals4, float(s.value.magnitude))
+                                    #self.graph_x_vals4.append(self.graph_counter4)
+                                    #self.graph_y_vals4.append(float(s.value.magnitude))
+                                    if len(self.graph_x_vals4) > 190:
+                                        self.graph_x_vals4 = np.delete(self.graph_x_vals4, (0))
+                                        self.graph_y_vals4 = np.delete(self.graph_y_vals4, (0))
+                                        #self.graph_x_vals4.pop(0)
+                                        #self.graph_y_vals4.pop(0)
+                                    self.graph_counter4 = self.graph_counter4 + 1
+                                    prev_command4 = self.current_command4
+                                    self.graph_dirty4 = True
+                                    #wx.PostEvent(self._notify_window, GraphEvent(self.current_command4))
+                                    wx.PostEvent(self._notify_window, GraphValueEvent([3, 2, str(s.value)]))
+                            wx.PostEvent(self._notify_window, GraphEvent(()))
+                            #time.sleep(0.2)
                     except AttributeError:
+                        traceback.print_exc()
                         if self.initCommunication() != "OK":
                             self.stop()
                             return None
@@ -760,8 +935,8 @@ class MyApp(wx.App):
         def stop(self):
             try: # if stop is called before any connection port is not defined (and not connected )
                 self.connection.connection.close()
-            except:
-                pass
+            except Exception as e:\
+                print(e)
 
             # if self.port != None: #if stop is called before any connection port is not defined (and not connected )
             #  self.port.close()
@@ -792,15 +967,15 @@ class MyApp(wx.App):
             print (sel, state)
             if   state == 0:
                 self.senprod.on(sel)
-                self.sensors.SetItem(sel,1,"1")
+                self.sensors.SetItem(sel, 1, "1")
             elif state == 1:
                 self.senprod.off(sel)
-                self.sensors.SetItem(sel,1,"0")
+                self.sensors.SetItem(sel, 1, "0")
             else:
                 traceback.print_exc()
                 #debug("Incorrect sensor state")
-        
-        self.sensors.Bind(wx.EVT_LIST_ITEM_ACTIVATED,sensor_toggle,id=self.sensor_id)                
+
+        self.sensors.Bind(wx.EVT_LIST_ITEM_ACTIVATED, sensor_toggle, id=self.sensor_id)
 
 
     def sensor_control_off(self):  # after disconnect disable few buttons
@@ -850,6 +1025,45 @@ class MyApp(wx.App):
         ####################################################################
 
         self.nb.AddPage(panel, "Sensors")
+    def build_graph_page(self):
+        HOFFSET_LIST = 0
+        # tID = wx.NewId()
+        tID = wx.NewIdRef(count=1)
+        self.graph_id = tID
+        self.graph_panel = wx.Panel(self.nb, -1)
+        self.graph_list_ctrl = self.MyListCtrl(self.graph_panel, tID, pos=wx.Point(0, HOFFSET_LIST),
+                                     style=
+                                     wx.LC_REPORT |
+                                     wx.SUNKEN_BORDER |
+                                     wx.LC_HRULES |
+                                     wx.LC_SINGLE_SEL)
+
+        self.graph_list_ctrl.InsertColumn(0, "PID", width=70)
+        self.graph_list_ctrl.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_RIGHT, width=200)
+        self.graph_list_ctrl.InsertColumn(2, "Value")
+
+        self.graph_list_ctrl.InsertItem(0, "")
+        self.graph_list_ctrl.InsertItem(1, "")
+        self.graph_list_ctrl.InsertItem(2, "")
+        self.graph_list_ctrl.InsertItem(3, "")
+        self.nb.AddPage(self.graph_panel, "Graph")
+
+
+        ####################################################################
+        # This little bit of magic keeps the list the same size as the frame
+        def OnPSize(e, win=self.graph_panel):
+            self.graph_panel.SetSize(e.GetSize())
+            self.graph_list_ctrl.SetSize(e.GetSize())
+
+            w, h = self.frame.GetSize()
+
+            self.graph_list_ctrl.SetSize(0, HOFFSET_LIST, w - 10, h - 35)
+
+        self.graph_panel.Bind(wx.EVT_SIZE, OnPSize)
+        ####################################################################
+
+
+
 
     def build_freezeframe_page(self):
         HOFFSET_LIST = 0
@@ -954,7 +1168,8 @@ class MyApp(wx.App):
                 self.SERTIMEOUT = self.config.get("pyOBD", "SERTIMEOUT")
                 self.BAUDRATE = self.config.get("pyOBD", "BAUDRATE")
                 self.FAST = self.config.get("pyOBD", "FAST")
-            except:
+            except Exception as e:
+                print(e)
                 self.COMPORT = "AUTO"
                 self.RECONNATTEMPTS = 5
                 self.SERTIMEOUT = 5
@@ -977,6 +1192,7 @@ class MyApp(wx.App):
         EVT_RESULT(self, self.BuildComboBox, EVT_BUILD_COMBOBOX_ID)
         EVT_RESULT(self, self.DestroyComboBox, EVT_DESTROY_COMBOBOX_ID)
         EVT_RESULT(self, self.GetSelectionComboBox, EVT_COMBOBOX_GETSELECTION_ID)
+        EVT_RESULT(self, self.SetSelectionComboBox, EVT_COMBOBOX_SETSELECTION_ID)
         EVT_RESULT(self, self.InsertSensorRow, EVT_INSERT_SENSOR_ROW_ID)
         EVT_RESULT(self, self.InsertFreezeframeRow, EVT_INSERT_FREEZEFRAME_ROW_ID)
         EVT_RESULT(self, self.OnFreezeframeResult, EVT_FREEZEFRAME_RESULT_ID)
@@ -987,12 +1203,12 @@ class MyApp(wx.App):
         self.status = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
         self.status.InsertColumn(0, "Description", width=200)
         self.status.InsertColumn(1, "Value")
-        self.status.Append(["Link State", "Disconnnected"]);
-        self.status.Append(["Protocol", "----"]);
-        self.status.Append(["Cable version", "----"]);
-        self.status.Append(["COM port", "----"]);
-        self.status.Append(["VIN number", "----"]);
-        #self.status.Append(["ECU NAME", "----"]);
+        self.status.Append(["Link State", "Disconnnected"])
+        self.status.Append(["Protocol", "----"])
+        self.status.Append(["Cable version", "----"])
+        self.status.Append(["COM port", "----"])
+        self.status.Append(["VIN number", "----"])
+        #self.status.Append(["ECU NAME", "----"])
 
         self.nb.AddPage(self.status, "Status")
 
@@ -1033,18 +1249,8 @@ class MyApp(wx.App):
 
         self.build_freezeframe_page()
 
+        self.build_graph_page()
 
-        self.graph = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
-
-        self.nb.AddPage(self.graph, "Graph")
-
-
-
-
-        self.graph.InsertColumn(0, "PID", width=70)
-        self.graph.InsertColumn(1, "Description", width=200)
-        self.graph.InsertColumn(2, "Value")
-        self.graph.InsertItem(0, "")
 
 
 
@@ -1098,7 +1304,7 @@ class MyApp(wx.App):
         self.SetTopWindow(frame)
 
         frame.Show(True)
-        frame.SetSize((520, 400))
+        frame.SetSize((1024, 768))
         self.sensor_control_off() # ??? JURE POLJSAK
 
 
@@ -1163,9 +1369,13 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
     def OnTests(self, event):
         self.OBDTests.SetItem(event.data[0], event.data[1], event.data[2])
 
+    """
     def OnCombo(self, event):
-        self.senprod.curr_selection = self.combobox.GetSelection()
-
+        self.curr_selection1 = self.combobox1.GetSelection()
+        self.curr_selection2 = self.combobox2.GetSelection()
+        self.curr_selection3 = self.combobox3.GetSelection()
+        self.curr_selection4 = self.combobox4.GetSelection()
+    """
     def InsertSensorRow(self, event):
         counter = event.data
         self.sensors.InsertItem(counter, "")
@@ -1175,26 +1385,40 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         self.freezeframe.InsertItem(counter, "")
 
     def BuildComboBox(self, event):
-        self.combobox = wx.ComboBox(self.graph, choices=event.data, pos=(0, 60))
+        self.combobox1 = wx.ComboBox(self.graph_panel, choices=event.data, pos=(0, 130))
+        self.combobox2 = wx.ComboBox(self.graph_panel, choices=event.data, pos=(0, 170))
+        self.combobox3 = wx.ComboBox(self.graph_panel, choices=event.data, pos=(330, 130))
+        self.combobox4 = wx.ComboBox(self.graph_panel, choices=event.data, pos=(330, 170))
+        self.build_combobox_event_finished=True
 
     def DestroyComboBox(self, event):
         try:
-            self.combobox
-            self.combobox.Destroy()
-        except:
-            pass
+            self.combobox1
+            self.combobox1.Destroy()
+            self.combobox2
+            self.combobox2.Destroy()
+            self.combobox3
+            self.combobox3.Destroy()
+            self.combobox4
+            self.combobox4.Destroy()
+        except Exception as e:
+            print(e)
 
     def GetSelectionComboBox(self, event):
-        self.combobox_selection = self.combobox.GetSelection()
+        self.combobox1_selection = self.combobox1.GetSelection()
+        self.combobox2_selection = self.combobox2.GetSelection()
+        self.combobox3_selection = self.combobox3.GetSelection()
+        self.combobox4_selection = self.combobox4.GetSelection()
         self.combobox_sel_finished = True
 
+    def SetSelectionComboBox(self, event):
+        self.combobox1_selection = self.combobox1.SetSelection(0)
+        self.combobox2_selection = self.combobox2.SetSelection(1)
+        self.combobox3_selection = self.combobox3.SetSelection(2)
+        self.combobox4_selection = self.combobox4.SetSelection(3)
+        self.combobox_set_sel_finished = True
+
     def OnClose(self, event):
-
-
-        try:
-            del self.fig_graph
-        except:
-            pass
 
         self.sensors.DeleteAllItems()
         self.freezeframe.DeleteAllItems()
@@ -1220,91 +1444,98 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         self.OBDTests.Append(["MISFIRE CYLINDER 4", "---", "---"])
         self.dtc.DeleteAllItems()
 
-
-        self.graph.DeleteAllItems()
-
-        try:
-            self.graph_canvas.Destroy()
-        except:
-            pass
-
-
-        self.graph.InsertItem(0, "")
+        self.graph_list_ctrl.DeleteAllItems()
+        self.graph_list_ctrl.InsertItem(0, "")
+        self.graph_list_ctrl.InsertItem(1, "")
+        self.graph_list_ctrl.InsertItem(2, "")
+        self.graph_list_ctrl.InsertItem(3, "")
 
         try:
-            self.combobox.Destroy()
+            self.combobox1.Destroy()
+            self.combobox2.Destroy()
+            self.combobox3.Destroy()
+            self.combobox4.Destroy()
         except:
-            pass
+            traceback.print_exc()
+        try:
+            self.panel1.Clear()
+            self.panel2.Clear()
+            self.panel3.Clear()
+            self.panel4.Clear()
+        except:
+            traceback.print_exc()
 
 
     def OnGraph(self, event):
-        try:
-            self.fig_graph
-        except:
-            plt.style.use('fivethirtyeight')
-            x_axis_start = 0
-            x_axis_end = 100
-
-
-            self.fig_graph = Figure(dpi=100)
-
-            self.graph_axes = self.fig_graph.add_subplot()
-            self.graph_canvas = FigureCanvas(self.graph, -1, self.fig_graph)
-            self.graph_canvas.SetPosition(wx.Point(0, 120))
 
         def animate():
-            if self.senprod.graph_dirty:
-                self.graph_axes.clear()
-                if len(self.senprod.graph_x_vals) == 200:
-                    self.graph_axes.set_xlim(self.senprod.graph_counter - 200, self.senprod.graph_counter)
-                else:
-                    self.graph_axes.set_xlim(0, 200)
-                if self.senprod.current_command != None:
-                    if "o2" in self.senprod.current_command.desc.lower():
-                        self.graph_axes.set_ylim((self.senprod.graph_min_y_val), (self.senprod.graph_max_y_val))
-                    else:
-                        self.graph_axes.set_ylim((self.senprod.graph_min_y_val-5), (self.senprod.graph_max_y_val+5))
-                try:
-                    self.graph_axes.set_title(self.senprod.current_command.desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
-                except:
-                    pass
-                self.graph_axes.plot(self.senprod.graph_x_vals,self.senprod.graph_y_vals, color="b", linewidth=1)
-                self.graph_canvas.draw()
+            if not self.senprod.first_time_plot:
+                if self.senprod.graph_dirty1:
+                    self.xy_data1 = list(zip(self.senprod.graph_x_vals1, self.senprod.graph_y_vals1))
+                    self.line1 = wxplot.PolySpline(self.xy_data1, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                    self.graphics1 = wxplot.PlotGraphics([self.line1], self.senprod.current_command1.desc, 'frame', 'unit')
+                    self.panel1.Destroy()  # This fixes memory leak.
+                    self.panel1 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 220), size=wx.Size(350, 200))
+                    self.panel1.Draw(self.graphics1, xAxis=(self.senprod.graph_counter1 - 190, self.senprod.graph_counter1+10))
+                    self.senprod.graph_dirty1 = False
+
+                if self.senprod.graph_dirty2:
+                    self.xy_data2 = list(zip(self.senprod.graph_x_vals2, self.senprod.graph_y_vals2))
+                    self.line2 = wxplot.PolySpline(self.xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                    self.graphics2 = wxplot.PlotGraphics([self.line2], self.senprod.current_command2.desc, 'frame', 'unit')
+                    self.panel2.Destroy()  # This fixes memory leak.
+                    self.panel2 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 410), size=wx.Size(350, 200))
+                    self.panel2.Draw(self.graphics2, xAxis=(self.senprod.graph_counter2 - 190, self.senprod.graph_counter2+10))
+                    self.senprod.graph_dirty2 = False
+
+                if self.senprod.graph_dirty3:
+                    self.xy_data3 = list(zip(self.senprod.graph_x_vals3, self.senprod.graph_y_vals3))
+                    self.line3 = wxplot.PolySpline(self.xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                    self.graphics3 = wxplot.PlotGraphics([self.line3], self.senprod.current_command3.desc, 'frame', 'unit')
+                    self.panel3.Destroy()  # This fixes memory leak.
+                    self.panel3 = wxplot.PlotCanvas(self.graph_panel, pos=(340, 220), size=wx.Size(350, 200))
+                    self.panel3.Draw(self.graphics3, xAxis=(self.senprod.graph_counter3 - 190, self.senprod.graph_counter3+10))
+                    self.senprod.graph_dirty3 = False
+
+                if self.senprod.graph_dirty4:
+                    self.xy_data4 = list(zip(self.senprod.graph_x_vals4, self.senprod.graph_y_vals4))
+                    self.line4 = wxplot.PolySpline(self.xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                    self.graphics4 = wxplot.PlotGraphics([self.line4], self.senprod.current_command4.desc, 'frame', 'unit')
+                    self.panel4.Destroy()  # This fixes memory leak.
+                    self.panel4 = wxplot.PlotCanvas(self.graph_panel, pos=(340, 410), size=wx.Size(350, 200))
+                    self.panel4.Draw(self.graphics4, xAxis=(self.senprod.graph_counter4 - 190, self.senprod.graph_counter4+10))
+                    self.senprod.graph_dirty4 = False
+
+        if self.senprod.first_time_plot:
+            self.xy_data1 = list(zip(self.senprod.graph_x_vals1, self.senprod.graph_y_vals1))
+            self.line1 = wxplot.PolySpline(self.xy_data1, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
+            self.graphics1 = wxplot.PlotGraphics([self.line1], self.senprod.current_command1.desc, 'frame', 'unit')
+            self.panel1 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 220), size=wx.Size(350, 200))
+
+            self.xy_data2 = list(zip(self.senprod.graph_x_vals2, self.senprod.graph_y_vals2))
+            self.line2 = wxplot.PolySpline(self.xy_data2, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
+            self.graphics2 = wxplot.PlotGraphics([self.line2], self.senprod.current_command2.desc, 'frame', 'unit')
+            self.panel2 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 410), size=wx.Size(350, 200))
+
+            self.xy_data3 = list(zip(self.senprod.graph_x_vals3, self.senprod.graph_y_vals3))
+            self.line3 = wxplot.PolySpline(self.xy_data3, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
+            self.graphics3 = wxplot.PlotGraphics([self.line3], self.senprod.current_command3.desc, 'frame', 'unit')
+            self.panel3 = wxplot.PlotCanvas(self.graph_panel, pos=(340, 220), size=wx.Size(350, 200))
+
+            self.xy_data4 = list(zip(self.senprod.graph_x_vals4, self.senprod.graph_y_vals4))
+            self.line4 = wxplot.PolySpline(self.xy_data4, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
+            self.graphics4 = wxplot.PlotGraphics([self.line4], self.senprod.current_command4.desc, 'frame', 'unit')
+            self.panel4 = wxplot.PlotCanvas(self.graph_panel, pos=(340, 410), size=wx.Size(350, 200))
+
         animate()
-        self.senprod.graph_dirty = False
-        """
-        plt.style.use('fivethirtyeight')
-        self.fig_graph = plt.figure()
-        x_axis_start = 0
-        x_axis_end = 100
-        ax = plt.axes(xlim=(x_axis_start, x_axis_end), ylim=(-5, 105))
+        self.senprod.first_time_plot = False
+        #gc.collect()
 
-        line, = ax.plot(0, 0)
 
-        def animate(i):
-            if self.senprod.graph_dirty:
-                x_vals = self.senprod.graph_x_vals
-                y_vals = self.senprod.graph_y_vals
-                graph_counter = self.senprod.graph_counter
-                line.set_linewidth(1)
-                line.set_xdata(x_vals)
-                line.set_ydata(y_vals)
-                ax.set_xlim(graph_counter - 290, graph_counter + 10)
-                if y_vals != []:
-                    ax.set_ylim(-50, max(y_vals)+5)
-                ax.set_title(event.data.desc, fontdict={'fontsize': 20, 'fontweight': 'medium'})
-                self.senprod.graph_dirty = False
-            #plt.pause(0.05)
 
-            return line,
 
-        ani = FuncAnimation(self.fig_graph, animate, blit=False)#, frames=None, interval=1, blit=False)
-        #ax.axhline(linewidth=1, color="b")
-        #plt.tight_layout()
-        plt.show()
-        """
     def OnGraphValue(self, event):
-        self.graph.SetItem(event.data[0], event.data[1], event.data[2])
+        self.graph_list_ctrl.SetItem(event.data[0], event.data[1], event.data[2])
 
     def OnDebug(self, event):
         self.TraceDebug(event.data[0], event.data[1])
@@ -1318,6 +1549,9 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
     def OnDisconnect(self, event):  # disconnect connection to ECU
         self.ThreadControl = 666
         self.sensor_control_off()
+
+
+
 
     def OpenPort(self, e):
 
@@ -1427,7 +1661,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                          majorDimension=2)
 
         sizer.Add(rb, 0)
-        baudrates = ['AUTO', '38400', '9600', '230400', '115200', '57600', '19200']
+        baudrates = ['AUTO', '38400', '9600', '230400', '115200', '57600', '19200', '128000', '14400']
         brb = wx.RadioBox(diag, id, "Choose Baud Rate",
                          choices=baudrates, style=wx.RA_SPECIFY_COLS,
                          majorDimension=2)
@@ -1455,7 +1689,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         # set actual serial port choice
         if (self.COMPORT != 0) and (self.COMPORT in ports):
             rb.SetSelection(ports.index(self.COMPORT))
-        baudrates = ['AUTO', '38400', '9600', '230400', '115200', '57600', '19200']
+        baudrates = ['AUTO', '38400', '9600', '230400', '115200', '57600', '19200', '128000', '14400']
         if (self.BAUDRATE != 0) and (self.BAUDRATE in baudrates):
             brb.SetSelection(baudrates.index(self.BAUDRATE))
         if (self.FAST == "FAST") or (self.FAST == "NORMAL"):

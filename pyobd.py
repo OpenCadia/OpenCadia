@@ -798,11 +798,14 @@ class MyApp(wx.App):
                                     wx.PostEvent(self._notify_window, GraphValueEvent([0, 1, self.current_command1.desc]))
                                 else:
                                     s = self.connection.connection.query(self.current_command1)
-                                    if s.value == None:
-                                        print("s.value is None!")
-                                        raise AttributeError
+                                    #if s.value == None:
+                                    #    print("s.value is None!")
+                                    #    raise AttributeError
                                     self.graph_x_vals1 = np.append(self.graph_x_vals1, self.graph_counter1)
-                                    self.graph_y_vals1 = np.append(self.graph_y_vals1, float(s.value.magnitude))
+                                    try:
+                                        self.graph_y_vals1 = np.append(self.graph_y_vals1, float(s.value.magnitude))
+                                    except AttributeError:
+                                        self.graph_y_vals1 = np.append(self.graph_y_vals1, float(0))
                                     #self.graph_x_vals1.append(self.graph_counter1)
                                     #self.graph_y_vals1.append(float(s.value.magnitude))
                                     if len(self.graph_x_vals1) > 190:
@@ -810,11 +813,20 @@ class MyApp(wx.App):
                                         self.graph_y_vals1 = np.delete(self.graph_y_vals1, (0))
                                         #self.graph_x_vals1.pop(0)
                                         #self.graph_y_vals1.pop(0)
+
                                     self.graph_counter1 = self.graph_counter1 + 1
                                     prev_command1 = self.current_command1
                                     self.graph_dirty1 = True
                                     #wx.PostEvent(self._notify_window, GraphEvent(self.current_command1))
-                                    wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, str(s.value)]))
+                                    if s.value == None:
+                                        wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, str(0)]))
+                                        self.unit1 = "unit"
+                                    else:
+                                        wx.PostEvent(self._notify_window, GraphValueEvent([0, 2, str(s.value)]))
+                                        try:
+                                            self.unit1 = str(s.value).split(' ')[1]
+                                        except IndexError:
+                                            self.unit1 = "unit"
                             if self.current_command2 != None:
                                 if (prev_command2 == None) or (prev_command2 != self.current_command2):
                                     self.graph_x_vals2 = np.array([])
@@ -826,11 +838,14 @@ class MyApp(wx.App):
                                     wx.PostEvent(self._notify_window, GraphValueEvent([1, 1, self.current_command2.desc]))
                                 else:
                                     s = self.connection.connection.query(self.current_command2)
-                                    if s.value == None:
-                                        print("s.value is None!")
-                                        raise AttributeError
+                                    #if s.value == None:
+                                    #    print("s.value is None!")
+                                    #    raise AttributeError
                                     self.graph_x_vals2 = np.append(self.graph_x_vals2, self.graph_counter2)
-                                    self.graph_y_vals2 = np.append(self.graph_y_vals2, float(s.value.magnitude))
+                                    try:
+                                        self.graph_y_vals2 = np.append(self.graph_y_vals2, float(s.value.magnitude))
+                                    except AttributeError:
+                                        self.graph_y_vals2 = np.append(self.graph_y_vals2, float(0))
                                     #self.graph_x_vals2.append(self.graph_counter2)
                                     #self.graph_y_vals2.append(float(s.value.magnitude))
                                     if len(self.graph_x_vals2) > 190:
@@ -838,11 +853,20 @@ class MyApp(wx.App):
                                         self.graph_y_vals2 = np.delete(self.graph_y_vals2, (0))
                                         #self.graph_x_vals2.pop(0)
                                         #self.graph_y_vals2.pop(0)
+
                                     self.graph_counter2 = self.graph_counter2 + 1
                                     prev_command2 = self.current_command2
                                     self.graph_dirty2 = True
                                     #wx.PostEvent(self._notify_window, GraphEvent(self.current_command2))
-                                    wx.PostEvent(self._notify_window, GraphValueEvent([1, 2, str(s.value)]))
+                                    if s.value == None:
+                                        wx.PostEvent(self._notify_window, GraphValueEvent([1, 2, str(0)]))
+                                        self.unit2 = "unit"
+                                    else:
+                                        wx.PostEvent(self._notify_window, GraphValueEvent([1, 2, str(s.value)]))
+                                        try:
+                                            self.unit2 = str(s.value).split(' ')[1]
+                                        except IndexError:
+                                            self.unit2 = "unit"
                             if self.current_command3 != None:
                                 if (prev_command3 == None) or (prev_command3 != self.current_command3):
                                     self.graph_x_vals3 = np.array([])
@@ -854,11 +878,14 @@ class MyApp(wx.App):
                                     wx.PostEvent(self._notify_window, GraphValueEvent([2, 1, self.current_command3.desc]))
                                 else:
                                     s = self.connection.connection.query(self.current_command3)
-                                    if s.value == None:
-                                        print("s.value is None!")
-                                        raise AttributeError
+                                    #if s.value == None:
+                                    #    print("s.value is None!")
+                                    #    raise AttributeError
                                     self.graph_x_vals3 = np.append(self.graph_x_vals3, self.graph_counter3)
-                                    self.graph_y_vals3 = np.append(self.graph_y_vals3, float(s.value.magnitude))
+                                    try:
+                                        self.graph_y_vals3 = np.append(self.graph_y_vals3, float(s.value.magnitude))
+                                    except AttributeError:
+                                        self.graph_y_vals3 = np.append(self.graph_y_vals3, float(0))
                                     #self.graph_x_vals3.append(self.graph_counter3)
                                     #self.graph_y_vals3.append(float(s.value.magnitude))
                                     if len(self.graph_x_vals3) > 190:
@@ -866,11 +893,20 @@ class MyApp(wx.App):
                                         self.graph_y_vals3 = np.delete(self.graph_y_vals3, (0))
                                         #self.graph_x_vals3.pop(0)
                                         #self.graph_y_vals3.pop(0)
+
                                     self.graph_counter3 = self.graph_counter3 + 1
                                     prev_command3 = self.current_command3
                                     self.graph_dirty3 = True
                                     #wx.PostEvent(self._notify_window, GraphEvent(self.current_command3))
-                                    wx.PostEvent(self._notify_window, GraphValueEvent([2, 2, str(s.value)]))
+                                    if s.value == None:
+                                        wx.PostEvent(self._notify_window, GraphValueEvent([2, 2, str(0)]))
+                                        self.unit3 = "unit"
+                                    else:
+                                        wx.PostEvent(self._notify_window, GraphValueEvent([2, 2, str(s.value)]))
+                                        try:
+                                            self.unit3 = str(s.value).split(' ')[1]
+                                        except IndexError:
+                                            self.unit3 = "unit"
                             if self.current_command4 != None:
                                 if (prev_command4 == None) or (prev_command4 != self.current_command4):
                                     self.graph_x_vals4 = np.array([])
@@ -882,11 +918,16 @@ class MyApp(wx.App):
                                     wx.PostEvent(self._notify_window, GraphValueEvent([3, 1, self.current_command4.desc]))
                                 else:
                                     s = self.connection.connection.query(self.current_command4)
-                                    if s.value == None:
-                                        print("s.value is None!")
-                                        raise AttributeError
+                                    #if s.value == None:
+                                    #    print("s.value is None!")
+                                    #    raise AttributeError
                                     self.graph_x_vals4 = np.append(self.graph_x_vals4, self.graph_counter4)
-                                    self.graph_y_vals4 = np.append(self.graph_y_vals4, float(s.value.magnitude))
+                                    print(s.value)
+                                    try:
+                                        self.graph_y_vals4 = np.append(self.graph_y_vals4, float(s.value.magnitude))
+                                    except AttributeError:
+                                        self.graph_y_vals4 = np.append(self.graph_y_vals4, float(0))
+
                                     #self.graph_x_vals4.append(self.graph_counter4)
                                     #self.graph_y_vals4.append(float(s.value.magnitude))
                                     if len(self.graph_x_vals4) > 190:
@@ -894,11 +935,20 @@ class MyApp(wx.App):
                                         self.graph_y_vals4 = np.delete(self.graph_y_vals4, (0))
                                         #self.graph_x_vals4.pop(0)
                                         #self.graph_y_vals4.pop(0)
+
                                     self.graph_counter4 = self.graph_counter4 + 1
                                     prev_command4 = self.current_command4
                                     self.graph_dirty4 = True
                                     #wx.PostEvent(self._notify_window, GraphEvent(self.current_command4))
-                                    wx.PostEvent(self._notify_window, GraphValueEvent([3, 2, str(s.value)]))
+                                    if s.value == None:
+                                        wx.PostEvent(self._notify_window, GraphValueEvent([3, 2, str(0)]))
+                                        self.unit4 = "unit"
+                                    else:
+                                        wx.PostEvent(self._notify_window, GraphValueEvent([3, 2, str(s.value)]))
+                                        try:
+                                            self.unit4 = str(s.value).split(' ')[1]
+                                        except IndexError:
+                                            self.unit4 = "unit"
                             wx.PostEvent(self._notify_window, GraphEvent(()))
                             #time.sleep(0.2)
                     except AttributeError:
@@ -911,7 +961,11 @@ class MyApp(wx.App):
                 else:
 
                     pass
+            wx.PostEvent(self._notify_window, CloseEvent([]))
             self.stop()
+            app.sensor_control_off()
+            self.process_active = False
+
 
 
         """
@@ -940,8 +994,8 @@ class MyApp(wx.App):
             except Exception as e:\
                 print(e)
 
-            # if self.port != None: #if stop is called before any connection port is not defined (and not connected )
-            #  self.port.close()
+            if self.port != None: #if stop is called before any connection port is not defined (and not connected )
+              self.port.close()
             wx.PostEvent(self._notify_window, StatusEvent([0, 1, "Disconnected"]))
             wx.PostEvent(self._notify_window, StatusEvent([1, 1, "----"]))
             wx.PostEvent(self._notify_window, StatusEvent([2, 1, "----"]))
@@ -1475,7 +1529,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 if self.senprod.graph_dirty1:
                     self.xy_data1 = list(zip(self.senprod.graph_x_vals1, self.senprod.graph_y_vals1))
                     self.line1 = wxplot.PolySpline(self.xy_data1, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                    self.graphics1 = wxplot.PlotGraphics([self.line1], self.senprod.current_command1.desc, 'frame', 'unit')
+                    self.graphics1 = wxplot.PlotGraphics([self.line1], self.senprod.current_command1.desc, 'frame', self.senprod.unit1)
                     self.panel1.Destroy()  # This fixes memory leak.
                     self.panel1 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 220), size=wx.Size(400, 250))
                     self.panel1.Draw(self.graphics1, xAxis=(self.senprod.graph_counter1 - 190, self.senprod.graph_counter1+10))
@@ -1484,7 +1538,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 if self.senprod.graph_dirty2:
                     self.xy_data2 = list(zip(self.senprod.graph_x_vals2, self.senprod.graph_y_vals2))
                     self.line2 = wxplot.PolySpline(self.xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                    self.graphics2 = wxplot.PlotGraphics([self.line2], self.senprod.current_command2.desc, 'frame', 'unit')
+                    self.graphics2 = wxplot.PlotGraphics([self.line2], self.senprod.current_command2.desc, 'frame', self.senprod.unit2)
                     self.panel2.Destroy()  # This fixes memory leak.
                     self.panel2 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 470), size=wx.Size(400, 250))
                     self.panel2.Draw(self.graphics2, xAxis=(self.senprod.graph_counter2 - 190, self.senprod.graph_counter2+10))
@@ -1493,7 +1547,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 if self.senprod.graph_dirty3:
                     self.xy_data3 = list(zip(self.senprod.graph_x_vals3, self.senprod.graph_y_vals3))
                     self.line3 = wxplot.PolySpline(self.xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                    self.graphics3 = wxplot.PlotGraphics([self.line3], self.senprod.current_command3.desc, 'frame', 'unit')
+                    self.graphics3 = wxplot.PlotGraphics([self.line3], self.senprod.current_command3.desc, 'frame', self.senprod.unit3)
                     self.panel3.Destroy()  # This fixes memory leak.
                     self.panel3 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 220), size=wx.Size(400, 250))
                     self.panel3.Draw(self.graphics3, xAxis=(self.senprod.graph_counter3 - 190, self.senprod.graph_counter3+10))
@@ -1502,7 +1556,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 if self.senprod.graph_dirty4:
                     self.xy_data4 = list(zip(self.senprod.graph_x_vals4, self.senprod.graph_y_vals4))
                     self.line4 = wxplot.PolySpline(self.xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                    self.graphics4 = wxplot.PlotGraphics([self.line4], self.senprod.current_command4.desc, 'frame', 'unit')
+                    self.graphics4 = wxplot.PlotGraphics([self.line4], self.senprod.current_command4.desc, 'frame', self.senprod.unit4)
                     self.panel4.Destroy()  # This fixes memory leak.
                     self.panel4 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 470), size=wx.Size(400, 250))
                     self.panel4.Draw(self.graphics4, xAxis=(self.senprod.graph_counter4 - 190, self.senprod.graph_counter4+10))
@@ -1551,6 +1605,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
     def OnDisconnect(self, event):  # disconnect connection to ECU
         self.ThreadControl = 666
         self.sensor_control_off()
+        #self.stop()
 
 
 
@@ -1739,8 +1794,9 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             self.config.write(open(self.configfilepath, 'w'))
 
     def OnExit(self, e=None):
-        import sys
+
         try:
+
             self.senprod._notify_window.ThreadControl = 666
             while self.senprod.process_active !=  False:
                 time.sleep(0.1)

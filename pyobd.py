@@ -385,12 +385,14 @@ class MyApp(wx.App):
 
                 time_now = datetime.datetime.now()
                 diff = (time_now - time_prev).total_seconds()
-                print(diff)
-                if (diff < 0.1):
-                    time.sleep(0.05)
+
+                while (diff < 0.1):
+                    time.sleep(0.01)
+                    time_now = datetime.datetime.now()
+                    diff = (time_now - time_prev).total_seconds()
                     continue
-                else:
-                    time_prev = time_now
+                print(diff)
+                time_prev = time_now
 
 
                 if curstate != 5:
@@ -1304,7 +1306,7 @@ class MyApp(wx.App):
         self.SetTopWindow(frame)
 
         frame.Show(True)
-        frame.SetSize((1024, 768))
+        frame.SetSize((1024, 920))
         self.sensor_control_off() # ??? JURE POLJSAK
 
 
@@ -1475,7 +1477,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                     self.line1 = wxplot.PolySpline(self.xy_data1, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                     self.graphics1 = wxplot.PlotGraphics([self.line1], self.senprod.current_command1.desc, 'frame', 'unit')
                     self.panel1.Destroy()  # This fixes memory leak.
-                    self.panel1 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 220), size=wx.Size(350, 200))
+                    self.panel1 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 220), size=wx.Size(400, 250))
                     self.panel1.Draw(self.graphics1, xAxis=(self.senprod.graph_counter1 - 190, self.senprod.graph_counter1+10))
                     self.senprod.graph_dirty1 = False
 
@@ -1484,7 +1486,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                     self.line2 = wxplot.PolySpline(self.xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                     self.graphics2 = wxplot.PlotGraphics([self.line2], self.senprod.current_command2.desc, 'frame', 'unit')
                     self.panel2.Destroy()  # This fixes memory leak.
-                    self.panel2 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 410), size=wx.Size(350, 200))
+                    self.panel2 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 470), size=wx.Size(400, 250))
                     self.panel2.Draw(self.graphics2, xAxis=(self.senprod.graph_counter2 - 190, self.senprod.graph_counter2+10))
                     self.senprod.graph_dirty2 = False
 
@@ -1493,7 +1495,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                     self.line3 = wxplot.PolySpline(self.xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                     self.graphics3 = wxplot.PlotGraphics([self.line3], self.senprod.current_command3.desc, 'frame', 'unit')
                     self.panel3.Destroy()  # This fixes memory leak.
-                    self.panel3 = wxplot.PlotCanvas(self.graph_panel, pos=(340, 220), size=wx.Size(350, 200))
+                    self.panel3 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 220), size=wx.Size(400, 250))
                     self.panel3.Draw(self.graphics3, xAxis=(self.senprod.graph_counter3 - 190, self.senprod.graph_counter3+10))
                     self.senprod.graph_dirty3 = False
 
@@ -1502,7 +1504,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                     self.line4 = wxplot.PolySpline(self.xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                     self.graphics4 = wxplot.PlotGraphics([self.line4], self.senprod.current_command4.desc, 'frame', 'unit')
                     self.panel4.Destroy()  # This fixes memory leak.
-                    self.panel4 = wxplot.PlotCanvas(self.graph_panel, pos=(340, 410), size=wx.Size(350, 200))
+                    self.panel4 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 470), size=wx.Size(400, 250))
                     self.panel4.Draw(self.graphics4, xAxis=(self.senprod.graph_counter4 - 190, self.senprod.graph_counter4+10))
                     self.senprod.graph_dirty4 = False
 
@@ -1510,22 +1512,22 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             self.xy_data1 = list(zip(self.senprod.graph_x_vals1, self.senprod.graph_y_vals1))
             self.line1 = wxplot.PolySpline(self.xy_data1, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
             self.graphics1 = wxplot.PlotGraphics([self.line1], self.senprod.current_command1.desc, 'frame', 'unit')
-            self.panel1 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 220), size=wx.Size(350, 200))
+            self.panel1 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 220), size=wx.Size(400, 250))
 
             self.xy_data2 = list(zip(self.senprod.graph_x_vals2, self.senprod.graph_y_vals2))
             self.line2 = wxplot.PolySpline(self.xy_data2, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
             self.graphics2 = wxplot.PlotGraphics([self.line2], self.senprod.current_command2.desc, 'frame', 'unit')
-            self.panel2 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 410), size=wx.Size(350, 200))
+            self.panel2 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 470), size=wx.Size(400, 250))
 
             self.xy_data3 = list(zip(self.senprod.graph_x_vals3, self.senprod.graph_y_vals3))
             self.line3 = wxplot.PolySpline(self.xy_data3, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
             self.graphics3 = wxplot.PlotGraphics([self.line3], self.senprod.current_command3.desc, 'frame', 'unit')
-            self.panel3 = wxplot.PlotCanvas(self.graph_panel, pos=(340, 220), size=wx.Size(350, 200))
+            self.panel3 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 220), size=wx.Size(400, 250))
 
             self.xy_data4 = list(zip(self.senprod.graph_x_vals4, self.senprod.graph_y_vals4))
             self.line4 = wxplot.PolySpline(self.xy_data4, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
             self.graphics4 = wxplot.PlotGraphics([self.line4], self.senprod.current_command4.desc, 'frame', 'unit')
-            self.panel4 = wxplot.PlotCanvas(self.graph_panel, pos=(340, 410), size=wx.Size(350, 200))
+            self.panel4 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 470), size=wx.Size(400, 250))
 
         animate()
         self.senprod.first_time_plot = False

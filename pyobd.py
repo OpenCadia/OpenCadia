@@ -722,12 +722,12 @@ class MyApp(wx.App):
                             self.graph_counter2 = 0
                             self.graph_counter3 = 0
                             self.graph_counter4 = 0
-                            graph_commands = []
                             self.current_command1 = None
                             self.current_command2 = None
                             self.current_command3 = None
                             self.current_command4 = None
 
+                            graph_commands = []
                             #wx.PostEvent(self._notify_window, GraphEvent((self.current_command, [], [])))
                             prev_command1 = None
                             prev_command2 = None
@@ -743,6 +743,7 @@ class MyApp(wx.App):
                                         else:
                                             graph_commands.append(command)
                             sensor_descriptions = []
+                            #sensor_descriptions.append("None")
                             for command in graph_commands:
                                 sensor_descriptions.append(command.desc)
                             app.build_combobox_event_finished = False
@@ -763,23 +764,32 @@ class MyApp(wx.App):
                             curr_selection2 = app.combobox2_selection
                             curr_selection3 = app.combobox3_selection
                             curr_selection4 = app.combobox4_selection
-
+                            if sensor_descriptions[curr_selection1] == "None":
+                                curr_selection1 = -1
                             if curr_selection1 != -1:
                                 prev_command1 = self.current_command1
                                 self.current_command1 = graph_commands[curr_selection1]
                             else:
                                 self.current_command1 = None
 
+                            if sensor_descriptions[curr_selection2] == "None":
+                                curr_selection2 = -1
                             if curr_selection2 != -1:
                                 prev_command2 = self.current_command2
                                 self.current_command2 = graph_commands[curr_selection2]
                             else:
                                 self.current_command2 = None
+
+                            if sensor_descriptions[curr_selection3] == "None":
+                                curr_selection3 = -1
                             if curr_selection3 != -1:
                                 prev_command3 = self.current_command3
                                 self.current_command3 = graph_commands[curr_selection3]
                             else:
                                 self.current_command3 = None
+
+                            if sensor_descriptions[curr_selection4] == "None":
+                                curr_selection4 = -1
                             if curr_selection4 != -1:
                                 prev_command4 = self.current_command4
                                 self.current_command4 = graph_commands[curr_selection4]
@@ -827,6 +837,11 @@ class MyApp(wx.App):
                                             self.unit1 = str(s.value).split(' ')[1]
                                         except IndexError:
                                             self.unit1 = "unit"
+                            else:
+                                self.graph_x_vals1 = np.array([])
+                                self.graph_y_vals1 = np.array([])
+                                self.graph_counter1 = 0
+
                             if self.current_command2 != None:
                                 if (prev_command2 == None) or (prev_command2 != self.current_command2):
                                     self.graph_x_vals2 = np.array([])
@@ -867,6 +882,11 @@ class MyApp(wx.App):
                                             self.unit2 = str(s.value).split(' ')[1]
                                         except IndexError:
                                             self.unit2 = "unit"
+                            else:
+                                self.graph_x_vals2 = np.array([])
+                                self.graph_y_vals2 = np.array([])
+                                self.graph_counter2 = 0
+
                             if self.current_command3 != None:
                                 if (prev_command3 == None) or (prev_command3 != self.current_command3):
                                     self.graph_x_vals3 = np.array([])
@@ -907,6 +927,11 @@ class MyApp(wx.App):
                                             self.unit3 = str(s.value).split(' ')[1]
                                         except IndexError:
                                             self.unit3 = "unit"
+                            else:
+                                self.graph_x_vals3 = np.array([])
+                                self.graph_y_vals3 = np.array([])
+                                self.graph_counter3 = 0
+
                             if self.current_command4 != None:
                                 if (prev_command4 == None) or (prev_command4 != self.current_command4):
                                     self.graph_x_vals4 = np.array([])
@@ -922,7 +947,7 @@ class MyApp(wx.App):
                                     #    print("s.value is None!")
                                     #    raise AttributeError
                                     self.graph_x_vals4 = np.append(self.graph_x_vals4, self.graph_counter4)
-                                    print(s.value)
+                                    
                                     try:
                                         self.graph_y_vals4 = np.append(self.graph_y_vals4, float(s.value.magnitude))
                                     except AttributeError:
@@ -949,7 +974,39 @@ class MyApp(wx.App):
                                             self.unit4 = str(s.value).split(' ')[1]
                                         except IndexError:
                                             self.unit4 = "unit"
-                            wx.PostEvent(self._notify_window, GraphEvent(()))
+                            else:
+                                self.graph_x_vals4 = np.array([])
+                                self.graph_y_vals4 = np.array([])
+                                self.graph_counter4 = 0
+
+                            if self.first_time_plot:
+                                self.unit1 = 'unit'
+                                self.unit2 = 'unit'
+                                self.unit3 = 'unit'
+                                self.unit4 = 'unit'
+                            if self.current_command1 == None:
+                                desc1 = 'None'
+                            else:
+                                desc1 = self.current_command1.desc
+                            if self.current_command2 == None:
+                                desc2 = 'None'
+                            else:
+                                desc2 = self.current_command2.desc
+                            if self.current_command3 == None:
+                                desc3 = 'None'
+                            else:
+                                desc3 = self.current_command3.desc
+                            if self.current_command4 == None:
+                                desc4 = 'None'
+                            else:
+                                desc4 = self.current_command4.desc
+                            wx.PostEvent(self._notify_window, GraphEvent([(self.graph_x_vals1,self.graph_y_vals1, self.unit1, desc1, self.graph_counter1),
+                                                                          (self.graph_x_vals2,self.graph_y_vals2, self.unit2, desc2, self.graph_counter2),
+                                                                          (self.graph_x_vals3,self.graph_y_vals3, self.unit3, desc3, self.graph_counter3),
+                                                                          (self.graph_x_vals4,self.graph_y_vals4, self.unit4, desc4, self.graph_counter4),
+                                                                          (self.first_time_plot)
+                                                                          ]))
+                            self.first_time_plot = False
                             #time.sleep(0.2)
                     except AttributeError:
                         traceback.print_exc()
@@ -963,9 +1020,9 @@ class MyApp(wx.App):
                     pass
             wx.PostEvent(self._notify_window, CloseEvent([]))
             self.stop()
-            app.sensor_control_off()
-            self.process_active = False
-
+            #app.sensor_control_off()
+            #self.process_active = False
+            sys.exit()
 
 
         """
@@ -1523,68 +1580,75 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
 
     def OnGraph(self, event):
+        xy_data1 = list(zip(event.data[0][0],event.data[0][1]))
+        unit1 = event.data[0][2]
+        command_desc1 = event.data[0][3]
+        graph_counter1 = event.data[0][4]
+        xy_data2 = list(zip(event.data[1][0],event.data[1][1]))
+        unit2 = event.data[1][2]
+        command_desc2 = event.data[1][3]
+        graph_counter2 = event.data[1][4]
+        xy_data3 = list(zip(event.data[2][0],event.data[2][1]))
+        unit3 = event.data[2][2]
+        command_desc3 = event.data[2][3]
+        graph_counter3 = event.data[2][4]
+        xy_data4 = list(zip(event.data[3][0],event.data[3][1]))
+        unit4 = event.data[3][2]
+        command_desc4 = event.data[3][3]
+        graph_counter4 = event.data[3][4]
+        first_time_plot = event.data[4]
 
         def animate():
-            if not self.senprod.first_time_plot:
-                if self.senprod.graph_dirty1:
-                    self.xy_data1 = list(zip(self.senprod.graph_x_vals1, self.senprod.graph_y_vals1))
-                    self.line1 = wxplot.PolySpline(self.xy_data1, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                    self.graphics1 = wxplot.PlotGraphics([self.line1], self.senprod.current_command1.desc, 'frame', self.senprod.unit1)
-                    self.panel1.Destroy()  # This fixes memory leak.
-                    self.panel1 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 220), size=wx.Size(400, 250))
-                    self.panel1.Draw(self.graphics1, xAxis=(self.senprod.graph_counter1 - 190, self.senprod.graph_counter1+10))
-                    self.senprod.graph_dirty1 = False
+            if not first_time_plot:
 
-                if self.senprod.graph_dirty2:
-                    self.xy_data2 = list(zip(self.senprod.graph_x_vals2, self.senprod.graph_y_vals2))
-                    self.line2 = wxplot.PolySpline(self.xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                    self.graphics2 = wxplot.PlotGraphics([self.line2], self.senprod.current_command2.desc, 'frame', self.senprod.unit2)
-                    self.panel2.Destroy()  # This fixes memory leak.
-                    self.panel2 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 470), size=wx.Size(400, 250))
-                    self.panel2.Draw(self.graphics2, xAxis=(self.senprod.graph_counter2 - 190, self.senprod.graph_counter2+10))
-                    self.senprod.graph_dirty2 = False
+                line1 = wxplot.PolySpline(xy_data1, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                self.graphics1 = wxplot.PlotGraphics([line1], command_desc1, 'frame', unit1)
+                self.panel1.Destroy()  # This fixes memory leak.
+                self.panel1 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 220), size=wx.Size(400, 250))
+                self.panel1.Draw(self.graphics1, xAxis=(graph_counter1 - 190, graph_counter1 + 10))
 
-                if self.senprod.graph_dirty3:
-                    self.xy_data3 = list(zip(self.senprod.graph_x_vals3, self.senprod.graph_y_vals3))
-                    self.line3 = wxplot.PolySpline(self.xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                    self.graphics3 = wxplot.PlotGraphics([self.line3], self.senprod.current_command3.desc, 'frame', self.senprod.unit3)
-                    self.panel3.Destroy()  # This fixes memory leak.
-                    self.panel3 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 220), size=wx.Size(400, 250))
-                    self.panel3.Draw(self.graphics3, xAxis=(self.senprod.graph_counter3 - 190, self.senprod.graph_counter3+10))
-                    self.senprod.graph_dirty3 = False
+                line2 = wxplot.PolySpline(xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                self.graphics2 = wxplot.PlotGraphics([line2], command_desc2, 'frame', unit2)
+                self.panel2.Destroy()  # This fixes memory leak.
+                self.panel2 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 470), size=wx.Size(400, 250))
+                self.panel2.Draw(self.graphics2, xAxis=(graph_counter2 - 190, graph_counter2 + 10))
 
-                if self.senprod.graph_dirty4:
-                    self.xy_data4 = list(zip(self.senprod.graph_x_vals4, self.senprod.graph_y_vals4))
-                    self.line4 = wxplot.PolySpline(self.xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                    self.graphics4 = wxplot.PlotGraphics([self.line4], self.senprod.current_command4.desc, 'frame', self.senprod.unit4)
-                    self.panel4.Destroy()  # This fixes memory leak.
-                    self.panel4 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 470), size=wx.Size(400, 250))
-                    self.panel4.Draw(self.graphics4, xAxis=(self.senprod.graph_counter4 - 190, self.senprod.graph_counter4+10))
-                    self.senprod.graph_dirty4 = False
+                line3 = wxplot.PolySpline(xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                self.graphics3 = wxplot.PlotGraphics([line3], command_desc3, 'frame', unit3)
+                self.panel3.Destroy()  # This fixes memory leak.
+                self.panel3 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 220), size=wx.Size(400, 250))
+                self.panel3.Draw(self.graphics3, xAxis=(graph_counter3 - 190, graph_counter3 + 10))
 
-        if self.senprod.first_time_plot:
-            self.xy_data1 = list(zip(self.senprod.graph_x_vals1, self.senprod.graph_y_vals1))
-            self.line1 = wxplot.PolySpline(self.xy_data1, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
-            self.graphics1 = wxplot.PlotGraphics([self.line1], self.senprod.current_command1.desc, 'frame', 'unit')
+                line4 = wxplot.PolySpline(xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                self.graphics4 = wxplot.PlotGraphics([line4], command_desc4, 'frame', unit4)
+                self.panel4.Destroy()  # This fixes memory leak.
+                self.panel4 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 470), size=wx.Size(400, 250))
+                self.panel4.Draw(self.graphics4, xAxis=(graph_counter4 - 190, graph_counter4 + 10))
+
+
+        if first_time_plot:
+            #self.xy_data1 = list(zip(self.senprod.graph_x_vals1, self.senprod.graph_y_vals1))
+            line1 = wxplot.PolySpline(xy_data1, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
+            self.graphics1 = wxplot.PlotGraphics([line1], command_desc1, 'frame', 'unit')
             self.panel1 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 220), size=wx.Size(400, 250))
 
-            self.xy_data2 = list(zip(self.senprod.graph_x_vals2, self.senprod.graph_y_vals2))
-            self.line2 = wxplot.PolySpline(self.xy_data2, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
-            self.graphics2 = wxplot.PlotGraphics([self.line2], self.senprod.current_command2.desc, 'frame', 'unit')
+            #self.xy_data2 = list(zip(self.senprod.graph_x_vals2, self.senprod.graph_y_vals2))
+            line2 = wxplot.PolySpline(xy_data2, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
+            self.graphics2 = wxplot.PlotGraphics([line2], command_desc2, 'frame', 'unit')
             self.panel2 = wxplot.PlotCanvas(self.graph_panel, pos=(0, 470), size=wx.Size(400, 250))
 
-            self.xy_data3 = list(zip(self.senprod.graph_x_vals3, self.senprod.graph_y_vals3))
-            self.line3 = wxplot.PolySpline(self.xy_data3, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
-            self.graphics3 = wxplot.PlotGraphics([self.line3], self.senprod.current_command3.desc, 'frame', 'unit')
+            #self.xy_data3 = list(zip(self.senprod.graph_x_vals3, self.senprod.graph_y_vals3))
+            line3 = wxplot.PolySpline(xy_data3, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
+            self.graphics3 = wxplot.PlotGraphics([line3], command_desc3, 'frame', 'unit')
             self.panel3 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 220), size=wx.Size(400, 250))
 
-            self.xy_data4 = list(zip(self.senprod.graph_x_vals4, self.senprod.graph_y_vals4))
-            self.line4 = wxplot.PolySpline(self.xy_data4, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
-            self.graphics4 = wxplot.PlotGraphics([self.line4], self.senprod.current_command4.desc, 'frame', 'unit')
+            #self.xy_data4 = list(zip(self.senprod.graph_x_vals4, self.senprod.graph_y_vals4))
+            line4 = wxplot.PolySpline(xy_data4, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
+            self.graphics4 = wxplot.PlotGraphics([line4], command_desc4, 'frame', 'unit')
             self.panel4 = wxplot.PlotCanvas(self.graph_panel, pos=(390, 470), size=wx.Size(400, 250))
-
-        animate()
-        self.senprod.first_time_plot = False
+        else:
+            animate()
+        #self.senprod.first_time_plot = False
         #gc.collect()
 
 
@@ -1794,16 +1858,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             self.config.write(open(self.configfilepath, 'w'))
 
     def OnExit(self, e=None):
-
-        try:
-
-            self.senprod._notify_window.ThreadControl = 666
-            while self.senprod.process_active !=  False:
-                time.sleep(0.1)
-            #time.sleep(3)
-        except:
-            pass
-        sys.exit(0)
+        os._exit(0)
 
 
 app = MyApp(0)

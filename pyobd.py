@@ -1325,8 +1325,8 @@ class MyApp(wx.App):
         self.graph_list_ctrl.InsertItem(0, "")
 
         self.nb.AddPage(self.graph_panel, "Graph")
-
-
+        self.graph_list_ctrl.SetSize(0, 0, 500, 47)
+        """
         ####################################################################
         # This little bit of magic keeps the list the same size as the frame
         def OnPSize(e, win=self.graph_panel):
@@ -1339,7 +1339,7 @@ class MyApp(wx.App):
 
         self.graph_panel.Bind(wx.EVT_SIZE, OnPSize)
         ####################################################################
-
+        """
     def build_graphs_page(self):
         HOFFSET_LIST = 0
         # tID = wx.NewId()
@@ -1362,11 +1362,11 @@ class MyApp(wx.App):
         self.graphs_list_ctrl.InsertItem(2, "")
         self.graphs_list_ctrl.InsertItem(3, "")
         self.nb.AddPage(self.graphs_panel, "Graphs")
-
-
+        self.graphs_list_ctrl.SetSize(0, 0, 500, 105)
+        """
         ####################################################################
         # This little bit of magic keeps the list the same size as the frame
-        def OnPSize(e, win=self.graph_panel):
+        def OnPSize(e, win=self.graphs_panel):
             self.graphs_panel.SetSize(e.GetSize())
             self.graphs_list_ctrl.SetSize(e.GetSize())
 
@@ -1376,7 +1376,7 @@ class MyApp(wx.App):
 
         self.graphs_panel.Bind(wx.EVT_SIZE, OnPSize)
         ####################################################################
-
+        """
 
 
 
@@ -1491,10 +1491,9 @@ class MyApp(wx.App):
                 self.BAUDRATE = "AUTO"
                 self.FAST = "FAST"
 
-        frame = wx.Frame(None, -1, "pyOBD-II")
-        self.frame = frame
+        self.frame = wx.Frame(None, -1, "pyOBD-II")
         ico = wx.Icon(resource_path('pyobd.ico'), wx.BITMAP_TYPE_ICO)
-        frame.SetIcon(ico)
+        self.frame.SetIcon(ico)
 
         EVT_RESULT(self, self.OnResult, EVT_RESULT_ID)
         EVT_RESULT(self, self.OnDebug, EVT_DEBUG_ID)
@@ -1518,7 +1517,7 @@ class MyApp(wx.App):
         EVT_RESULT(self, self.OnFreezeframeResult, EVT_FREEZEFRAME_RESULT_ID)
 
         # Main notebook frames
-        self.nb = wx.Notebook(frame, -1, style=wx.NB_TOP)
+        self.nb = wx.Notebook(self.frame, -1, style=wx.NB_TOP)
 
         self.status = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
         self.status.InsertColumn(0, "Description", width=200)
@@ -1604,23 +1603,23 @@ class MyApp(wx.App):
         self.menuBar.Append(self.dtcmenu, "&Trouble codes")
         self.menuBar.Append(self.helpmenu, "&Help")
 
-        frame.SetMenuBar(self.menuBar)  # Adding the MenuBar to the Frame content.
+        self.frame.SetMenuBar(self.menuBar)  # Adding the MenuBar to the Frame content.
 
-        frame.Bind(wx.EVT_MENU, self.OnExit, id=ID_EXIT)  # attach the menu-event ID_EXIT to the
-        frame.Bind(wx.EVT_MENU, self.QueryClear, id=ID_CLEAR)
-        frame.Bind(wx.EVT_MENU, self.Configure, id=ID_CONFIG)
-        frame.Bind(wx.EVT_MENU, self.OpenPort, id=ID_RESET)
-        frame.Bind(wx.EVT_MENU, self.OnDisconnect, id=ID_DISCONNECT)
-        frame.Bind(wx.EVT_MENU, self.GetDTC, id=ID_GETC)
-        frame.Bind(wx.EVT_MENU, self.CodeLookup, id=ID_LOOK)
-        frame.Bind(wx.EVT_MENU, self.OnHelpAbout, id=ID_HELP_ABOUT)
-        frame.Bind(wx.EVT_MENU, self.OnHelpVisit, id=ID_HELP_VISIT)
-        frame.Bind(wx.EVT_MENU, self.OnHelpOrder, id=ID_HELP_ORDER)
+        self.frame.Bind(wx.EVT_MENU, self.OnExit, id=ID_EXIT)  # attach the menu-event ID_EXIT to the
+        self.frame.Bind(wx.EVT_MENU, self.QueryClear, id=ID_CLEAR)
+        self.frame.Bind(wx.EVT_MENU, self.Configure, id=ID_CONFIG)
+        self.frame.Bind(wx.EVT_MENU, self.OpenPort, id=ID_RESET)
+        self.frame.Bind(wx.EVT_MENU, self.OnDisconnect, id=ID_DISCONNECT)
+        self.frame.Bind(wx.EVT_MENU, self.GetDTC, id=ID_GETC)
+        self.frame.Bind(wx.EVT_MENU, self.CodeLookup, id=ID_LOOK)
+        self.frame.Bind(wx.EVT_MENU, self.OnHelpAbout, id=ID_HELP_ABOUT)
+        self.frame.Bind(wx.EVT_MENU, self.OnHelpVisit, id=ID_HELP_VISIT)
+        self.frame.Bind(wx.EVT_MENU, self.OnHelpOrder, id=ID_HELP_ORDER)
 
-        self.SetTopWindow(frame)
+        self.SetTopWindow(self.frame)
 
-        frame.Show(True)
-        frame.SetSize((1024, 920))
+        self.frame.Show(True)
+        self.frame.SetSize((1024, 920))
         self.sensor_control_off() # ??? JURE POLJSAK
 
 
@@ -1809,13 +1808,16 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 line = wxplot.PolySpline(xy_data, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics = wxplot.PlotGraphics([line], command_desc, 'frame', unit)
                 self.panel.Destroy()  # This fixes memory leak.
-                self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100), size=wx.Size(900, 400))
+                self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100))#, size=wx.Size(900, 400))
+                self.panel.SetInitialSize(size=wx.Size(900, 400))
+                #axes_pen = wx.Pen(wx.BLUE, 1, wx.PENSTYLE_LONG_DASH)
+                #self.panel.axesPen = axes_pen
                 self.panel.Draw(self.graphics, xAxis=(graph_counter - 430, graph_counter + 20))
 
         if first_time_graph_plot:
             line = wxplot.PolySpline(xy_data, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
             self.graphics = wxplot.PlotGraphics([line], command_desc, 'frame', 'unit')
-            self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100), size=wx.Size(900, 400))
+            self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(100, 100), size=wx.Size(900, 400))
 
         else:
             animate()
@@ -1845,25 +1847,29 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 line1 = wxplot.PolySpline(xy_data1, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics1 = wxplot.PlotGraphics([line1], command_desc1, 'frame', unit1)
                 self.panel1.Destroy()  # This fixes memory leak.
-                self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 220), size=wx.Size(400, 250))
+                self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 220))#, size=wx.Size(400, 250))
+                self.panel1.SetInitialSize(size=wx.Size(400, 250))
                 self.panel1.Draw(self.graphics1, xAxis=(graph_counter1 - 190, graph_counter1 + 10))
 
                 line2 = wxplot.PolySpline(xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics2 = wxplot.PlotGraphics([line2], command_desc2, 'frame', unit2)
                 self.panel2.Destroy()  # This fixes memory leak.
-                self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470), size=wx.Size(400, 250))
+                self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470))#, size=wx.Size(400, 250))
+                self.panel2.SetInitialSize(size=wx.Size(400, 250))
                 self.panel2.Draw(self.graphics2, xAxis=(graph_counter2 - 190, graph_counter2 + 10))
 
                 line3 = wxplot.PolySpline(xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics3 = wxplot.PlotGraphics([line3], command_desc3, 'frame', unit3)
                 self.panel3.Destroy()  # This fixes memory leak.
-                self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 220), size=wx.Size(400, 250))
+                self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(410, 220))#, size=wx.Size(400, 250))
+                self.panel3.SetInitialSize(size=wx.Size(400, 250))
                 self.panel3.Draw(self.graphics3, xAxis=(graph_counter3 - 190, graph_counter3 + 10))
 
                 line4 = wxplot.PolySpline(xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics4 = wxplot.PlotGraphics([line4], command_desc4, 'frame', unit4)
                 self.panel4.Destroy()  # This fixes memory leak.
-                self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 470), size=wx.Size(400, 250))
+                self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(410, 470))#, size=wx.Size(400, 250))
+                self.panel4.SetInitialSize(size=wx.Size(400, 250))
                 self.panel4.Draw(self.graphics4, xAxis=(graph_counter4 - 190, graph_counter4 + 10))
 
 

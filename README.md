@@ -30,8 +30,8 @@ Others that have been reported to work:<br/>
 Probably any USB ELM327 and serial ELM327 adapter will work(but I can not be 100% sure).<br/>
 
 ### Video presentation on YouTube(click on it):
-[![PYOBD Youtube video 2021](https://img.youtube.com/vi/4PHdCG6qKmQ/0.jpg)](https://www.youtube.com/watch?v=4PHdCG6qKmQ)
-
+[![PYOBD Youtube video 2021](https://img.youtube.com/vi/oUQrxn3Lo4M/0.jpg)](https://www.youtube.com/watch?v=oUQrxn3Lo4M)
+ 
 On Windows, you can create an .exe file with these three commands(make sure you install Python 3 first):
 > pip install -r requirements.txt
 

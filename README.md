@@ -66,7 +66,6 @@ The ignition must be on, to connect to the car and display data(key turned one l
 The program works nice and I will also add new functionalities to it. I am working on adding graphs and data export/saving(and bugfixes ofcourse).
 
 TO DO LIST:<br />
--add multiple graphs<br />
 -add sensor data exporting and replay.
 
 ![ELM327](/elm327.jpg)

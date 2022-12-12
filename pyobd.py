@@ -1290,7 +1290,7 @@ class MyApp(wx.App):
         self.sensors.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_RIGHT, width=200)
         self.sensors.InsertColumn(2, "Value")
 
-
+        """
         ####################################################################
         # This little bit of magic keeps the list the same size as the frame
         def OnPSize(e, win=panel):
@@ -1303,7 +1303,7 @@ class MyApp(wx.App):
 
         panel.Bind(wx.EVT_SIZE, OnPSize)
         ####################################################################
-
+        """
         self.nb.AddPage(panel, "Sensors")
     def build_graph_page(self):
         HOFFSET_LIST = 0
@@ -1325,7 +1325,7 @@ class MyApp(wx.App):
         self.graph_list_ctrl.InsertItem(0, "")
 
         self.nb.AddPage(self.graph_panel, "Graph")
-        self.graph_list_ctrl.SetSize(0, 0, 500, 47)
+        self.graph_list_ctrl.SetSize(0, 0, 500, 48)
         """
         ####################################################################
         # This little bit of magic keeps the list the same size as the frame
@@ -1362,7 +1362,7 @@ class MyApp(wx.App):
         self.graphs_list_ctrl.InsertItem(2, "")
         self.graphs_list_ctrl.InsertItem(3, "")
         self.nb.AddPage(self.graphs_panel, "Graphs")
-        self.graphs_list_ctrl.SetSize(0, 0, 500, 105)
+        self.graphs_list_ctrl.SetSize(0, 0, 500, 126)
         """
         ####################################################################
         # This little bit of magic keeps the list the same size as the frame

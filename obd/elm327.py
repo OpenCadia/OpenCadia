@@ -103,7 +103,7 @@ class ELM327:
     # We check the two default baud rates first, then go fastest to
     # slowest, on the theory that anyone who's using a slow baud rate is
     # going to be less picky about the time required to detect it.
-    _TRY_BAUDS = [38400, 9600, 230400, 115200, 57600, 19200]
+    _TRY_BAUDS = [38400, 9600, 230400, 115200, 57600, 19200, 128000, 14400]
 
     def __init__(self, portname, baudrate, protocol, timeout,
                  check_voltage=True, start_low_power=False):
@@ -126,6 +126,7 @@ class ELM327:
         self.__protocol = UnknownProtocol([])
         self.__low_power = False
         self.timeout = timeout
+
 
         # ------------- open port -------------
         try:
@@ -158,6 +159,7 @@ class ELM327:
         else:
             print('Baudrate set!')
         # ---------------------------- ATZ (reset) ----------------------------
+
         try:
             self.__send(b"ATZ", delay=1)  # wait 1 second for ELM to initialize
             print('ATZ succesful')
@@ -168,7 +170,7 @@ class ELM327:
             return
 
         # -------------------------- ATE0 (echo OFF) --------------------------
-        r = self.__send(b"ATE0")#, delay=1)
+        r = self.__send(b"ATE0", delay=1)
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return
@@ -176,7 +178,7 @@ class ELM327:
             print('ATE0 OK')
 
         # ------------------------- ATH1 (headers ON) -------------------------
-        r = self.__send(b"ATH1")
+        r = self.__send(b"ATH1", delay=1)
         if not self.__isok(r):
             self.__error("ATH1 did not return 'OK', or echoing is still ON")
             return
@@ -366,7 +368,7 @@ class ELM327:
             logger.debug("Response from baud %d: %s" % (baud, repr(response)))
             print("Response from baud %d: %s" % (baud, repr(response)))
             # watch for the prompt character
-            if response.endswith(b">") or "elm" in str(response).lower():
+            if response.endswith(b">") or "elm" in str(response).lower() or b'\x7f\x7f\r' in response:
                 logger.debug("Choosing baud %d" % baud)
                 print("Choosing baud %d" % baud)
                 self.__port.timeout = timeout  # reinstate our original timeout

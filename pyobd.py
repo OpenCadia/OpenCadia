@@ -1806,7 +1806,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         def animate():
             if not first_time_graph_plot:
                 self.line = wxplot.PolySpline(xy_data, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                self.graphics = wxplot.PlotGraphics([self.line], command_desc, 'frame', 'unit')
+                self.graphics = wxplot.PlotGraphics([self.line], command_desc, 'frame', unit)
                 if not sys.platform.startswith('win'):
                     self.panel.Destroy()
                     self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100))

@@ -29,7 +29,7 @@ Others that have been reported to work:<br/>
 The Chinese clones may work but not fully and the ones that work (at least mostly) properly are $10 or more. There are multiple reasons why a good adapter is not the cheapest. OBDLink makes good adapters and also VGate - their adapters also receive firmware updates so while they are already very good, they keep improving. I recommend USB adapters for stable and fast connection. Bluetooth is slower and less reliable and wireless has been reported as the worst(I did not check this myself though). If you really want to go buy a Chinese close, I recommend that it has PIC18F25K80 chip and FTDI chip(for USB) - but even then, the firmware is also a factor - 1.5 should be best(for a Chinese clone), but who knows what you will get. If you want a trusted good adapter, then I think currently for USB vLinker FS USB is the best and with a good price. And if you want to go with a good bluetooth adapter, then I recommend Vgate iCAR Pro, which is also priced good. If you want an ok affordable Chinese elm327, that is branded, then go with KONNWEI KW903. It's about $15 with postage included. But iCar pro is better. This is what I found out by googling and reading about it for 3 days.<br/>
 
 ### Video presentation on YouTube(click on it):
-[![PYOBD Youtube video 2021](https://img.youtube.com/vi/oUQrxn3Lo4M/0.jpg)](https://www.youtube.com/watch?v=oUQrxn3Lo4M)
+[![PYOBD Youtube video 2021](https://img.youtube.com/vi/oYglqbqApZ8/0.jpg)](https://www.youtube.com/watch?v=oYglqbqApZ8)
  
 On Windows, you can create an .exe file with these three commands(make sure you install Python 3 first):
 > pip install -r requirements.txt

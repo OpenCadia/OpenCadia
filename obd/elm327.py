@@ -168,7 +168,7 @@ class ELM327:
             return
 
         # -------------------------- ATE0 (echo OFF) --------------------------
-        r = self.__send(b"ATE0")
+        r = self.__send(b"ATE0")#, delay=1)
         if not self.__isok(r, expectEcho=True):
             self.__error("ATE0 did not return 'OK'")
             return
@@ -360,12 +360,13 @@ class ELM327:
             # All commands should be terminated with carriage return according
             # to ELM327 and STN11XX specifications
             self.__port.write(b"\x7F\x7F\r")
+            #self.__port.write(b"ATZ\r")
             self.__port.flush()
             response = self.__port.read(1024)
             logger.debug("Response from baud %d: %s" % (baud, repr(response)))
             print("Response from baud %d: %s" % (baud, repr(response)))
             # watch for the prompt character
-            if response.endswith(b">"):
+            if response.endswith(b">") or "elm" in str(response).lower():
                 logger.debug("Choosing baud %d" % baud)
                 print("Choosing baud %d" % baud)
                 self.__port.timeout = timeout  # reinstate our original timeout

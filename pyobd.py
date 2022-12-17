@@ -133,29 +133,6 @@ TESTS = ["MISFIRE_MONITORING",
     "EXHAUST_GAS_SENSOR_MONITORING",
     "PM_FILTER_MONITORING"]
 
-def get_yaxis(command_desc, unit):
-    if 'o2' in command_desc.lower():
-        yaxis = (0, 1)
-    elif 'catalyst temperature' in command_desc.lower():
-        yaxis = (0, 1300)
-    elif 'timing advance' in command_desc.lower():
-        yaxis = (-25, 25)
-    elif 'rpm' in command_desc.lower():
-        yaxis = (0, 6000)
-    elif 'vehicle speed' in command_desc.lower():
-        yaxis = (-10, 200)
-    elif 'percent' == unit and 'trim' in command_desc.lower():
-        yaxis = (-50, 50)
-    elif 'kilopascal' == unit:
-        yaxis = (-1, 120)
-    elif 'percent' == unit:
-        yaxis = (-1, 101)
-    elif 'degc' == unit.lower():
-        yaxis = (-40, 120)
-    else:
-        yaxis = None
-    return yaxis
-
 def EVT_RESULT(win, func, id):
     """Define Result Event."""
     win.Connect(-1, -1, id, func)
@@ -1326,7 +1303,7 @@ class MyApp(wx.App):
 
         panel.Bind(wx.EVT_SIZE, OnPSize)
         ####################################################################
-
+        
         self.nb.AddPage(panel, "Sensors")
     def build_graph_page(self):
         HOFFSET_LIST = 0
@@ -1828,23 +1805,17 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
         def animate():
             if not first_time_graph_plot:
-                line = wxplot.PolySpline(xy_data, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                self.graphics = wxplot.PlotGraphics([line], command_desc, 'frame', unit)
-                self.panel.Destroy()  # This fixes memory leak.
-                self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100))#, size=wx.Size(900, 400))
-                self.panel.SetInitialSize(size=wx.Size(900, 400))
-                #axes_pen = wx.Pen(wx.BLUE, 1, wx.PENSTYLE_LONG_DASH)
-                #self.panel.axesPen = axes_pen
+                self.line = wxplot.PolySpline(xy_data, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                self.graphics = wxplot.PlotGraphics([self.line], command_desc, 'frame', 'unit')
+                self.panel.Draw(self.graphics, xAxis=(graph_counter - 430, graph_counter + 20))
 
-                self.panel.Draw(self.graphics, xAxis=(graph_counter - 430, graph_counter + 20), yAxis=get_yaxis(command_desc, unit))
 
         if first_time_graph_plot:
-            line = wxplot.PolySpline(xy_data, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
-            self.graphics = wxplot.PlotGraphics([line], command_desc, 'frame', 'unit')
-            self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(100, 100))#, size=wx.Size(900, 400))
+            self.line = wxplot.PolySpline(xy_data, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
+            self.graphics = wxplot.PlotGraphics([self.line], command_desc, 'frame', 'unit')
+            self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100))
             self.panel.SetInitialSize(size=wx.Size(900, 400))
             self.panel.Draw(self.graphics, xAxis=(graph_counter - 430, graph_counter + 20))
-
         else:
             animate()
 
@@ -1872,49 +1843,46 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
 
                 line1 = wxplot.PolySpline(xy_data1, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics1 = wxplot.PlotGraphics([line1], command_desc1, 'frame', unit1)
-                self.panel1.Destroy()  # This fixes memory leak.
-                self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 220))#, size=wx.Size(400, 250))
-                self.panel1.SetInitialSize(size=wx.Size(400, 250))
-                self.panel1.Draw(self.graphics1, xAxis=(graph_counter1 - 190, graph_counter1 + 10), yAxis=get_yaxis(command_desc1, unit1))
+                self.panel1.Draw(self.graphics1, xAxis=(graph_counter1 - 190, graph_counter1 + 10))
 
                 line2 = wxplot.PolySpline(xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics2 = wxplot.PlotGraphics([line2], command_desc2, 'frame', unit2)
-                self.panel2.Destroy()  # This fixes memory leak.
-                self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470))#, size=wx.Size(400, 250))
-                self.panel2.SetInitialSize(size=wx.Size(400, 250))
-                self.panel2.Draw(self.graphics2, xAxis=(graph_counter2 - 190, graph_counter2 + 10), yAxis=get_yaxis(command_desc2, unit2))
+                self.panel2.Draw(self.graphics2, xAxis=(graph_counter2 - 190, graph_counter2 + 10))
 
                 line3 = wxplot.PolySpline(xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics3 = wxplot.PlotGraphics([line3], command_desc3, 'frame', unit3)
-                self.panel3.Destroy()  # This fixes memory leak.
-                self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(410, 220))#, size=wx.Size(400, 250))
-                self.panel3.SetInitialSize(size=wx.Size(400, 250))
-                self.panel3.Draw(self.graphics3, xAxis=(graph_counter3 - 190, graph_counter3 + 10), yAxis=get_yaxis(command_desc3, unit3))
+                self.panel3.Draw(self.graphics3, xAxis=(graph_counter3 - 190, graph_counter3 + 10))
 
                 line4 = wxplot.PolySpline(xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics4 = wxplot.PlotGraphics([line4], command_desc4, 'frame', unit4)
-                self.panel4.Destroy()  # This fixes memory leak.
-                self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(410, 470))#, size=wx.Size(400, 250))
-                self.panel4.SetInitialSize(size=wx.Size(400, 250))
-                self.panel4.Draw(self.graphics4, xAxis=(graph_counter4 - 190, graph_counter4 + 10), yAxis=get_yaxis(command_desc4, unit4))
+                self.panel4.Draw(self.graphics4, xAxis=(graph_counter4 - 190, graph_counter4 + 10))
 
 
         if first_time_graphs_plot:
             line1 = wxplot.PolySpline(xy_data1, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
             self.graphics1 = wxplot.PlotGraphics([line1], command_desc1, 'frame', 'unit')
-            self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 220), size=wx.Size(400, 250))
+            self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 220))
+            self.panel1.SetInitialSize(size=wx.Size(400, 250))
+            self.panel1.Draw(self.graphics1, xAxis=(graph_counter1 - 190, graph_counter1 + 10))
 
             line2 = wxplot.PolySpline(xy_data2, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
             self.graphics2 = wxplot.PlotGraphics([line2], command_desc2, 'frame', 'unit')
-            self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470), size=wx.Size(400, 250))
+            self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470))
+            self.panel2.SetInitialSize(size=wx.Size(400, 250))
+            self.panel2.Draw(self.graphics1, xAxis=(graph_counter2 - 190, graph_counter2 + 10))
 
             line3 = wxplot.PolySpline(xy_data3, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
             self.graphics3 = wxplot.PlotGraphics([line3], command_desc3, 'frame', 'unit')
-            self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 220), size=wx.Size(400, 250))
+            self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 220))
+            self.panel3.SetInitialSize(size=wx.Size(400, 250))
+            self.panel3.Draw(self.graphics1, xAxis=(graph_counter3 - 190, graph_counter3 + 10))
 
             line4 = wxplot.PolySpline(xy_data4, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
             self.graphics4 = wxplot.PlotGraphics([line4], command_desc4, 'frame', 'unit')
-            self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 470), size=wx.Size(400, 250))
+            self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 470))
+            self.panel4.SetInitialSize(size=wx.Size(400, 250))
+            self.panel4.Draw(self.graphics1, xAxis=(graph_counter4 - 190, graph_counter4 + 10))
+
         else:
             animate()
 

@@ -183,6 +183,7 @@ def scan_serial():
             '/dev/tty.Bluetooth-Incoming-Port',
             '/dev/tty.Bluetooth-Modem'
         ]
+        possible_ports += glob.glob("/dev/ttys00[0-9]*")
         possible_ports += [port for port in glob.glob('/dev/tty.*') if port not in exclude]
 
     # possible_ports += glob.glob('/dev/pts/[0-9]*') # for obdsim

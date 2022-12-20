@@ -14,6 +14,10 @@ Debian 10, Debian 11, Ubuntu, Windows 7 and 10.
 [![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://drive.google.com/file/d/1jvW1-SN7s2JiAmlYo1nC5JNKqz05jECW/view?usp=sharing)
 <!-- END LATEST DOWNLOAD BUTTON -->
 
+<!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for MacOSx(standalone executable - no install needed):
+[![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://drive.google.com/file/d/1e1cxWnFCiTprrcCgbN6uzOvr21bVZXDI/view?usp=sharing)
+<!-- END LATEST DOWNLOAD BUTTON -->
+
 NOTE: On Windows you will need a suitable driver for your ELM327 device(on Linux it is not needed). You can download drivers from here:  http://www.totalcardiagnostics.com/support/Knowledgebase/Article/View/1/0/how-to-install-elm327-usb-cable-on-windows-and-obd2-software <br/>
 
 **About the program:<br>

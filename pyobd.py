@@ -1854,7 +1854,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 if sys.platform.startswith("linux"):
                     if os.environ.get("DESKTOP_SESSION") == "gnome":
                         self.panel2.Destroy()
-                        self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470))
+                        self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 480))
                         self.panel2.SetInitialSize(size=wx.Size(400, 250))
                 self.panel2.Draw(self.graphics2, xAxis=(graph_counter2 - 190, graph_counter2 + 10))
 
@@ -1863,7 +1863,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 if sys.platform.startswith("linux"):
                     if os.environ.get("DESKTOP_SESSION") == "gnome":
                         self.panel3.Destroy()
-                        self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 220))
+                        self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(410, 220))
                         self.panel3.SetInitialSize(size=wx.Size(400, 250))
                 self.panel3.Draw(self.graphics3, xAxis=(graph_counter3 - 190, graph_counter3 + 10))
 
@@ -1872,7 +1872,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 if sys.platform.startswith("linux"):
                     if os.environ.get("DESKTOP_SESSION") == "gnome":
                         self.panel4.Destroy()
-                        self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 470))
+                        self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(410, 480))
                         self.panel4.SetInitialSize(size=wx.Size(400, 250))
                 self.panel4.Draw(self.graphics4, xAxis=(graph_counter4 - 190, graph_counter4 + 10))
 
@@ -1881,13 +1881,13 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 220))
             self.panel1.SetInitialSize(size=wx.Size(400, 250))
 
-            self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470))
+            self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 480))
             self.panel2.SetInitialSize(size=wx.Size(400, 250))
 
-            self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 220))
+            self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(410, 220))
             self.panel3.SetInitialSize(size=wx.Size(400, 250))
 
-            self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 470))
+            self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(410, 480))
             self.panel4.SetInitialSize(size=wx.Size(400, 250))
 
         else:

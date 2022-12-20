@@ -1187,9 +1187,7 @@ class MyApp(wx.App):
                     pass
             wx.PostEvent(self._notify_window, CloseEvent([]))
             self.stop()
-            #app.sensor_control_off()
-            #self.process_active = False
-            sys.exit()
+
 
 
         """
@@ -1325,7 +1323,7 @@ class MyApp(wx.App):
         self.graph_list_ctrl.InsertItem(0, "")
 
         self.nb.AddPage(self.graph_panel, "Graph")
-        self.graph_list_ctrl.SetSize(0, 0, 500, 48)
+        self.graph_list_ctrl.SetSize(0, 0, 500, 60)
         """
         ####################################################################
         # This little bit of magic keeps the list the same size as the frame
@@ -1362,7 +1360,7 @@ class MyApp(wx.App):
         self.graphs_list_ctrl.InsertItem(2, "")
         self.graphs_list_ctrl.InsertItem(3, "")
         self.nb.AddPage(self.graphs_panel, "Graphs")
-        self.graphs_list_ctrl.SetSize(0, 0, 500, 126)
+        self.graphs_list_ctrl.SetSize(0, 0, 500, 136)
         """
         ####################################################################
         # This little bit of magic keeps the list the same size as the frame
@@ -1700,14 +1698,14 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         self.freezeframe.InsertItem(counter, "")
 
     def BuildComboBoxGraph(self, event):
-        self.combobox = wx.ComboBox(self.graph_panel, choices=event.data, pos=(0, 60))
+        self.combobox = wx.ComboBox(self.graph_panel, choices=event.data, pos=(0, 65))
         self.build_combobox_graph_event_finished=True
 
     def BuildComboBoxGraphs(self, event):
-        self.combobox1 = wx.ComboBox(self.graphs_panel, choices=event.data, pos=(0, 130))
-        self.combobox2 = wx.ComboBox(self.graphs_panel, choices=event.data, pos=(0, 170))
-        self.combobox3 = wx.ComboBox(self.graphs_panel, choices=event.data, pos=(330, 130))
-        self.combobox4 = wx.ComboBox(self.graphs_panel, choices=event.data, pos=(330, 170))
+        self.combobox1 = wx.ComboBox(self.graphs_panel, choices=event.data, pos=(0, 140))
+        self.combobox2 = wx.ComboBox(self.graphs_panel, choices=event.data, pos=(0, 180))
+        self.combobox3 = wx.ComboBox(self.graphs_panel, choices=event.data, pos=(330, 140))
+        self.combobox4 = wx.ComboBox(self.graphs_panel, choices=event.data, pos=(330, 180))
         self.build_combobox_graphs_event_finished=True
 
     def DestroyComboBox(self, event):
@@ -1808,9 +1806,10 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 self.line = wxplot.PolySpline(xy_data, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics = wxplot.PlotGraphics([self.line], command_desc, 'frame', unit)
                 if sys.platform.startswith("linux"):
-                    self.panel.Destroy()
-                    self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100))
-                    self.panel.SetInitialSize(size=wx.Size(900, 400))
+                    if os.environ.get("DESKTOP_SESSION") == "gnome":
+                        self.panel.Destroy()
+                        self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100))
+                        self.panel.SetInitialSize(size=wx.Size(900, 400))
                 self.panel.Draw(self.graphics, xAxis=(graph_counter - 430, graph_counter + 20))
 
         if first_time_graph_plot:
@@ -1844,33 +1843,37 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                 self.line1 = wxplot.PolySpline(xy_data1, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics1 = wxplot.PlotGraphics([self.line1], command_desc1, 'frame', unit1)
                 if sys.platform.startswith("linux"):
-                    self.panel1.Destroy()
-                    self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 220))
-                    self.panel1.SetInitialSize(size=wx.Size(400, 250))
+                    if os.environ.get("DESKTOP_SESSION") == "gnome":
+                        self.panel1.Destroy()
+                        self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 220))
+                        self.panel1.SetInitialSize(size=wx.Size(400, 250))
                 self.panel1.Draw(self.graphics1, xAxis=(graph_counter1 - 190, graph_counter1 + 10))
 
                 self.line2 = wxplot.PolySpline(xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics2 = wxplot.PlotGraphics([self.line2], command_desc2, 'frame', unit2)
                 if sys.platform.startswith("linux"):
-                    self.panel2.Destroy()
-                    self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470))
-                    self.panel2.SetInitialSize(size=wx.Size(400, 250))
+                    if os.environ.get("DESKTOP_SESSION") == "gnome":
+                        self.panel2.Destroy()
+                        self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470))
+                        self.panel2.SetInitialSize(size=wx.Size(400, 250))
                 self.panel2.Draw(self.graphics2, xAxis=(graph_counter2 - 190, graph_counter2 + 10))
 
                 self.line3 = wxplot.PolySpline(xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics3 = wxplot.PlotGraphics([self.line3], command_desc3, 'frame', unit3)
                 if sys.platform.startswith("linux"):
-                    self.panel3.Destroy()
-                    self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 220))
-                    self.panel3.SetInitialSize(size=wx.Size(400, 250))
+                    if os.environ.get("DESKTOP_SESSION") == "gnome":
+                        self.panel3.Destroy()
+                        self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 220))
+                        self.panel3.SetInitialSize(size=wx.Size(400, 250))
                 self.panel3.Draw(self.graphics3, xAxis=(graph_counter3 - 190, graph_counter3 + 10))
 
                 self.line4 = wxplot.PolySpline(xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics4 = wxplot.PlotGraphics([self.line4], command_desc4, 'frame', unit4)
                 if sys.platform.startswith("linux"):
-                    self.panel4.Destroy()
-                    self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 470))
-                    self.panel4.SetInitialSize(size=wx.Size(400, 250))
+                    if os.environ.get("DESKTOP_SESSION") == "gnome":
+                        self.panel4.Destroy()
+                        self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 470))
+                        self.panel4.SetInitialSize(size=wx.Size(400, 250))
                 self.panel4.Draw(self.graphics4, xAxis=(graph_counter4 - 190, graph_counter4 + 10))
 
 
@@ -2108,6 +2111,8 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             self.config.write(open(self.configfilepath, 'w'))
 
     def OnExit(self, e=None):
+        self.senprod._notify_window.ThreadControl = 666
+        time.sleep(0.1)
         os._exit(0)
 
 

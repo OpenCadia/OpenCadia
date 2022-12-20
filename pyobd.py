@@ -1807,16 +1807,15 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             if not first_time_graph_plot:
                 self.line = wxplot.PolySpline(xy_data, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics = wxplot.PlotGraphics([self.line], command_desc, 'frame', unit)
-                self.panel.Refresh()
+                if sys.platform.startswith("linux"):
+                    self.panel.Destroy()
+                    self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100))
+                    self.panel.SetInitialSize(size=wx.Size(900, 400))
                 self.panel.Draw(self.graphics, xAxis=(graph_counter - 430, graph_counter + 20))
 
-
         if first_time_graph_plot:
-            self.line = wxplot.PolySpline(xy_data, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
-            self.graphics = wxplot.PlotGraphics([self.line], command_desc, 'frame', 'unit')
             self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100))
             self.panel.SetInitialSize(size=wx.Size(900, 400))
-            self.panel.Draw(self.graphics, xAxis=(graph_counter - 430, graph_counter + 20))
         else:
             animate()
 
@@ -1842,51 +1841,51 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
         def animate():
             if not first_time_graphs_plot:
 
-                line1 = wxplot.PolySpline(xy_data1, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                self.graphics1 = wxplot.PlotGraphics([line1], command_desc1, 'frame', unit1)
-                self.panel1.Refresh()
+                self.line1 = wxplot.PolySpline(xy_data1, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                self.graphics1 = wxplot.PlotGraphics([self.line1], command_desc1, 'frame', unit1)
+                if sys.platform.startswith("linux"):
+                    self.panel1.Destroy()
+                    self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 220))
+                    self.panel1.SetInitialSize(size=wx.Size(400, 250))
                 self.panel1.Draw(self.graphics1, xAxis=(graph_counter1 - 190, graph_counter1 + 10))
 
-                line2 = wxplot.PolySpline(xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                self.graphics2 = wxplot.PlotGraphics([line2], command_desc2, 'frame', unit2)
-                self.panel2.Refresh()
+                self.line2 = wxplot.PolySpline(xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                self.graphics2 = wxplot.PlotGraphics([self.line2], command_desc2, 'frame', unit2)
+                if sys.platform.startswith("linux"):
+                    self.panel2.Destroy()
+                    self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470))
+                    self.panel2.SetInitialSize(size=wx.Size(400, 250))
                 self.panel2.Draw(self.graphics2, xAxis=(graph_counter2 - 190, graph_counter2 + 10))
 
-                line3 = wxplot.PolySpline(xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                self.graphics3 = wxplot.PlotGraphics([line3], command_desc3, 'frame', unit3)
-                self.panel3.Refresh()
+                self.line3 = wxplot.PolySpline(xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                self.graphics3 = wxplot.PlotGraphics([self.line3], command_desc3, 'frame', unit3)
+                if sys.platform.startswith("linux"):
+                    self.panel3.Destroy()
+                    self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 220))
+                    self.panel3.SetInitialSize(size=wx.Size(400, 250))
                 self.panel3.Draw(self.graphics3, xAxis=(graph_counter3 - 190, graph_counter3 + 10))
 
-                line4 = wxplot.PolySpline(xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
-                self.graphics4 = wxplot.PlotGraphics([line4], command_desc4, 'frame', unit4)
-                self.panel4.Refresh()
+                self.line4 = wxplot.PolySpline(xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
+                self.graphics4 = wxplot.PlotGraphics([self.line4], command_desc4, 'frame', unit4)
+                if sys.platform.startswith("linux"):
+                    self.panel4.Destroy()
+                    self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 470))
+                    self.panel4.SetInitialSize(size=wx.Size(400, 250))
                 self.panel4.Draw(self.graphics4, xAxis=(graph_counter4 - 190, graph_counter4 + 10))
 
 
         if first_time_graphs_plot:
-            line1 = wxplot.PolySpline(xy_data1, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
-            self.graphics1 = wxplot.PlotGraphics([line1], command_desc1, 'frame', 'unit')
             self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 220))
             self.panel1.SetInitialSize(size=wx.Size(400, 250))
-            self.panel1.Draw(self.graphics1, xAxis=(graph_counter1 - 190, graph_counter1 + 10))
 
-            line2 = wxplot.PolySpline(xy_data2, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
-            self.graphics2 = wxplot.PlotGraphics([line2], command_desc2, 'frame', 'unit')
             self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 470))
             self.panel2.SetInitialSize(size=wx.Size(400, 250))
-            self.panel2.Draw(self.graphics1, xAxis=(graph_counter2 - 190, graph_counter2 + 10))
 
-            line3 = wxplot.PolySpline(xy_data3, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
-            self.graphics3 = wxplot.PlotGraphics([line3], command_desc3, 'frame', 'unit')
             self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 220))
             self.panel3.SetInitialSize(size=wx.Size(400, 250))
-            self.panel3.Draw(self.graphics1, xAxis=(graph_counter3 - 190, graph_counter3 + 10))
 
-            line4 = wxplot.PolySpline(xy_data4, colour='blue', width=1, style=wx.PENSTYLE_SOLID)
-            self.graphics4 = wxplot.PlotGraphics([line4], command_desc4, 'frame', 'unit')
             self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(390, 470))
             self.panel4.SetInitialSize(size=wx.Size(400, 250))
-            self.panel4.Draw(self.graphics1, xAxis=(graph_counter4 - 190, graph_counter4 + 10))
 
         else:
             animate()

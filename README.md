@@ -4,7 +4,7 @@
 [![Support via PayPal](https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg)](https://www.paypal.me/jpoljsak/)
 
 Operating systems on which pyobd was tested so far:
-Debian 10, Debian 11, Ubuntu, Windows 7 and 10.
+Debian 10, Debian 11, Ubuntu, Windows 7 and 10, MacOSX Monterey.
 
 <!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for Windows(standalone executable - no install needed):
 [![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://drive.google.com/file/d/1wusZfUlljeduGrHh8i9JPEo9r96luDYs/view?usp=sharing)

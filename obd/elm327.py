@@ -103,7 +103,7 @@ class ELM327:
     # We check the two default baud rates first, then go fastest to
     # slowest, on the theory that anyone who's using a slow baud rate is
     # going to be less picky about the time required to detect it.
-    _TRY_BAUDS = [38400, 9600, 230400, 115200, 57600, 19200, 128000, 14400]
+    _TRY_BAUDS = [38400, 9600, 230400, 115200, 57600, 19200, 128000, 14400, 250000, 500000, 1000000, 2000000, 3000000]
 
     def __init__(self, portname, baudrate, protocol, timeout,
                  check_voltage=True, start_low_power=False):

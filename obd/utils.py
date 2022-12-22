@@ -154,8 +154,8 @@ def try_port(portStr):
         s.close()  # explicit close 'cause of delayed GC in java
         return True
 
-    except serial.SerialException:
-        pass
+    except serial.SerialException as err:
+        logging.error(err)
     except OSError as e:
         if e.errno != errno.ENOENT:  # permit "no such file or directory" errors
             raise e

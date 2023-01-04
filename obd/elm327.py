@@ -37,6 +37,7 @@ import logging
 from .protocols import *
 from .utils import OBDStatus
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -372,6 +373,7 @@ class ELM327:
                 logger.debug("Choosing baud %d" % baud)
                 print("Choosing baud %d" % baud)
                 self.__port.timeout = timeout  # reinstate our original timeout
+
                 return True
 
         logger.debug("Failed to choose baud")
@@ -408,6 +410,9 @@ class ELM327:
 
     def status(self):
         return self.__status
+
+    def baudrate(self):
+        return self.__port.baudrate
 
     def ecus(self):
         return self.__protocol.ecu_map.values()

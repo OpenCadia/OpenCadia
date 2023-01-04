@@ -39,6 +39,7 @@ from obd_sensors import hex_to_int
 import obd
 import decimal
 
+
 def truncate(num, n):
     integer = int(num * (10**n))/(10**n)
     return float(integer)

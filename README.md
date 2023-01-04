@@ -7,15 +7,15 @@ Operating systems on which pyobd was tested so far:
 Debian 10, Debian 11, Ubuntu, Windows 7 and 10, MacOSX Monterey.
 
 <!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for Windows(standalone executable - no install needed):
-[![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.12/pyobd1.12windows-32-bit.exe)
+[![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.13/pyobd1.13windows-32-bit.exe)
 <!-- END LATEST DOWNLOAD BUTTON -->
 
 <!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for Linux(standalone executable - no install needed):
-[![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.12/pyobd1.12linux)
+[![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.13/pyobd1.13linux)
 <!-- END LATEST DOWNLOAD BUTTON -->
 
 <!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for MacOSX(standalone executable - no install needed):
-[![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.12/pyobd1.12macosx.app.zip)
+[![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.13/pyobd1.13macosx.app.zip)
 <!-- END LATEST DOWNLOAD BUTTON -->
 
 NOTE: On Windows you will need a suitable driver for your ELM327 device(on Linux it is not needed). You can download drivers from here:  http://www.totalcardiagnostics.com/support/Knowledgebase/Article/View/1/0/how-to-install-elm327-usb-cable-on-windows-and-obd2-software <br/>

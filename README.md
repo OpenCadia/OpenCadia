@@ -1,15 +1,19 @@
 # ![PYOBD](/pyobd.gif) PYOBD 
 **This is the remake of the free PC program for car diagnostics, aka. reading and displaying your cars OBD2 data(tests, sensors, DTC faults/reset, graphs of live sensor data). If your car supports obd2(which for the last 20 years most of the cars do), then you only need an elm327 adapter and a laptop with this program to diagnose your car. The program is free and open source and it is the only free program that exists for obd2, with this level of functionality, as far as I know. The program is the remake of the program PYOBD. It is much improved over the original pyobd, features live graphs, more displayable data and works on Python3 and all the new libraries. It was tested on Linux, Windows and MacOSX.**
 
-<!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for Windows(standalone executable - no install needed):
+<!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for Windows 32-bit(standalone executable - no install needed):
 [![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.13/pyobd1.13windows-32-bit.exe)
 <!-- END LATEST DOWNLOAD BUTTON -->
 
-<!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for Linux(standalone executable - no install needed):
+<!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for Windows 64-bit(standalone executable - no install needed):
+[![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.13/pyobd1.13windows-64-bit.exe)
+<!-- END LATEST DOWNLOAD BUTTON -->
+
+<!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for Linux 64-bit(standalone executable - no install needed):
 [![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.13/pyobd1.13linux)
 <!-- END LATEST DOWNLOAD BUTTON -->
 
-<!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for MacOSX(standalone executable - no install needed):
+<!-- BEGIN LATEST DOWNLOAD BUTTON -->Download for MacOSX 64-bit(standalone executable - no install needed):
 [![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.13/pyobd1.13macosx.app.zip)
 <!-- END LATEST DOWNLOAD BUTTON -->
 

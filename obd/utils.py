@@ -173,17 +173,17 @@ def scan_serial():
         possible_ports += glob.glob("/dev/rfcomm[0-9]*")
         possible_ports += glob.glob("/dev/ttyUSB[0-9]*")
         possible_ports += glob.glob("/dev/ttyS[0-9]*")
-        possible_ports += glob.glob("/dev/pts/[0-9]*")
+        #possible_ports += glob.glob("/dev/pts/[0-9]*")  # for obdsim
         
     elif sys.platform.startswith('win'):
-        possible_ports += ["\\.\COM%d" % i for i in range(256)]
+        possible_ports += ["\\.\COM%d" % i for i in range(256)]  # on win, the pseudo ports are also COM - harder to distinguish
 
     elif sys.platform.startswith('darwin'):
         exclude = [
             '/dev/tty.Bluetooth-Incoming-Port',
             '/dev/tty.Bluetooth-Modem'
         ]
-        possible_ports += glob.glob("/dev/ttys00[0-9]*")
+        #possible_ports += glob.glob("/dev/ttys00[0-9]*")  # for obdsim
         possible_ports += [port for port in glob.glob('/dev/tty.*') if port not in exclude]
 
     # possible_ports += glob.glob('/dev/pts/[0-9]*') # for obdsim

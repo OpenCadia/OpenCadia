@@ -44,7 +44,7 @@ On Windows, you can create an .exe file with these three commands(make sure you 
 
 > pip install pyinstaller
 
-> pyinstaller --onefile -i pyobd.ico --add-data "pyobd.ico;." pyobd.py
+> pyinstaller --onefile -w -i pyobd.ico --add-data "pyobd.ico;." pyobd.py
 
 On Debian 10 and 11 and on Ubuntu, type these commands to install the requirements(on Ubuntu replace libgstreamer-plugins-base1.0 with libgstreamer-plugins-base1.0-0): 
 

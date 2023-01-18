@@ -108,5 +108,5 @@ and I will try to fix the bug/problem as soon as possible.
 [![Support via PayPal](https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg)](https://www.paypal.me/jpoljsak/)
 
 ## ON THE TO-DO LIST:<br />
--adding sensor data recording and replay feature.
+-adding sensor data recording and replay feature.</br>
 ![ELM327](/elm327.jpg)

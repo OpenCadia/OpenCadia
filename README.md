@@ -53,7 +53,11 @@ After you run these two commands you have to log out and log back in for it to t
 On some distributions you also have to install the libnsl library.
 
 ## MacOS
-Download the executable and you should be ready for use.
+Download the standalone executable and add your user account the privileges of accesing USB and serial ports:
+> sudo usermod -a -G dialout $USER </br>
+> sudo usermod -a -G tty $USER </br>
+
+After you run these two commands you have to log out and log back in for it to take effect(or restart).
 
 # Usage
 The ignition must be on, to connect to the car and display data(key turned one level before engine start). Although most of the sensors display data only when the engine is running. If you connected and then turn the engine on, you have to wait a bit so that the program reconnects.

@@ -58,7 +58,7 @@ The ignition must be on, to connect to the car and display data(key turned one l
 
 To connect, go to Configure, select the right port and the right baudrate and click connect. You can leave it at AUTO and connect, but it will take longer to connect and in some cases it will not connect. Manual is safest and fastest, but AUTO works in most cases too.
 
-The program was made with ease of use in mind. With it you can view TESTS data, SENSORS data, FREEZE FRAME data, clear the trouble codes and view live graphs. Currently it only displays live data - no recording and replay is possible.
+The program was made with ease of use in mind. With it you can view TESTS data, SENSORS data, FREEZE FRAME data, display and clear the trouble codes and view live graphs. Currently it only displays live data - no recording and replay is possible.
 
 ### Video presentation on YouTube(click on it):
 [![PYOBD Youtube video 2021](https://img.youtube.com/vi/u3oWU_zEY5E/0.jpg)](https://www.youtube.com/watch?v=u3oWU_zEY5E)

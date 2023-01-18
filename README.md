@@ -78,6 +78,11 @@ The script is executed by running:
 > python3 pyobd.py </br>
 
 # Creating the executable
+## Windows
+Install Python3. Then run these commands:
+> pip3 install -r requirements.txt </br>
+> pip3 install pyinstaller </br>
+> pyinstaller --onefile -w -i pyobd.ico --add-data "pyobd.ico;." pyobd.py </br>
 ## Linux
 On Debian 10 and 11 and on Ubuntu, type these commands to install the requirements(on Ubuntu replace libgstreamer-plugins-base1.0 with libgstreamer-plugins-base1.0-0): 
 > sudo apt-get install dpkg-dev build-essential libjpeg-dev libtiff-dev libsdl1.2-dev libgstreamer-plugins-base1.0 libnotify-dev freeglut3 freeglut3-dev libsm-dev libgtk-3-dev libwebkit2gtk-4.0-dev libxtst-dev </br>
@@ -87,11 +92,6 @@ In some cases you also have to install the libnsl library.</br>
 > pip3 install -r requirements.txt </br>
 > pip3 install pyinstaller </br>
 > pyinstaller --onefile -w -i pyobd.ico --add-data "pyobd.ico:." pyobd.py </br>
-## Windows
-Install Python3. Then run these commands:
-> pip3 install -r requirements.txt </br>
-> pip3 install pyinstaller </br>
-> pyinstaller --onefile -w -i pyobd.ico --add-data "pyobd.ico;." pyobd.py </br>
 ## MacOS
 Make sure that you have Python 3 installed. Then run these commands:
 > pip3 install -r requirements.txt </br>

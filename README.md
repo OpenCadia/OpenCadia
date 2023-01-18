@@ -39,7 +39,7 @@ The Chinese clones may work but not fully and the ones that work (at least mostl
 ## Windows
 Download the standalone executable and install the driver for your ELM327 device. 
 
-Drivers can be found here:</br>
+If you have not received a driver with your adapter, then the drivers can be found here:</br>
 http://www.totalcardiagnostics.com/support/Knowledgebase/Article/View/1/0/how-to-install-elm327-usb-cable-on-windows-and-obd2-software <br/>
 
 ## Linux

@@ -24,10 +24,8 @@
 ## Prerequisites:
 You need an ELM327 adapter, a laptop and a car that supports OBD2 to use this program. All cars in Europe made since 2001 should support it. And in the USA all cars made since 1996.
 
-**Which ELM327 device am I using and which will work?**<br/>
-I am using this one(I bought it 10 years ago):<br/>
+**Which ELM327 adapters have been reported to work?**<br/>
 -OBDPro USB Scantool (http://www.obdpros.com/product_info.php?products_id=133)<br/>
-Others that have been reported to work:<br/>
 -OBDLink SX USB (https://www.obdlink.com/products/obdlink-sx/)<br/>
 -Chinese OBD2 1.5 USB.
 

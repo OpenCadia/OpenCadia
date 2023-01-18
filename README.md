@@ -28,8 +28,8 @@ You need an ELM327 adapter, a laptop and a car that supports OBD2 to use this pr
 I am using this one(I bought it 10 years ago):<br/>
 -OBDPro USB Scantool (http://www.obdpros.com/product_info.php?products_id=133)<br/>
 Others that have been reported to work:<br/>
--OBDLink SX (https://www.obdlink.com/products/obdlink-sx/)<br/>
--Chinese OBD2 1.5.
+-OBDLink SX USB (https://www.obdlink.com/products/obdlink-sx/)<br/>
+-Chinese OBD2 1.5 USB.
 
 **Please write to me which adapters you have tested working with the app, so I can include it to the list. My e-mail is at the bottom of this readme.**
 

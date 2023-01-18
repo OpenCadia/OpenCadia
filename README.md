@@ -30,7 +30,7 @@ I am using this one(I bought it 10 years ago):<br/>
 Others that have been reported to work:<br/>
 -OBDLink SX (https://www.obdlink.com/products/obdlink-sx/)<br/>
 
-**Please write to me which adapters you have tested working with the app, so I can include it to the list. My e-mail is at the bottom of this readme.
+**Please write to me which adapters you have tested working with the app, so I can include it to the list. My e-mail is at the bottom of this readme.**
 
 **NOTE: bluetooth elm327 adapters should theoretically work, but I did not have the chance to test them yet - so far only USB adapters have been tested.**
 

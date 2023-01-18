@@ -53,7 +53,7 @@ On some distributions you also have to install the libnsl library.
 ## MacOS
 Download the executable and you should be ready for use.
 
-## Usage
+# Usage
 The ignition must be on, to connect to the car and display data(key turned one level before engine start). Although most of the sensors display data only when the engine is running. If you connected and then turn the engine on, you have to wait a bit so that the program reconnects.
 
 To connect, go to Configure, select the right port and the right baudrate and click connect. You can leave it at AUTO and connect, but it will take longer to connect and in some cases it will not connect. Manual is safest and fastest, but AUTO works in most cases too.

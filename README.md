@@ -101,7 +101,7 @@ and I will try to fix the bug/problem as soon as possible.
 
 [![Support via PayPal](https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg)](https://www.paypal.me/jpoljsak/)
 
-### TO DO LIST:<br />
--add sensor data exporting and replay.
+## ON THE TO-DO LIST:<br />
+-to add sensor data recording and replay.
 
 ![ELM327](/elm327.jpg)

@@ -112,7 +112,7 @@ If you encounter any bugs or problems you can e-mail me at:
 ![email](/email.png)
 and I will try to fix the bug/problem as soon as possible.
 
-You don't have to, but you are welcome to support me, so I can keep this project runnning. Even better, I can improve it.
+You don't have to, but you are welcome to support me, so I can keep this project running. Even better, I can improve it.
 [![Support via PayPal](https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg)](https://www.paypal.me/jpoljsak/)
 
 ## ON THE TO-DO LIST:<br />

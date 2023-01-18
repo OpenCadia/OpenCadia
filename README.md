@@ -95,7 +95,7 @@ Make sure that you have Python 3 installed. Then run these commands:
 > pyinstaller --onefile -w -i pyobd.ico --add-data "pyobd.ico:." pyobd.py </br>
 
 # Troubleshooting:
-If you encounter any bugs and problems you can e-mail me at:
+If you encounter any bugs or problems you can e-mail me at:
 ![email](/email.png)
 and I will try to fix the bug/problem as soon as possible.
 

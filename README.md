@@ -67,8 +67,11 @@ On Debian 10 and 11 and on Ubuntu, type these commands to install the requiremen
 > pip3 install -r requirements.txt </br>
 > sudo usermod -a -G dialout $USER </br>
 > sudo usermod -a -G tty $USER </br>
+
 After you run these two commands you have to log out and log back in for it to take effect(or restart).
+
 In some cases you also have to install the libnsl library.
+
 The script is executed by running:
 > python3 pyobd.py </br>
 

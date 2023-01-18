@@ -45,6 +45,7 @@ http://www.totalcardiagnostics.com/support/Knowledgebase/Article/View/1/0/how-to
 Download the standalone executable and add your user account the privileges of accesing USB and serial ports:
 > sudo usermod -a -G dialout $USER </br>
 > sudo usermod -a -G tty $USER </br>
+
 After you run these two commands you have to log out and log back in for it to take effect(or restart).
 
 On some distributions you also have to install the libnsl library.

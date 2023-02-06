@@ -25,11 +25,12 @@ You need an ELM327 adapter, a laptop and a car that supports OBD2 to use this pr
 **Which ELM327 adapters have been reported to work?**<br/>
 -OBDPro USB Scantool (http://www.obdpros.com/product_info.php?products_id=133)<br/>
 -OBDLink SX USB (https://www.obdlink.com/products/obdlink-sx/)<br/>
--Chinese OBD2 1.5 USB.
+-Chinese OBD2 1.5 USB<br/>
+-VGate iCar Pro BLE (Bluetooth 4.0).
 
 **Please write to me which adapters you have tested working with the app, so I can include it in the list. My e-mail is at the bottom of this readme.**
 
-**NOTE: bluetooth elm327 adapters should theoretically work, but I did not have the chance to test them yet - so far only USB adapters have been tested.**
+**NOTE: Both USB and bluetooth adapters work with this app, but under Linux I had to pair the bluetooth adapter manually via commandline and then manually connect to it. It's probably because bluetooth GUI managers under Linux are buggy. And yes, bluetooth is slow - I strongly recommend USB.**
 
 **Which adapters are good?**</br>
 The Chinese clones may work but not fully and the ones that work (at least mostly) properly are $10 or more. There are multiple reasons why a good adapter is not the cheapest. OBDLink makes good adapters and also VGate - their adapters also receive firmware updates so while they are already very good, they keep improving. I recommend USB adapters for stable and fast connection. Bluetooth is slower and less reliable and wireless has been reported as the worst. If you really want to go buy a Chinese clone, I recommend that it has PIC18F25K80 chip and FTDI chip(for USB) - but even then, the firmware is also a factor - 1.5 should be best(for a Chinese clone), but who knows what you will get. If you want a trusted good adapter, then I think currently for USB vLinker FS USB is the best and with a good price. And if you want to go with a good bluetooth adapter, then I recommend Vgate iCAR Pro, which is also priced good. If you want an ok affordable Chinese elm327, that is branded, then go with KONNWEI KW903. It's about $15 with postage included. But iCar pro is better. This is what I found out by googling and reading about it for 3 days.<br/>

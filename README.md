@@ -52,6 +52,9 @@ After you run these two commands you have to log out and log back in for it to t
 
 On some distributions you also have to install the libnsl library.
 
+For bluetooth adapters, you will probably need to install this:
+> sudo apt-get install bluetooth bluez-utils blueman
+
 ## MacOS
 Download the standalone executable and add your user account the privileges of accesing USB and serial ports:
 > sudo usermod -a -G dialout $USER </br>
@@ -60,6 +63,8 @@ Download the standalone executable and add your user account the privileges of a
 After you run these two commands you have to log out and log back in for it to take effect(or restart).
 
 # Usage
+For bluetooth adapters, you will need to pair the adapter once and then connect to it(for some reason on Linux I had to connect to it manually via command line).
+
 Run the executable or the script, connect the ELM327 to the computer and the car's OBD port, set the iginition on the car to on(you don't have to start the engine) and click CONNECT in the app. To connect, go to Configure, select the right port and the right baudrate and click connect. You can leave it at AUTO and connect, but it will take longer to connect and in some cases it will not connect. Manual is safest and fastest, but AUTO works in most cases.
 
 The data will display once you are connected, although most of the sensors display data only when the engine is running. If you connected and then turn the engine on, you have to wait a bit so that the program reconnects.

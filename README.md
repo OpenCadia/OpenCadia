@@ -77,6 +77,13 @@ The program was made with ease of use in mind. With it you can view TESTS data, 
 [![PYOBD Youtube video 2021](https://img.youtube.com/vi/u3oWU_zEY5E/0.jpg)](https://www.youtube.com/watch?v=u3oWU_zEY5E)
 
 # Running the script
+## Windows
+Install Python3, then run:
+> pip install -r requirements.txt </br>
+
+The script is executed by running:
+> python3 pyobd.py </br>
+## Linux
 On Debian 10 and 11 and on Ubuntu, type these commands to install the requirements(on Ubuntu replace libgstreamer-plugins-base1.0 with libgstreamer-plugins-base1.0-0): 
 > sudo apt-get install dpkg-dev build-essential libjpeg-dev libtiff-dev libsdl1.2-dev libgstreamer-plugins-base1.0 libnotify-dev freeglut3 freeglut3-dev libsm-dev libgtk-3-dev libwebkit2gtk-4.0-dev libxtst-dev </br>
 > pip3 install -r requirements.txt </br>
@@ -86,6 +93,13 @@ On Debian 10 and 11 and on Ubuntu, type these commands to install the requiremen
 After you run these two commands you have to log out and log back in for it to take effect(or restart).
 
 In some cases you also have to install the libnsl library.
+
+The script is executed by running:
+> python3 pyobd.py </br>
+
+## MacOS
+Make sure Python3 is installed, then run:
+> pip install -r requirements.txt </br>
 
 The script is executed by running:
 > python3 pyobd.py </br>

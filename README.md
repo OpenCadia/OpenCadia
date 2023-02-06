@@ -102,6 +102,7 @@ Make sure Python3 is installed, then run:
 > pip install -r requirements.txt </br>
 > sudo usermod -a -G dialout $USER </br>
 > sudo usermod -a -G tty $USER </br>
+
 Now restart or logoff and log back in.
 
 The script is executed by running:

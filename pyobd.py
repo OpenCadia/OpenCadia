@@ -477,8 +477,8 @@ class MyApp(wx.App):
 
                 if not first_time:
                     diff = (time_end - time_start).total_seconds()
-                    if diff < 0.05:
-                        sleep_time = 0.05 - diff
+                    if diff < 0.0417:
+                        sleep_time = 0.0417 - diff
                         time.sleep(sleep_time)
                         print("Slept for "+str(sleep_time)+" seconds.")
                 time_start = datetime.datetime.now()

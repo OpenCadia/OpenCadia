@@ -399,7 +399,7 @@ class MyApp(wx.App):
                 wx.PostEvent(self._notify_window, StatusEvent([3, 1, str(self.connection.connection.port_name())]))
                 try:
                     r = self.connection.connection.query(obd.commands.VIN)
-                    if r.vale != None:
+                    if r.value != None:
                         self.VIN = str(r.value)
                         wx.PostEvent(self._notify_window, StatusEvent([4, 1, str(self.VIN)]))
                 except:

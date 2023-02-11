@@ -458,10 +458,12 @@ class MyApp(wx.App):
                 self.graph_counter3 = 0
                 self.graph_counter4 = 0
             init_all_graphs()
+
             def reconnect():
+                init_all_graphs()
                 if self.initCommunication() != "OK":
                     self._notify_window.ThreadControl = 666
-
+            
             while self._notify_window.ThreadControl != 666:
                 print (self._notify_window.ThreadControl)
                 if self.connection.connection.status() == OBDStatus.NOT_CONNECTED:

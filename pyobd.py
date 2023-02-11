@@ -461,7 +461,6 @@ class MyApp(wx.App):
             def recconnect():
                 if self.initCommunication() != "OK":
                     self._notify_window.ThreadControl = 666
-                    continue
 
             while self._notify_window.ThreadControl != 666:
                 print (self._notify_window.ThreadControl)

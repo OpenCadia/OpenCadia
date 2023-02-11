@@ -400,7 +400,7 @@ class MyApp(wx.App):
                 try:
                     r = self.connection.connection.query(obd.commands.VIN)
                     if r.value != None:
-                        self.VIN = str(r.value)
+                        self.VIN = r.value.decode()
                         wx.PostEvent(self._notify_window, StatusEvent([4, 1, str(self.VIN)]))
                 except:
                     pass
@@ -680,7 +680,7 @@ class MyApp(wx.App):
                         first_time_sensors = False
                         for command in obd.commands[1]:
                             if command:
-                                if command.command not in (b"0100" , b"0101", b"0120", b"0140", b"0103"): # b"0102"
+                                if command.command not in (b"0100" , b"0101", b"0120", b"0140", b"0103", b"0102"):
                                     s = self.connection.connection.query(command)
                                     if s.value == None:
                                         continue
@@ -769,16 +769,17 @@ class MyApp(wx.App):
                         first_time_freezeframe = False
                         for command in obd.commands[2]:
                             if command:
-                                s = self.connection.connection.query(command)
-                                if s.value == None:
-                                    continue
-                                else:
-                                    freezeframe_list.append([command.command, command.desc, str(s.value)])
-                                    wx.PostEvent(self._notify_window, InsertFreezeframeRowEvent(counter))
-                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 0, str(command.command)]))
-                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(command.desc)]))
-                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(s.value)]))
-                                    counter = counter + 1
+                                if command.command not in (b"0201",):
+                                    s = self.connection.connection.query(command)
+                                    if s.value == None:
+                                        continue
+                                    else:
+                                        freezeframe_list.append([command.command, command.desc, str(s.value)])
+                                        wx.PostEvent(self._notify_window, InsertFreezeframeRowEvent(counter))
+                                        wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 0, str(command.command)]))
+                                        wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(command.desc)]))
+                                        wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(s.value)]))
+                                        counter = counter + 1
                     else:
                         counter = 0
                         for sens in freezeframe_list:

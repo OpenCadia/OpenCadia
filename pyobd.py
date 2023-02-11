@@ -458,22 +458,16 @@ class MyApp(wx.App):
                 self.graph_counter3 = 0
                 self.graph_counter4 = 0
             init_all_graphs()
-
             def reconnect():
                 init_all_graphs()
                 if self.initCommunication() != "OK":
                     self._notify_window.ThreadControl = 666
-            
+
             while self._notify_window.ThreadControl != 666:
                 print (self._notify_window.ThreadControl)
                 if self.connection.connection.status() == OBDStatus.NOT_CONNECTED:
-                    init_all_graphs()
-                    if self.initCommunication() != "OK":
-                        self._notify_window.ThreadControl = 666
-                        #self.state = "finished"
-                        #self.stop()
-                        #return None
-                        continue
+                    reconnect()
+                    continue
                 prevstate = curstate
                 curstate = self._nb.GetSelection()  # picking the tab in the GUI
 
@@ -482,7 +476,7 @@ class MyApp(wx.App):
 
                 if not first_time:
                     diff = (time_end - time_start).total_seconds()
-                    if diff < 0.0417:
+                    if (diff < 0.0417) and (diff > 0):
                         sleep_time = 0.0417 - diff
                         time.sleep(sleep_time)
                         print("Slept for "+str(sleep_time)+" seconds.")
@@ -514,6 +508,7 @@ class MyApp(wx.App):
                     s = self.connection.connection.query(obd.commands.RPM)
                     if s.value == None:
                         reconnect()
+                        continue
 
 
                 elif curstate == 1:  # show tests tab
@@ -521,6 +516,7 @@ class MyApp(wx.App):
                         r = self.connection.connection.query(obd.commands[1][1])
                         if r.value == None:
                             reconnect()
+                            continue
 
                         if r.value.MISFIRE_MONITORING.available:
                             wx.PostEvent(self._notify_window, TestEvent([0, 1, "Available"]))
@@ -684,7 +680,7 @@ class MyApp(wx.App):
                         first_time_sensors = False
                         for command in obd.commands[1]:
                             if command:
-                                if command.command not in (b"0100" , b"0101", b"0120", b"0140", b"0103", b"0102"):
+                                if command.command not in (b"0100" , b"0101", b"0120", b"0140", b"0103"): # b"0102"
                                     s = self.connection.connection.query(command)
                                     if s.value == None:
                                         continue
@@ -707,6 +703,7 @@ class MyApp(wx.App):
                                     s = self.connection.connection.query(command)
                                     if s.value == None:
                                         reconnect()
+                                        continue
                                     sensor_list[counter] = [command.command, command.desc, str(s.value)]
                                     counter = counter + 1
                         counter = 0
@@ -722,6 +719,7 @@ class MyApp(wx.App):
                     s = self.connection.connection.query(obd.commands.RPM)
                     if s.value == None:
                         reconnect()
+                        continue
 
                     if self._notify_window.ThreadControl == 1:  # clear DTC
                         r = self.connection.connection.query(obd.commands["CLEAR_DTC"])
@@ -771,17 +769,16 @@ class MyApp(wx.App):
                         first_time_freezeframe = False
                         for command in obd.commands[2]:
                             if command:
-                                if command.command not in (b"0201",):
-                                    s = self.connection.connection.query(command)
-                                    if s.value == None:
-                                        continue
-                                    else:
-                                        freezeframe_list.append([command.command, command.desc, str(s.value)])
-                                        wx.PostEvent(self._notify_window, InsertFreezeframeRowEvent(counter))
-                                        wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 0, str(command.command)]))
-                                        wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(command.desc)]))
-                                        wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(s.value)]))
-                                        counter = counter + 1
+                                s = self.connection.connection.query(command)
+                                if s.value == None:
+                                    continue
+                                else:
+                                    freezeframe_list.append([command.command, command.desc, str(s.value)])
+                                    wx.PostEvent(self._notify_window, InsertFreezeframeRowEvent(counter))
+                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 0, str(command.command)]))
+                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 1, str(command.desc)]))
+                                    wx.PostEvent(self._notify_window, FreezeframeResultEvent([counter, 2, str(s.value)]))
+                                    counter = counter + 1
                     else:
                         counter = 0
                         for sens in freezeframe_list:
@@ -790,6 +787,7 @@ class MyApp(wx.App):
                                     s = self.connection.connection.query(command)
                                     if s.value == None:
                                         reconnect()
+                                        continue
                                     freezeframe_list[counter] = [command.command, command.desc, str(s.value)]
                                     counter = counter + 1
                         counter = 0
@@ -863,6 +861,7 @@ class MyApp(wx.App):
                                 s = self.connection.connection.query(self.current_command)
                                 if s.value == None:
                                     reconnect()
+                                    continue
                                 self.graph_x_vals = np.append(self.graph_x_vals, self.graph_counter)
                                 try:
                                     self.graph_y_vals = np.append(self.graph_y_vals, float(s.value.magnitude))
@@ -1010,6 +1009,7 @@ class MyApp(wx.App):
                                 s = self.connection.connection.query(self.current_command1)
                                 if s.value == None:
                                     reconnect()
+                                    continue
                                 #if s.value == None:
                                 #    print("s.value is None!")
                                 #    raise AttributeError
@@ -1057,6 +1057,7 @@ class MyApp(wx.App):
                                 s = self.connection.connection.query(self.current_command2)
                                 if s.value == None:
                                     reconnect()
+                                    continue
                                 #if s.value == None:
                                 #    print("s.value is None!")
                                 #    raise AttributeError
@@ -1104,6 +1105,7 @@ class MyApp(wx.App):
                                 s = self.connection.connection.query(self.current_command3)
                                 if s.value == None:
                                     reconnect()
+                                    continue
                                 #if s.value == None:
                                 #    print("s.value is None!")
                                 #    raise AttributeError
@@ -1151,6 +1153,7 @@ class MyApp(wx.App):
                                 s = self.connection.connection.query(self.current_command4)
                                 if s.value == None:
                                     reconnect()
+                                    continue
                                 #if s.value == None:
                                 #    print("s.value is None!")
                                 #    raise AttributeError
@@ -1221,6 +1224,7 @@ class MyApp(wx.App):
                     s = self.connection.connection.query(obd.commands.RPM)
                     if s.value == None:
                         reconnect()
+                        continue
                 time_end = datetime.datetime.now()
                 first_time = False
             self.state = "finished"

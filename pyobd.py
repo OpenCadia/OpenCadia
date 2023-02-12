@@ -701,12 +701,12 @@ class MyApp(wx.App):
                                         wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(command.desc)]))
                                         wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(s.value)]))
                                         counter = counter + 1
-                        s = self.connection.connection.query(obd.commands.ELM_VOLTAGE)
-                        sensor_list.append([obd.commands.ELM_VOLTAGE, obd.commands.ELM_VOLTAGE.desc, str(s.value)])
-                        wx.PostEvent(self._notify_window, InsertSensorRowEvent(counter))
-                        wx.PostEvent(self._notify_window, ResultEvent([counter, 0, str(obd.commands.ELM_VOLTAGE.command)]))
-                        wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(obd.commands.ELM_VOLTAGE.desc)]))
-                        wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(s.value)]))
+                        #s = self.connection.connection.query(obd.commands.ELM_VOLTAGE)
+                        #sensor_list.append([obd.commands.ELM_VOLTAGE, obd.commands.ELM_VOLTAGE.desc, str(s.value)])
+                        #wx.PostEvent(self._notify_window, InsertSensorRowEvent(counter))
+                        #wx.PostEvent(self._notify_window, ResultEvent([counter, 0, str(obd.commands.ELM_VOLTAGE.command)]))
+                        #wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(obd.commands.ELM_VOLTAGE.desc)]))
+                        #wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(s.value)]))
                     else:
                         #for i in range(0, app.sensors.GetItemCount()):
                         #    app.sensors.DeleteItem(0)

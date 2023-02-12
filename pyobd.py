@@ -1339,7 +1339,7 @@ class MyApp(wx.App):
                                      wx.LC_SINGLE_SEL)
 
         self.sensors.InsertColumn(0, "PID", width=70)
-        self.sensors.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_RIGHT, width=200)
+        self.sensors.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_LEFT, width=320)
         self.sensors.InsertColumn(2, "Value")
         self.sensors.SetSize(0, 0, 800, 1500)
 
@@ -1372,7 +1372,7 @@ class MyApp(wx.App):
                                      wx.LC_SINGLE_SEL)
 
         self.graph_list_ctrl.InsertColumn(0, "PID", width=70)
-        self.graph_list_ctrl.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_RIGHT, width=200)
+        self.graph_list_ctrl.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_LEFT, width=320)
         self.graph_list_ctrl.InsertColumn(2, "Value")
 
         self.graph_list_ctrl.InsertItem(0, "")
@@ -1406,7 +1406,7 @@ class MyApp(wx.App):
                                      wx.LC_SINGLE_SEL)
 
         self.graphs_list_ctrl.InsertColumn(0, "PID", width=70)
-        self.graphs_list_ctrl.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_RIGHT, width=200)
+        self.graphs_list_ctrl.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_LEFT, width=320)
         self.graphs_list_ctrl.InsertColumn(2, "Value")
 
         self.graphs_list_ctrl.InsertItem(0, "")
@@ -1447,7 +1447,7 @@ class MyApp(wx.App):
                                        wx.LC_SINGLE_SEL)
 
         self.freezeframe.InsertColumn(0, "PID", width=70)
-        self.freezeframe.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_RIGHT, width=200)
+        self.freezeframe.InsertColumn(1, "Sensor", format=wx.LIST_FORMAT_LEFT, width=320)
         self.freezeframe.InsertColumn(2, "Value")
         self.freezeframe.SetSize(0, 0, 800, 1500)
         """
@@ -2097,7 +2097,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             ports.append("AUTO")
 
         # web open link button
-        self.OpenLinkButton = wx.Button(diag, -1, "Click here to order ELM-USB interface", size=(260, 30))
+        self.OpenLinkButton = wx.Button(diag, -1, "Click here to order ELM-USB interface", size=(320, 30))
         diag.Bind(wx.EVT_BUTTON, self.OnHelpOrder, self.OpenLinkButton)
         sizer.Add(self.OpenLinkButton)
         rb = wx.RadioBox(diag, id, "Choose Serial Port",

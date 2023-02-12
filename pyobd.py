@@ -693,7 +693,7 @@ class MyApp(wx.App):
                                     if s.value == None:
                                         continue
                                     else:
-                                        sensor_list.append([command.command, command.desc, str(s.value)])
+                                        sensor_list.append([command, command.desc])
 
                                         #app.sensors.InsertItem(counter, "")
                                         wx.PostEvent(self._notify_window, InsertSensorRowEvent(counter))
@@ -701,26 +701,24 @@ class MyApp(wx.App):
                                         wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(command.desc)]))
                                         wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(s.value)]))
                                         counter = counter + 1
+                        s = self.connection.connection.query(obd.commands.ELM_VOLTAGE)
+                        sensor_list.append([obd.commands.ELM_VOLTAGE, obd.commands.ELM_VOLTAGE.desc, str(s.value)])
+                        wx.PostEvent(self._notify_window, InsertSensorRowEvent(counter))
+                        wx.PostEvent(self._notify_window, ResultEvent([counter, 0, str(obd.commands.ELM_VOLTAGE.command)]))
+                        wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(obd.commands.ELM_VOLTAGE.desc)]))
+                        wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(s.value)]))
                     else:
                         #for i in range(0, app.sensors.GetItemCount()):
                         #    app.sensors.DeleteItem(0)
                         counter = 0
                         for sens in sensor_list:
-                            for command in obd.commands[1]:
-                                if command.command == sens[0]:
-                                    s = self.connection.connection.query(command)
-                                    if s.value == None:
-                                        reconnect()
-                                        continue
-                                    sensor_list[counter] = [command.command, command.desc, str(s.value)]
-                                    counter = counter + 1
-                        counter = 0
-                        for sens in sensor_list:
-                            #if sens[2] == "None":
-                            #    sens[2] = 0
-                            wx.PostEvent(self._notify_window, ResultEvent([counter, 0, str(sens[0])]))
+                            s = self.connection.connection.query(sens[0])
+                            if s.value == None:
+                                reconnect()
+                                continue
+                            wx.PostEvent(self._notify_window, ResultEvent([counter, 0, str(sens[0].command)]))
                             wx.PostEvent(self._notify_window, ResultEvent([counter, 1, str(sens[1])]))
-                            wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(sens[2])]))
+                            wx.PostEvent(self._notify_window, ResultEvent([counter, 2, str(s.value)]))
                             counter = counter + 1
 
                 elif curstate == 3:  # show DTC tab
@@ -819,6 +817,7 @@ class MyApp(wx.App):
 
 
                         graph_commands = []
+
                         #wx.PostEvent(self._notify_window, GraphEvent((self.current_command, [], [])))
                         prev_command = None
 
@@ -831,6 +830,7 @@ class MyApp(wx.App):
                                         continue
                                     else:
                                         graph_commands.append(command)
+                        graph_commands.append(obd.commands.ELM_VOLTAGE)
                         sensor_descriptions = []
                         #sensor_descriptions.append("None")
                         for command in graph_commands:
@@ -951,6 +951,7 @@ class MyApp(wx.App):
                                         continue
                                     else:
                                         graph_commands.append(command)
+                        graph_commands.append(obd.commands.ELM_VOLTAGE)
                         sensor_descriptions = []
                         #sensor_descriptions.append("None")
                         for command in graph_commands:

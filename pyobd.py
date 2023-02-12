@@ -2097,7 +2097,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             ports.append("AUTO")
 
         # web open link button
-        self.OpenLinkButton = wx.Button(diag, -1, "Click here to order ELM-USB interface", size=(320, 30))
+        self.OpenLinkButton = wx.Button(diag, -1, "Click here to order ELM-USB interface", size=(200, 30))
         diag.Bind(wx.EVT_BUTTON, self.OnHelpOrder, self.OpenLinkButton)
         sizer.Add(self.OpenLinkButton)
         rb = wx.RadioBox(diag, id, "Choose Serial Port",

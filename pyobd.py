@@ -392,6 +392,9 @@ class MyApp(wx.App):
 
                 r = self.connection.connection.query(obd.commands.ELM_VERSION)
                 self.ELMver = str(r.value)
+                r = self.connection.connection.query(obd.commands.ELM_VOLTAGE)
+                self.ELMvoltage = str(r.value)
+                wx.PostEvent(self._notify_window, StatusEvent([5, 1, str(self.ELMvoltage)]))
                 self.protocol = self.connection.connection.protocol_name()
 
                 wx.PostEvent(self._notify_window, StatusEvent([2, 1, str(self.ELMver)]))
@@ -405,6 +408,7 @@ class MyApp(wx.App):
                 except:
                     pass
                     #traceback.print_exc()
+
                 return "OK"
 
 
@@ -509,6 +513,10 @@ class MyApp(wx.App):
                     if s.value == None:
                         reconnect()
                         continue
+                    r = self.connection.connection.query(obd.commands.ELM_VOLTAGE)
+                    self.ELMvoltage = str(r.value)
+                    wx.PostEvent(self._notify_window, StatusEvent([5, 1, str(self.ELMvoltage)]))
+
 
 
                 elif curstate == 1:  # show tests tab
@@ -769,7 +777,7 @@ class MyApp(wx.App):
                         first_time_freezeframe = False
                         for command in obd.commands[2]:
                             if command:
-                                if command.command not in (b"0201",):
+                                if command.command not in (b"0201", b"0251", b"0230"):
                                     s = self.connection.connection.query(command)
                                     if s.value == None:
                                         continue
@@ -1269,7 +1277,7 @@ class MyApp(wx.App):
             wx.PostEvent(self._notify_window, StatusEvent([2, 1, "----"]))
             wx.PostEvent(self._notify_window, StatusEvent([3, 1, "----"]))
             wx.PostEvent(self._notify_window, StatusEvent([4, 1, "----"]))
-            #wx.PostEvent(self._notify_window, StatusEvent([5, 1, "----"]))
+            wx.PostEvent(self._notify_window, StatusEvent([5, 1, "----"]))
             wx.PostEvent(self._notify_window, CloseEvent([]))
             print("Sensor producer has stopped.")
 
@@ -1571,7 +1579,7 @@ class MyApp(wx.App):
         self.status.Append(["Cable version", "----"])
         self.status.Append(["COM port", "----"])
         self.status.Append(["VIN number", "----"])
-        #self.status.Append(["ECU NAME", "----"])
+        self.status.Append(["ELM voltage", "----"])
 
         self.nb.AddPage(self.status, "Status")
 

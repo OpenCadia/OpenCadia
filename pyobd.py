@@ -480,8 +480,8 @@ class MyApp(wx.App):
 
                 if not first_time:
                     diff = (time_end - time_start).total_seconds()
-                    if (diff < 0.0417) and (diff > 0):
-                        sleep_time = 0.0417 - diff
+                    if (diff < 0.0834) and (diff > 0):
+                        sleep_time = 0.0834 - diff
                         time.sleep(sleep_time)
                         print("Slept for "+str(sleep_time)+" seconds.")
                 time_start = datetime.datetime.now()
@@ -2097,7 +2097,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
             ports.append("AUTO")
 
         # web open link button
-        self.OpenLinkButton = wx.Button(diag, -1, "Click here to order ELM-USB interface", size=(200, 30))
+        self.OpenLinkButton = wx.Button(diag, -1, "Click here to order ELM-USB interface", size=(260, 30))
         diag.Bind(wx.EVT_BUTTON, self.OnHelpOrder, self.OpenLinkButton)
         sizer.Add(self.OpenLinkButton)
         rb = wx.RadioBox(diag, id, "Choose Serial Port",

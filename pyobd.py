@@ -377,6 +377,10 @@ class MyApp(wx.App):
             self.state = "started"
 
         def initCommunication(self):
+            try:
+                self.connection.close()
+            except:
+                pass
             wx.PostEvent(self._notify_window, StatusEvent([0, 1, "Connecting...."]))
             self.connection = obd_io.OBDConnection(self.portName, self._notify_window, self.baudrate, self.SERTIMEOUT,self.RECONNATTEMPTS, self.FAST)
             if self.connection.connection.status() != 'Car Connected':  # Cant open serial port

@@ -876,7 +876,7 @@ class MyApp(wx.App):
                                     self.graph_y_vals = np.append(self.graph_y_vals, float(s.value.magnitude))
                                 except AttributeError:
                                     self.graph_y_vals = np.append(self.graph_y_vals, float(0))
-                                if len(self.graph_x_vals) > 430:
+                                if len(self.graph_x_vals) > 450:
                                     self.graph_x_vals = np.delete(self.graph_x_vals, (0))
                                     self.graph_y_vals = np.delete(self.graph_y_vals, (0))
 
@@ -1030,7 +1030,7 @@ class MyApp(wx.App):
                                     self.graph_y_vals1 = np.append(self.graph_y_vals1, float(0))
                                 #self.graph_x_vals1.append(self.graph_counter1)
                                 #self.graph_y_vals1.append(float(s.value.magnitude))
-                                if len(self.graph_x_vals1) > 190:
+                                if len(self.graph_x_vals1) > 200:
                                     self.graph_x_vals1 = np.delete(self.graph_x_vals1, (0))
                                     self.graph_y_vals1 = np.delete(self.graph_y_vals1, (0))
                                     #self.graph_x_vals1.pop(0)
@@ -1078,7 +1078,7 @@ class MyApp(wx.App):
                                     self.graph_y_vals2 = np.append(self.graph_y_vals2, float(0))
                                 #self.graph_x_vals2.append(self.graph_counter2)
                                 #self.graph_y_vals2.append(float(s.value.magnitude))
-                                if len(self.graph_x_vals2) > 190:
+                                if len(self.graph_x_vals2) > 200:
                                     self.graph_x_vals2 = np.delete(self.graph_x_vals2, (0))
                                     self.graph_y_vals2 = np.delete(self.graph_y_vals2, (0))
                                     #self.graph_x_vals2.pop(0)
@@ -1126,7 +1126,7 @@ class MyApp(wx.App):
                                     self.graph_y_vals3 = np.append(self.graph_y_vals3, float(0))
                                 #self.graph_x_vals3.append(self.graph_counter3)
                                 #self.graph_y_vals3.append(float(s.value.magnitude))
-                                if len(self.graph_x_vals3) > 190:
+                                if len(self.graph_x_vals3) > 200:
                                     self.graph_x_vals3 = np.delete(self.graph_x_vals3, (0))
                                     self.graph_y_vals3 = np.delete(self.graph_y_vals3, (0))
                                     #self.graph_x_vals3.pop(0)
@@ -1176,7 +1176,7 @@ class MyApp(wx.App):
 
                                 #self.graph_x_vals4.append(self.graph_counter4)
                                 #self.graph_y_vals4.append(float(s.value.magnitude))
-                                if len(self.graph_x_vals4) > 190:
+                                if len(self.graph_x_vals4) > 200:
                                     self.graph_x_vals4 = np.delete(self.graph_x_vals4, (0))
                                     self.graph_y_vals4 = np.delete(self.graph_y_vals4, (0))
                                     #self.graph_x_vals4.pop(0)
@@ -1888,7 +1888,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                         self.panel.Destroy()
                         self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100))
                         self.panel.SetInitialSize(size=wx.Size(900, 400))
-                self.panel.Draw(self.graphics, xAxis=(graph_counter - 430, graph_counter + 20))
+                self.panel.Draw(self.graphics, xAxis=(graph_counter, graph_counter))
 
         if first_time_graph_plot:
             self.panel = wxplot.PlotCanvas(self.graph_panel, pos=(0, 100))
@@ -1925,7 +1925,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                         self.panel1.Destroy()
                         self.panel1 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 250))
                         self.panel1.SetInitialSize(size=wx.Size(400, 220))
-                self.panel1.Draw(self.graphics1, xAxis=(graph_counter1 - 190, graph_counter1 + 10))
+                self.panel1.Draw(self.graphics1, xAxis=(graph_counter1, graph_counter1))
 
                 self.line2 = wxplot.PolySpline(xy_data2, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics2 = wxplot.PlotGraphics([self.line2], command_desc2, 'frame', unit2)
@@ -1934,7 +1934,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                         self.panel2.Destroy()
                         self.panel2 = wxplot.PlotCanvas(self.graphs_panel, pos=(0, 480))
                         self.panel2.SetInitialSize(size=wx.Size(400, 220))
-                self.panel2.Draw(self.graphics2, xAxis=(graph_counter2 - 190, graph_counter2 + 10))
+                self.panel2.Draw(self.graphics2, xAxis=(graph_counter2, graph_counter2))
 
                 self.line3 = wxplot.PolySpline(xy_data3, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics3 = wxplot.PlotGraphics([self.line3], command_desc3, 'frame', unit3)
@@ -1943,7 +1943,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                         self.panel3.Destroy()
                         self.panel3 = wxplot.PlotCanvas(self.graphs_panel, pos=(410, 250))
                         self.panel3.SetInitialSize(size=wx.Size(400, 220))
-                self.panel3.Draw(self.graphics3, xAxis=(graph_counter3 - 190, graph_counter3 + 10))
+                self.panel3.Draw(self.graphics3, xAxis=(graph_counter3, graph_counter3))
 
                 self.line4 = wxplot.PolySpline(xy_data4, colour = 'blue', width = 1, style=wx.PENSTYLE_SOLID)
                 self.graphics4 = wxplot.PlotGraphics([self.line4], command_desc4, 'frame', unit4)
@@ -1952,7 +1952,7 @@ the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  0211
                         self.panel4.Destroy()
                         self.panel4 = wxplot.PlotCanvas(self.graphs_panel, pos=(410, 480))
                         self.panel4.SetInitialSize(size=wx.Size(400, 220))
-                self.panel4.Draw(self.graphics4, xAxis=(graph_counter4 - 190, graph_counter4 + 10))
+                self.panel4.Draw(self.graphics4, xAxis=(graph_counter4, graph_counter4))
 
 
         if first_time_graphs_plot:

@@ -1377,7 +1377,7 @@ class MyApp(wx.App):
 
         self.graph_list_ctrl.InsertItem(0, "")
         self.nb.AddPage(self.graph_panel, "Graph")
-        self.graph_list_ctrl.SetSize(0, 0, 800, 90)
+        self.graph_list_ctrl.SetSize(0, 0, 800, 48)
         """
         ####################################################################
         # This little bit of magic keeps the list the same size as the frame
@@ -1414,7 +1414,7 @@ class MyApp(wx.App):
         self.graphs_list_ctrl.InsertItem(2, "")
         self.graphs_list_ctrl.InsertItem(3, "")
         self.nb.AddPage(self.graphs_panel, "Graphs")
-        self.graphs_list_ctrl.SetSize(0, 0, 800, 166)
+        self.graphs_list_ctrl.SetSize(0, 0, 800, 126)
         """
         ####################################################################
         # This little bit of magic keeps the list the same size as the frame

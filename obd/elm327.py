@@ -496,7 +496,10 @@ class ELM327:
         if self.__port is not None:
             logger.info("closing port")
             print("closing port")
-            self.__write(b"ATZ")
+            try:
+                self.__write(b"ATZ")
+            except:
+                pass
             self.__port.close()
             self.__port = None
 
@@ -607,6 +610,9 @@ class ELM327:
             if not data:
                 logger.warning("Failed to read port")
                 print("Failed to read port")
+                self.__status = OBDStatus.NOT_CONNECTED
+                self.__port.close()
+                self.__port = None
                 break
 
             buffer.extend(data)

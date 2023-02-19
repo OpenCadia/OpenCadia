@@ -101,6 +101,10 @@ class OBDConnection:
             counter = counter + 1
             wx.PostEvent(self._notify_window, DebugEvent([2, "Connection attempt:" + str(counter)]))
             #print (FAST)
+            try:
+                self.connection.close()
+            except:
+                pass
             self.connection = obd.OBD(portstr=portnum,baudrate=baud,fast=FAST, timeout=truncate(float(SERTIMEOUT),1))
             #print (self.connection.port_name())
             if self.connection.status() == "Car Connected":

@@ -19,6 +19,9 @@
 [![Download Windows Executable](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white "Download zip")](https://github.com/barracuda-fsh/pyobd/releases/download/v1.13/pyobd1.13macosx.app.zip)
 <!-- END LATEST DOWNLOAD BUTTON -->
 
+### Video presentation on YouTube(click on it):
+[![PYOBD Youtube video 2023](https://img.youtube.com/vi/2KjZBgQYqt0/0.jpg)](https://www.youtube.com/watch?v=2KjZBgQYqt0)
+
 ## Prerequisites:
 You need an ELM327 adapter, a laptop and a car that supports OBD2 to use this program. All cars in Europe made since 2001 should support it. And in the USA all cars made since 1996.
 
@@ -72,10 +75,7 @@ The data will display once you are connected, although most of the sensors displ
 The program was made with ease of use in mind. With it you can view TESTS data, SENSORS data, FREEZE FRAME data, display and clear the TROUBLE CODES and view live GRAPHS. Currently it only displays live data - no recording and replay is possible.
 
 **NOTE: The program only displays the engine data, not airbags, ABS and body control systems. Even if your adapter supports that, you will need a more specialized program for that.**
-
-### Video presentation on YouTube(click on it):
-[![PYOBD Youtube video 2021](https://img.youtube.com/vi/u3oWU_zEY5E/0.jpg)](https://www.youtube.com/watch?v=u3oWU_zEY5E)
-
+ 
 # Running the script
 ## Windows
 Install Python3, then run:

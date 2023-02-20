@@ -137,6 +137,7 @@ class ELM327:
                                                 bytesize=8,
                                                 timeout=10)  # seconds
             print('Port '+portname+' created')
+            self.__port.write_timeout = timeout
         except serial.SerialException as e:
             self.__error(e)
             print(e)
@@ -348,10 +349,15 @@ class ELM327:
         # before we change the timout, save the "normal" value
         timeout = self.__port.timeout
         self.__port.timeout = 0.1  # we're only talking with the ELM, so things should go quickly
+        #print(self.__port.write_timeout)
+        self.__port.write_timeout = 0.1
+        #print(self.__port.write_timeout)
         for baud in self._TRY_BAUDS:
             self.__port.baudrate = baud
             print("Trying baudrate "+str(baud))
+            print('flushing input')
             self.__port.flushInput()
+            print('flushing output')
             self.__port.flushOutput()
 
             # Send a nonsense command to get a prompt back from the scanner
@@ -362,23 +368,37 @@ class ELM327:
 
             # All commands should be terminated with carriage return according
             # to ELM327 and STN11XX specifications
-            self.__port.write(b"\x7F\x7F\r")
-            #self.__port.write(b"ATZ\r")
+            
+            print('writing \x7F\x7F\r')
+            try:
+                self.__port.write(b"\x7F\x7F\r")
+            except serial.serialutil.SerialTimeoutException:
+                print('Timeout')
+            """
+            print('writing ATZ')
+            try:
+                self.__port.write(b"ATZ\r")
+            except serial.serialutil.SerialTimeoutException:
+                print('Timeout')
+            """
+            print('flushing')
             self.__port.flush()
+            print('reading')
             response = self.__port.read(1024)
             logger.debug("Response from baud %d: %s" % (baud, repr(response)))
             print("Response from baud %d: %s" % (baud, repr(response)))
             # watch for the prompt character
-            if response.endswith(b">") or "elm" in str(response).lower() or b'\x7f\x7f\r' in response:
+            if (response.endswith(b">")) or ("elm" in str(response).lower()) or (b'\x7f\x7f\r' in response):
                 logger.debug("Choosing baud %d" % baud)
                 print("Choosing baud %d" % baud)
                 self.__port.timeout = timeout  # reinstate our original timeout
-
+                self.__port.write_timeout = timeout
                 return True
 
         logger.debug("Failed to choose baud")
         print("Failed to choose baud")
         self.__port.timeout = timeout  # reinstate our original timeout
+        self.__port.write_timeout = timeout
         return False
 
     def __isok(self, lines, expectEcho=False):
@@ -497,11 +517,15 @@ class ELM327:
             logger.info("closing port")
             print("closing port")
             try:
+                self.__port.write_timeout = 0.1
                 self.__write(b"ATZ")
             except:
                 pass
-            self.__port.close()
-            self.__port = None
+            try:
+                self.__port.close()
+                self.__port = None
+            except:
+                print("Port already closed.")
 
     def send_and_parse(self, cmd):
         """

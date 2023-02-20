@@ -87,7 +87,7 @@ class OBD(object):
                                         self.timeout, check_voltage,
                                         start_low_power)
                 print(self.interface.status())
-                if self.interface.status() == OBDStatus.ELM_CONNECTED:
+                if self.interface.status() == OBDStatus.CAR_CONNECTED:
                     break # success! stop searching for serial
                 else:
                     continue # try other ports
@@ -98,7 +98,7 @@ class OBD(object):
                                     start_low_power)
 
         # if the connection failed, close it
-        if self.interface.status() == OBDStatus.NOT_CONNECTED:
+        if self.interface.status() != OBDStatus.CAR_CONNECTED:
             # the ELM327 class will report its own errors
             self.close()
 

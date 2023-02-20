@@ -163,8 +163,13 @@ class ELM327:
         # ---------------------------- ATZ (reset) ----------------------------
 
         try:
-            self.__send(b"ATZ", delay=1)  # wait 1 second for ELM to initialize
-            print('ATZ succesful')
+            r =self.__send(b"ATZ", delay=1)  # wait 1 second for ELM to initialize
+            if "elm" in str(r).lower():
+                print(str(r))
+                print('ATZ succesful')
+            else:
+                print('ELM not found on this port.')
+                return
             # return data can be junk, so don't bother checking
         except serial.SerialException as e:
             self.__error(e)
@@ -333,6 +338,7 @@ class ELM327:
             if self.port_name().startswith("/dev/pts"):
                 logger.debug("Detected pseudo terminal, skipping baudrate setup")
                 print("Detected pseudo terminal, skipping baudrate setup")
+                self.__port.baudrate = 38400
                 return True
             else:
                 return self.auto_baudrate()
@@ -388,7 +394,8 @@ class ELM327:
             logger.debug("Response from baud %d: %s" % (baud, repr(response)))
             print("Response from baud %d: %s" % (baud, repr(response)))
             # watch for the prompt character
-            if (response.endswith(b">")) or ("elm" in str(response).lower()) or (b'\x7f\x7f\r' in response):
+            #if (response.endswith(b">")) or ("elm" in str(response).lower()) or (b'\x7f\x7f\r' in response):
+            if "elm" in str(response).lower():
                 logger.debug("Choosing baud %d" % baud)
                 print("Choosing baud %d" % baud)
                 self.__port.timeout = timeout  # reinstate our original timeout

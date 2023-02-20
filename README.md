@@ -127,7 +127,7 @@ In some cases you also have to install the libnsl library.</br>
 Make sure that you have Python 3 installed. Then run these commands:
 > pip3 install -r requirements.txt </br>
 > pip3 install pyinstaller </br>
-> python3 -m PyInstaller --onefile -w -i pyobd.ico --add-data "pyobd.ico:." pyobd.py/br>
+> python3 -m PyInstaller --onefile -w -i pyobd.ico --add-data "pyobd.ico:." pyobd.py≤/br>
 
 # Troubleshooting:
 If you encounter any bugs or problems you can e-mail me at

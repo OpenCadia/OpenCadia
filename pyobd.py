@@ -473,7 +473,7 @@ class MyApp(wx.App):
 
             while self._notify_window.ThreadControl != 666:
                 print (self._notify_window.ThreadControl)
-                if self.connection.connection.status() == OBDStatus.NOT_CONNECTED:
+                if self.connection.connection.status() != OBDStatus.CAR_CONNECTED:
                     reconnect()
                     continue
                 prevstate = curstate

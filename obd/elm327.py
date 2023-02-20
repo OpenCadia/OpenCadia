@@ -395,7 +395,7 @@ class ELM327:
             print("Response from baud %d: %s" % (baud, repr(response)))
             # watch for the prompt character
             #if (response.endswith(b">")) or ("elm" in str(response).lower()) or (b'\x7f\x7f\r' in response):
-            if "elm" in str(response).lower():
+            if "elm" in str(response).lower() or ((b'\x7f\x7f\r' in response) and (response.endswith(b">"))):
                 logger.debug("Choosing baud %d" % baud)
                 print("Choosing baud %d" % baud)
                 self.__port.timeout = timeout  # reinstate our original timeout

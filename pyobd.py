@@ -5,7 +5,8 @@
 #
 # Copyright 2004 Donour Sizemore (donour@uchicago.edu)
 # Copyright 2009 Secons Ltd. (www.obdtester.com)
-# Copyright 2021 Jure Poljsak (https://github.com/barracuda-fsh/pyobd) 
+# Copyright 2021 Jure Poljsak (https://github.com/barracuda-fsh/pyobd)
+# Copyright 2023 Thijs van der Woude (https://github.com/OpenCadia/OpenCadia)
 #
 # This file is part of pyOBD.
 #
@@ -73,9 +74,6 @@ import obd
 #from obd import OBDStatus
 
 from obd.utils import OBDStatus
-
-
-
 
 ID_ABOUT = 101
 ID_EXIT = 110
@@ -1548,7 +1546,7 @@ class MyApp(wx.App):
                 self.BAUDRATE = "AUTO"
                 self.FAST = "FAST"
 
-        self.frame = wx.Frame(None, -1, "pyOBD-II ver. 1.14")
+        self.frame = wx.Frame(None, -1, "OpenCadia 23.04")
         ico = wx.Icon(resource_path('pyobd.ico'), wx.BITMAP_TYPE_ICO)
         self.frame.SetIcon(ico)
 
@@ -1579,7 +1577,7 @@ class MyApp(wx.App):
         self.status = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
         self.status.InsertColumn(0, "Description", width=200)
         self.status.InsertColumn(1, "Value")
-        self.status.Append(["Link State", "Disconnnected"])
+        self.status.Append(["Link State", "Disconnected"])
         self.status.Append(["Protocol", "----"])
         self.status.Append(["Cable version", "----"])
         self.status.Append(["COM port", "----"])
@@ -1691,23 +1689,22 @@ class MyApp(wx.App):
     def OnHelpAbout(self, event):  # todo about box
         Text = """  PyOBD is an automotive OBD2 diagnosting application using ELM237 cable.
 
+(C) 2023 Thijs van der Woude
 (C) 2021 Jure Poljsak
 (C) 2008-2009 SeCons Ltd.
 (C) 2004 Charles Donour Sizemore
 
+https://github.com/OpenCadia/OpenCadia
 https://github.com/barracuda-fsh/pyobd
 http://www.obdtester.com/
 http://www.secons.com/
 
-  PyOBD is free software; you can redistribute it and/or modify
+OpenCadia is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the Free Software Foundation; 
 either version 2 of the License, or (at your option) any later version.
 
-  PyOBD is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-without even the implied warranty of MEHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-See the GNU General Public License for more details. You should have received a copy of 
-the GNU General Public License along with PyOBD; if not, write to 
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+OpenCadia is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MEHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. You should have received a copy of 
+the GNU General Public License along with OpenCadia; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 """
 
         # HelpAboutDlg = wx.Dialog(self.frame, id, title="About")

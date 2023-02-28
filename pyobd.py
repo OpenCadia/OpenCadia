@@ -1655,7 +1655,7 @@ class MyApp(wx.App):
         self.menuBar = wx.MenuBar()
         self.menuBar.Append(self.filemenu, "&File")  # Adding the "filemenu" to the MenuBar
         self.menuBar.Append(self.settingmenu, "&OBD-II")
-        self.menuBar.Append(self.dtcmenu, "&Trouble codes")
+        self.menuBar.Append(self.dtcmenu, "&Codes")
         self.menuBar.Append(self.helpmenu, "&Help")
 
         self.frame.SetMenuBar(self.menuBar)  # Adding the MenuBar to the Frame content.

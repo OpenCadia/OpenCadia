@@ -2485,11 +2485,7 @@ pcodes = {
     "P0C85": "Hybrid Battery Temperature Sensor 'H' Circuit Intermittent/Erratic",
     "P0C86": "Hybrid Battery Temperature Sensor 'F'/'G' Correlation",
     "P0C87": "Hybrid Battery Temperature Sensor 'G'/'H' Correlation",
-    "P0C88": "ISO/SAE Reserved",
-    "P0CFF": "ISO/SAE Reserved",
-    "P0D00": "ISO/SAE Reserved",
-    "P0E00": "ISO/SAE Reserved",
-    "P0F00": "ISO/SAE Reserved",
+    # P0C88 - P0F00 ISO/SAE Reserved
 
     "U0001": "High Speed CAN Communication Bus", 
 	"U0002": "High Speed CAN Communication Bus (Performance)", 

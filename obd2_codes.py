@@ -2803,7 +2803,7 @@ pcode_classes = {
     "P0BXX": "Hybrid Propulsion",
     "P0CXX": "Hybrid Propulsion",
     "P10XX": "Manufacturer Controlled Fuel and Air Metering and Auxiliary Emission Controls",
-    "P11XX": "Manufacturer Controlled Fuel and Air Merering",
+    "P11XX": "Manufacturer Controlled Fuel and Air Metering",
     "P12XX": "Fuel and Air Merering",
     "P13XX": "Ignition System or Misfire",
     "P14XX": "Auxiliary Emission Controls",

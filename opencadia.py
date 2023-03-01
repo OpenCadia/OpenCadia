@@ -8,20 +8,20 @@
 # Copyright 2021 Jure Poljsak (https://github.com/barracuda-fsh/pyobd)
 # Copyright 2023 Thijs van der Woude (https://github.com/OpenCadia/OpenCadia)
 #
-# This file is part of pyOBD.
+# This file is part of OpenCadia.
 #
-# pyOBD is free software; you can redistribute it and/or modify
+# OpenCadia is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# pyOBD is distributed in the hope that it will be useful,
+# OpenCadia is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pyOBD; if not, write to the Free Software
+# along with OpenCadia; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ############################################################################
 
@@ -1547,7 +1547,7 @@ class MyApp(wx.App):
                 self.FAST = "FAST"
 
         self.frame = wx.Frame(None, -1, "OpenCadia 23.04")
-        ico = wx.Icon(resource_path('pyobd.ico'), wx.BITMAP_TYPE_ICO)
+        ico = wx.Icon(resource_path('opencadia.ico'), wx.BITMAP_TYPE_ICO)
         self.frame.SetIcon(ico)
 
         EVT_RESULT(self, self.OnResult, EVT_RESULT_ID)
@@ -1635,7 +1635,7 @@ class MyApp(wx.App):
         self.filemenu.Append(ID_EXIT, "E&xit", " Terminate the program")
 
         self.settingmenu = wx.Menu()
-        self.settingmenu.Append(ID_CONFIG, "Configure", " Configure pyOBD")
+        self.settingmenu.Append(ID_CONFIG, "Configure", " Configure OpenCadia")
         self.settingmenu.Append(ID_RESET, "Connect", " Reopen and connect to device")
         self.settingmenu.Append(ID_DISCONNECT, "Disconnect", "Close connection to device")
 
@@ -2018,7 +2018,7 @@ OpenCadia is distributed in the hope that it will be useful, but WITHOUT ANY WAR
     def CodeLookup(self, e=None):
         id = 0
         diag = wx.Frame(None, id, title="Diagnostic Trouble Codes")
-        ico = wx.Icon(resource_path('pyobd.ico'), wx.BITMAP_TYPE_ICO)
+        ico = wx.Icon(resource_path('opencadia.ico'), wx.BITMAP_TYPE_ICO)
         diag.SetIcon(ico)
         tree = wx.TreeCtrl(diag, id, style=wx.TR_HAS_BUTTONS)
 

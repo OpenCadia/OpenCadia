@@ -2800,6 +2800,8 @@ pcode_classes = {
     "P08XX": "Transmission",
     "P09XX": "Transmission",
     "P0AXX": "Hybrid Propulsion",
+    "P0BXX": "Hybrid Propulsion",
+    "P0CXX": "Hybrid Propulsion",
     "P10XX": "Manufacturer Controlled Fuel and Air Metering and Auxiliary Emission Controls",
     "P11XX": "Manufacturer Controlled Fuel and Air Merering",
     "P12XX": "Fuel and Air Merering",

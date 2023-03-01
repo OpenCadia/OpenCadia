@@ -1627,7 +1627,7 @@ class MyApp(wx.App):
         self.trace = self.MyListCtrl(self.nb, tID, style=wx.LC_REPORT | wx.SUNKEN_BORDER)
         self.trace.InsertColumn(0, "Level", width=40)
         self.trace.InsertColumn(1, "Message")
-        self.nb.AddPage(self.trace, "Trace")
+        self.nb.AddPage(self.trace, "Log")
         self.TraceDebug(1, "Application started")
 
         # Setting up the menu.

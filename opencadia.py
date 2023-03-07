@@ -1522,9 +1522,9 @@ class MyApp(wx.App):
         # print platform.mac_ver()[]
 
         if "OS" in os.environ.keys():  # runnig under windows
-            self.configfilepath = "pyobd.ini"
+            self.configfilepath = "opencadia.ini"
         else:
-            self.configfilepath = os.environ['HOME'] + '/.pyobdrc'
+            self.configfilepath = os.environ['HOME'] + '/.opencadiarc'
         if self.config.read(self.configfilepath) == []:
             self.COMPORT = "AUTO"
             self.RECONNATTEMPTS = 5
